@@ -21,9 +21,12 @@ public class SynchronousSocketListener
         IPAddress ipAddress = ipHostInfo.AddressList[0];
         IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
+        IPEndPoint senderIP = new IPEndPoint(IPAddress.Any, 0);
+        EndPoint senderED   = (EndPoint)senderIP;
+
         // Create a TCP/IP socket.
         Socket listener = new Socket(AddressFamily.InterNetwork,
-            SocketType.Stream, ProtocolType.Tcp);
+            SocketType.Stream, ProtocolType.Udp);
 
         // Bind the socket to the local endpoint and 
         // listen for incoming connections.
