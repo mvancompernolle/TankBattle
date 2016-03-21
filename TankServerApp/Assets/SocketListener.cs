@@ -4,6 +4,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
+using System.Collections.Generic;
+
 using UnityEngine;
 
 
@@ -64,14 +66,15 @@ public static class DataUtils
 // Setup a listener on a given port
 public class SocketListener : MonoBehaviour
 {
-
+    Socket localListener;
+    List<StateObject> remoteConnections = new List<StateObject>();
 
     public int port;
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
     public event SocketEventHandler socketTransmission;
 
-    private static void Send(Socket handler, String data)
+    private void Send(Socket handler, String data)
     {
         byte[] byteData = Encoding.ASCII.GetBytes(data);
 
@@ -79,7 +82,7 @@ public class SocketListener : MonoBehaviour
             new AsyncCallback(SendCallback), handler);
     }
 
-    private static void AcceptCallback(IAsyncResult ar)
+    private void AcceptCallback(IAsyncResult ar)
     {
         allDone.Set();
 
@@ -90,10 +93,13 @@ public class SocketListener : MonoBehaviour
 
         StateObject state = new StateObject();
         state.workSocket = handler;
+
+        remoteConnections.Add(state);
+
         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
             new AsyncCallback(ReadCallback), state);
     }
-    private static void ReadCallback(IAsyncResult ar)
+    private void ReadCallback(IAsyncResult ar)
     {
         StateObject state = (StateObject)ar.AsyncState;
         Socket handler = state.workSocket;
@@ -110,17 +116,21 @@ public class SocketListener : MonoBehaviour
 
                 Debug.Log("Message recieved.");
 
-                Send(handler, "Success?");
+                Send(handler, "OK\n");
             }
             else
             {
                 Debug.Log("Need more information.");
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
             }
+
+            // wipe out state
+            Array.Clear(state.buffer, 0, state.buffer.Length);
+
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+    new AsyncCallback(ReadCallback), state);
         }
     }
-    private static void SendCallback(IAsyncResult ar)
+    private void SendCallback(IAsyncResult ar)
     {
         try
         {
@@ -150,6 +160,8 @@ public class SocketListener : MonoBehaviour
 
         Socket listener = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
+
+        localListener = listener;
         try
         {
             Debug.LogFormat("Binding to <{0}>.", ipHostInfo.AddressList[0]);
@@ -173,5 +185,37 @@ public class SocketListener : MonoBehaviour
     void Start()
     {
         InitializeSocket(port);
+    }
+
+    void OnApplicationQuit()
+    {
+        Debug.LogWarning("HI");
+        if (localListener != null)
+        {
+            try
+            {
+                localListener.Shutdown(SocketShutdown.Both);
+                localListener.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
+        }
+
+        Debug.LogFormat("Closing {0} sockets to external contacts.", remoteConnections.Count);
+        for(int i = 0; i < remoteConnections.Count; ++i)
+        {
+            try
+            {
+                var connSock = remoteConnections[i].workSocket;
+                connSock.Shutdown(SocketShutdown.Both);
+                connSock.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
+        }
     }
 }

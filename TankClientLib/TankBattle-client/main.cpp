@@ -19,7 +19,7 @@ static void onData(dyad_Event *e)
 {
     printf("onData: ");
 	printf("%s", e->data);
-
+    isConnected = true;
 }
 
 static void onError(dyad_Event *e)
@@ -69,7 +69,7 @@ int main()
 
 		if (isConnected)
 		{
-			isConnected = false;
+            isConnected = false;
 
             unsigned char msg[sizeof(tankBattleHeader)];
             tankBattleHeader ex;
