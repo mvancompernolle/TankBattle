@@ -1,7 +1,11 @@
 #include <iostream>
 #include <string>
 
+#include <vector>
+
 #include "dyad.h"
+
+using std::vector;
 
 bool isConnected = false;
 
@@ -13,7 +17,9 @@ static void onConnect(dyad_Event *e)
 
 static void onData(dyad_Event *e)
 {
+    printf("onData: ");
 	printf("%s", e->data);
+
 }
 
 static void onError(dyad_Event *e)
@@ -26,10 +32,28 @@ static void onClose(dyad_Event *e)
 	printf("%s", e->msg);
 }
 
+enum tankBattleMessage
+{
+    NONE,
+    FWRD,
+    BACK,
+    KILL,
+    QUIT
+};
+
+struct tankBattleHeader
+{
+    int playerID = -1;
+    tankBattleMessage msg = QUIT;
+    int messageLength;
+};
+
+
+
+
 int main()
 {
 	dyad_init();
-	//	dyad_setUpdateTimeout(0.0);
 
 	dyad_Stream *s = dyad_newStream();
 	dyad_addListener(s, DYAD_EVENT_CONNECT, onConnect, NULL);
@@ -37,7 +61,7 @@ int main()
 	dyad_addListener(s, DYAD_EVENT_DATA, onData, NULL);
 	dyad_addListener(s, DYAD_EVENT_ERROR, onError, NULL);
 
-	dyad_connect(s, "10.15.22.28", 11000);
+	dyad_connect(s, "192.168.1.16", 11000);
 
 	while (dyad_getStreamCount() > 0)
 	{
@@ -46,7 +70,13 @@ int main()
 		if (isConnected)
 		{
 			isConnected = false;
-			dyad_writef(s, "Hello World");
+
+            unsigned char msg[sizeof(tankBattleHeader)];
+            tankBattleHeader ex;
+            ex.messageLength = sizeof(tankBattleHeader);
+
+            memcpy_s(msg, sizeof(tankBattleHeader), &ex, sizeof(tankBattleHeader));
+            dyad_write(s, msg, sizeof(tankBattleHeader));
 		}
 	}
 
