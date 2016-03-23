@@ -55,12 +55,39 @@ public static class DataUtils
 {
     public static int SizeOf<T>()
     {
-        return System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
+        return Marshal.SizeOf(typeof(T));
     }
 
     public static int GetSize(this object obj)
     {
-        return System.Runtime.InteropServices.Marshal.SizeOf(obj);
+        return Marshal.SizeOf(obj);
+    }
+
+    public static byte[] GetBytes(object obj)
+    {
+        int size = Marshal.SizeOf(obj);
+        IntPtr ptr = Marshal.AllocHGlobal(size);
+
+        byte[] data = new byte[size];
+        Marshal.StructureToPtr(obj, ptr, true);
+        Marshal.Copy(ptr, data, 0, size);
+        Marshal.FreeHGlobal(ptr);
+
+        return data;
+    }
+
+    public static T FromBytes<T>(byte[] data)
+    {
+        T copy = default(T);
+
+        int tSize = Marshal.SizeOf(copy);
+        IntPtr ptr = Marshal.AllocHGlobal(tSize);
+
+        Marshal.Copy(data, 0, ptr, tSize);
+        copy = (T)Marshal.PtrToStructure(ptr, copy.GetType());
+        Marshal.FreeHGlobal(ptr);
+
+        return copy;
     }
 }
 
@@ -75,26 +102,21 @@ public class SocketListener : MonoBehaviour
 
     public event SocketEventHandler socketTransmission;
 
-    T RebuildData<T>(byte[] data) where T : struct
-    {
-        T copy = new T();
-
-        int tSize = Marshal.SizeOf(copy);
-        IntPtr ptr = Marshal.AllocHGlobal(tSize);
-
-        Marshal.Copy(data, 0, ptr, tSize);
-        copy = (T)Marshal.PtrToStructure(ptr, copy.GetType());
-        Marshal.FreeHGlobal(ptr);
-
-        return copy;
-    }
-
     private void Send(Socket handler, String data)
     {
         byte[] byteData = Encoding.ASCII.GetBytes(data);
 
         handler.BeginSend(byteData, 0, byteData.Length, 0,
             new AsyncCallback(SendCallback), handler);
+    }
+    private void Send(Socket handler, byte[] data)
+    {
+        handler.BeginSend(data, 0, data.Length, 0,
+            new AsyncCallback(SendCallback), handler);
+    }
+    private void Send(Socket handler, object data)
+    {
+        Send(handler, DataUtils.GetBytes(data));
     }
 
     private void AcceptCallback(IAsyncResult ar)
@@ -125,16 +147,22 @@ public class SocketListener : MonoBehaviour
 
         if (bytesRead > 0)
         {
+            // TODO: Can we add generics to callbacks?
+            // How can we simplify this to be reusable?
             if (state.buffer.Length >= DataUtils.SizeOf<TankBattleHeader>())
             {
                 Console.WriteLine("Read {0} bytes from socket.", bytesRead);
 
-                var data = RebuildData<TankBattleHeader>(state.buffer);
+                var data = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
                 Debug.Log(data.msg);
 
                 Debug.Log("Message recieved.");
 
-                Send(handler, "OK\n");
+                TankBattleHeader retMsg = new TankBattleHeader();
+                retMsg.playerID = 99;
+
+                Send(handler, retMsg);
+                //Send(handler, "OK\n");
             }
             else
             {

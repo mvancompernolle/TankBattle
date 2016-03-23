@@ -8,32 +8,7 @@
 
 using std::vector;
 
-bool isConnected = false;
 
-static void onConnect(dyad_Event *e)
-{
-	printf("connected: %s\n", e->msg);
-	isConnected = true;
-}
-
-static void onData(dyad_Event *e)
-{
-    printf("onData: ");
-	printf("%s", e->data);
-    isConnected = true;
-}
-
-static void onError(dyad_Event *e)
-{
-    printf("onError: ");
-	printf("%s", e->msg);
-}
-
-static void onClose(dyad_Event *e)
-{
-    printf("onClose: ");
-	printf("%s", e->msg);
-}
 
 enum tankBattleMessage
 {
@@ -50,6 +25,38 @@ struct tankBattleHeader
     tankBattleMessage msg = QUIT;
     int messageLength;
 };
+
+bool isConnected = false;
+
+static void onConnect(dyad_Event *e)
+{
+	printf("connected: %s\n", e->msg);
+	isConnected = true;
+}
+
+static void onData(dyad_Event *e)
+{
+    printf("onData: ");
+	//printf("%s", e->data);
+    
+    auto msg = (tankBattleHeader*)e->data;
+
+    std::cout << "ServerPID:" << (msg->playerID) << "\n";
+}
+
+static void onError(dyad_Event *e)
+{
+    printf("onError: ");
+	printf("%s", e->msg);
+}
+
+static void onClose(dyad_Event *e)
+{
+    printf("onClose: ");
+	printf("%s", e->msg);
+}
+
+
 
 #define TANK_FWRD 'w'
 #define TANK_BACK 's'
