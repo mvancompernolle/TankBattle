@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 using UnityEngine;
 
@@ -31,7 +32,7 @@ public class SocketEventArgs : EventArgs
 }
 public delegate void SocketEventHandler(byte[] data, SocketEventArgs e);
 
-enum TankBattleMessage
+public enum TankBattleMessage
 {
     NONE,
     FWRD,
@@ -42,9 +43,9 @@ enum TankBattleMessage
 
 public struct TankBattleHeader
 {
-    int playerID;
-    TankBattleMessage msg;
-    int messageLength;
+    public int playerID;
+    public TankBattleMessage msg;
+    public int messageLength;
 }
 
 // TODO: need a way to get messages from this to something else
@@ -73,6 +74,20 @@ public class SocketListener : MonoBehaviour
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
     public event SocketEventHandler socketTransmission;
+
+    T RebuildData<T>(byte[] data) where T : struct
+    {
+        T copy = new T();
+
+        int tSize = Marshal.SizeOf(copy);
+        IntPtr ptr = Marshal.AllocHGlobal(tSize);
+
+        Marshal.Copy(data, 0, ptr, tSize);
+        copy = (T)Marshal.PtrToStructure(ptr, copy.GetType());
+        Marshal.FreeHGlobal(ptr);
+
+        return copy;
+    }
 
     private void Send(Socket handler, String data)
     {
@@ -113,6 +128,9 @@ public class SocketListener : MonoBehaviour
             if (state.buffer.Length >= DataUtils.SizeOf<TankBattleHeader>())
             {
                 Console.WriteLine("Read {0} bytes from socket.", bytesRead);
+
+                var data = RebuildData<TankBattleHeader>(state.buffer);
+                Debug.Log(data.msg);
 
                 Debug.Log("Message recieved.");
 

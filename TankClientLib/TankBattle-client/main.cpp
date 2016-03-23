@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
-
 #include <vector>
+
+#include <conio.h>
 
 #include "dyad.h"
 
@@ -24,11 +25,13 @@ static void onData(dyad_Event *e)
 
 static void onError(dyad_Event *e)
 {
+    printf("onError: ");
 	printf("%s", e->msg);
 }
 
 static void onClose(dyad_Event *e)
 {
+    printf("onClose: ");
 	printf("%s", e->msg);
 }
 
@@ -48,8 +51,8 @@ struct tankBattleHeader
     int messageLength;
 };
 
-
-
+#define TANK_FWRD 'w'
+#define TANK_BACK 's'
 
 int main()
 {
@@ -65,18 +68,40 @@ int main()
 
 	while (dyad_getStreamCount() > 0)
 	{
+        // check TCP streams via dyad
 		dyad_update();
 
-		if (isConnected)
-		{
-            isConnected = false;
+        if (isConnected)
+        {
+            // poll for input
+            if (_kbhit())
+            {
+                // prepare message
 
-            unsigned char msg[sizeof(tankBattleHeader)];
-            tankBattleHeader ex;
-            ex.messageLength = sizeof(tankBattleHeader);
+                unsigned char msg[sizeof(tankBattleHeader)];
+                tankBattleHeader ex;
+                ex.messageLength = sizeof(tankBattleHeader);    // TODO: support for dynamic message length
 
-            memcpy_s(msg, sizeof(tankBattleHeader), &ex, sizeof(tankBattleHeader));
-            dyad_write(s, msg, sizeof(tankBattleHeader));
+                char input = _getch();
+
+                switch (input)
+                {
+                case TANK_FWRD:
+                    ex.msg = FWRD;
+                    break;
+                case TANK_BACK:
+                    ex.msg = BACK;
+                    break;
+                default:
+                    ex.msg = NONE;
+                    break;
+                }
+
+                // begin transmission
+
+                memcpy_s(msg, sizeof(tankBattleHeader), &ex, sizeof(tankBattleHeader));
+                dyad_write(s, msg, sizeof(tankBattleHeader));
+            }
 		}
 	}
 
