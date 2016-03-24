@@ -9,8 +9,6 @@ using System.Runtime.InteropServices;
 
 using UnityEngine;
 
-
-
 public class StateObject
 {
     public Socket workSocket = null;
@@ -26,9 +24,14 @@ public class SocketEventArgs : EventArgs
     {
         ACCEPT,
         READ,
+        SEND
     }
+    SocketEventType socketEvent;
 
-    SocketEventArgs socketEvent;
+    public SocketEventArgs(SocketEventType e)
+    {
+        socketEvent = e;
+    }
 }
 public delegate void SocketEventHandler(byte[] data, SocketEventArgs e);
 
@@ -57,7 +60,6 @@ public static class DataUtils
     {
         return Marshal.SizeOf(typeof(T));
     }
-
     public static int GetSize(this object obj)
     {
         return Marshal.SizeOf(obj);
@@ -75,7 +77,6 @@ public static class DataUtils
 
         return data;
     }
-
     public static T FromBytes<T>(byte[] data)
     {
         T copy = default(T);
@@ -133,6 +134,9 @@ public class SocketListener : MonoBehaviour
 
         remoteConnections.Add(state);
 
+        if (socketTransmission != null)
+        { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.ACCEPT)); }
+
         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
             new AsyncCallback(ReadCallback), state);
     }
@@ -158,10 +162,13 @@ public class SocketListener : MonoBehaviour
 
                 Debug.Log("Message recieved.");
 
-                TankBattleHeader retMsg = new TankBattleHeader();
-                retMsg.playerID = 99;
+                if (socketTransmission != null)
+                { socketTransmission.Invoke(state.buffer, new SocketEventArgs(SocketEventArgs.SocketEventType.READ)); }
 
-                Send(handler, retMsg);
+                //TankBattleHeader retMsg = new TankBattleHeader();
+                //retMsg.playerID = 99;
+
+                //Send(handler, retMsg);
                 //Send(handler, "OK\n");
             }
             else
@@ -185,8 +192,8 @@ public class SocketListener : MonoBehaviour
             int bytesSent = handler.EndSend(ar);
             Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
-            //handler.Shutdown(SocketShutdown.Both);
-            //handler.Close();
+            if (socketTransmission != null)
+            { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.SEND)); }
         }
         catch (Exception e)
         {
@@ -235,7 +242,7 @@ public class SocketListener : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        Debug.LogWarning("HI");
+        // close local socket
         if (localListener != null)
         {
             try
@@ -249,7 +256,8 @@ public class SocketListener : MonoBehaviour
             }
         }
 
-        Debug.LogFormat("Closing {0} sockets to external contacts.", remoteConnections.Count);
+        // close sockets to other machines
+        Debug.LogFormat("Closing {0} sockets to remote machines.", remoteConnections.Count);
         for(int i = 0; i < remoteConnections.Count; ++i)
         {
             try
