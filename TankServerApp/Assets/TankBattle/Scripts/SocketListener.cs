@@ -137,32 +137,39 @@ public class SocketListener
 
         Debug.Log("Read " + bytesRead + " bytes ...");
 
-        if (bytesRead > 0)
+        try {
+
+            if (bytesRead > 0)
+            {
+                // TODO: Can we add generics to callbacks?
+                // How can we simplify this to be reusable?
+                if (state.buffer.Length >= DataUtils.SizeOf<TankBattleHeader>())
+                {
+                    Console.WriteLine("Read {0} bytes from socket.", bytesRead);
+
+                    var data = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
+                    Debug.Log(data.msg);
+
+                    Debug.Log("Message recieved.");
+
+                    if (socketTransmission != null)
+                    { socketTransmission.Invoke(state.buffer, new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[state])); }
+                }
+                else
+                {
+                    Debug.Log("Need more information.");
+                }
+
+                // wipe out state
+                Array.Clear(state.buffer, 0, state.buffer.Length);
+
+                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+        new AsyncCallback(ReadCallback), state);
+            }
+        }
+        catch (Exception e)
         {
-            // TODO: Can we add generics to callbacks?
-            // How can we simplify this to be reusable?
-            if (state.buffer.Length >= DataUtils.SizeOf<TankBattleHeader>())
-            {
-                Console.WriteLine("Read {0} bytes from socket.", bytesRead);
-
-                var data = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
-                Debug.Log(data.msg);
-
-                Debug.Log("Message recieved.");
-
-                if (socketTransmission != null)
-                { socketTransmission.Invoke(state.buffer, new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[state])); }
-            }
-            else
-            {
-                Debug.Log("Need more information.");
-            }
-
-            // wipe out state
-            Array.Clear(state.buffer, 0, state.buffer.Length);
-
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-    new AsyncCallback(ReadCallback), state);
+            Debug.LogError(e.Message);
         }
     }
     private void SendCallback(IAsyncResult ar)
@@ -178,18 +185,27 @@ public class SocketListener
 
             if (socketTransmission != null)
             { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.SEND, players[state])); }
+            Debug.Log("Message sent.");
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.ToString());
+            Debug.LogError(e.Message);
         }
 
-        Debug.Log("Message sent.");
+        
     }
 
     private void DuplicateEventsToList(byte[] data, SocketEventArgs e)
     {
         events.Add(new SocketEvent(e, data));
+    }
+    private void LogEvents(byte[] data, SocketEventArgs e)
+    {
+        StringBuilder strBr = new StringBuilder();
+        strBr.Append(e.socketEvent.ToString());
+        strBr.Append(data.Length + " bytes ");
+
+        Debug.Log(strBr.ToString());
     }
 
     public void StartListening(int port)
@@ -224,6 +240,9 @@ public class SocketListener
         Debug.LogFormat("Listening on port <{0}>.", port);
 
         socketTransmission += DuplicateEventsToList;
+#if DEBUG
+        socketTransmission += LogEvents;
+#endif
     }
     public void StopListening()
     {
