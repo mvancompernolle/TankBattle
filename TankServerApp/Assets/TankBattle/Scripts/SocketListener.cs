@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 using UnityEngine;
 
@@ -45,48 +44,23 @@ public class SocketEventArgs : EventArgs
         endpoint = remote;
     }
 }
+
+public class SocketEvent
+{
+    public readonly SocketEventArgs eventArgs;
+    public readonly byte[] data;
+
+    public SocketEvent(SocketEventArgs e, byte[] d)
+    {
+        eventArgs = e;
+        data = d;
+    }
+}
+
 public delegate void SocketEventHandler(byte[] data, SocketEventArgs e);
 
 // TODO: need a way to get messages from this to something else
 // - perhaps an event?
-
-public static class DataUtils
-{
-    public static int SizeOf<T>()
-    {
-        return Marshal.SizeOf(typeof(T));
-    }
-    public static int GetSize(this object obj)
-    {
-        return Marshal.SizeOf(obj);
-    }
-
-    public static byte[] GetBytes(object obj)
-    {
-        int size = Marshal.SizeOf(obj);
-        IntPtr ptr = Marshal.AllocHGlobal(size);
-
-        byte[] data = new byte[size];
-        Marshal.StructureToPtr(obj, ptr, true);
-        Marshal.Copy(ptr, data, 0, size);
-        Marshal.FreeHGlobal(ptr);
-
-        return data;
-    }
-    public static T FromBytes<T>(byte[] data)
-    {
-        T copy = default(T);
-
-        int tSize = Marshal.SizeOf(copy);
-        IntPtr ptr = Marshal.AllocHGlobal(tSize);
-
-        Marshal.Copy(data, 0, ptr, tSize);
-        copy = (T)Marshal.PtrToStructure(ptr, copy.GetType());
-        Marshal.FreeHGlobal(ptr);
-
-        return copy;
-    }
-}
 
 // Setup a listener on a given port
 public class SocketListener
@@ -97,6 +71,18 @@ public class SocketListener
 
     public int port { get; private set; }
     private ManualResetEvent allDone = new ManualResetEvent(false);
+
+    public List<SocketEvent> events = new List<SocketEvent>();
+    public void flushEvents()
+    {
+        events.Clear();
+    }
+
+
+    // TODO: StateObject is hard-coded to max out at 1024 bytes. Please define somewhere consistent.
+    // TODO: Add RTCs for data size. Should not exceed max.
+
+    //public 
 
     public event SocketEventHandler socketTransmission;
 
@@ -201,6 +187,11 @@ public class SocketListener
         Debug.Log("Message sent.");
     }
 
+    private void DuplicateEventsToList(byte[] data, SocketEventArgs e)
+    {
+        events.Add(new SocketEvent(e, data));
+    }
+
     public void StartListening(int port)
     {
         IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
@@ -231,6 +222,8 @@ public class SocketListener
 
         Debug.Log("Socket Initialized.");
         Debug.LogFormat("Listening on port <{0}>.", port);
+
+        socketTransmission += DuplicateEventsToList;
     }
     public void StopListening()
     {

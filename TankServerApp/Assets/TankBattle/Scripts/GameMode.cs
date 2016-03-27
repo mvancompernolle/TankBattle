@@ -14,14 +14,14 @@ public class GameMode : MonoBehaviour
     private SocketListener connectionSocket;
     public int gamePort = 11000;
 
-    [SerializeField]
+    [SerializeField] [ReadOnly]
     private MatchState currentState;    // current state of the match
     private int playerIDQueue;          // next player ID to allocate
 
     // stores a mapping between playerID and controller
     private Dictionary<int, GameObject> playerControllers = new Dictionary<int, GameObject>();
 
-    // TODO: need a script to associate the two w/ each other
+    // TODO: need a way to associate the two w/ each other
     [SerializeField]
     private GameObject PlayerControllerPrefab;
 
@@ -32,12 +32,26 @@ public class GameMode : MonoBehaviour
 
     void Start()
     {
+        // listen for network players
         connectionSocket = new SocketListener();
         connectionSocket.StartListening(gamePort);
-        connectionSocket.socketTransmission += OnNetworkEvent;
+        //connectionSocket.socketTransmission += OnNetworkEvent;    // must use Unity API from main thread
     }
+
+    void Update()
+    {
+        // poll for events
+        foreach (var evnt in connectionSocket.events)
+        {
+            OnNetworkEvent(evnt.data, evnt.eventArgs);
+        }
+
+        connectionSocket.flushEvents();
+    }
+
     void OnApplicationQuit()
     {
+        // close socket for communication
         connectionSocket.StopListening();
     }
 
@@ -55,6 +69,7 @@ public class GameMode : MonoBehaviour
         }
     }
 
+    // Instantiates a new player and returns its ID
     public int AddPlayer()
     {
         int newPlayerID = playerIDQueue++;
@@ -64,6 +79,7 @@ public class GameMode : MonoBehaviour
 
         return newPlayerID;
     }
+    // Removes a player from the game by their ID
     public void RemovePlayer(int playerID)
     {
 
