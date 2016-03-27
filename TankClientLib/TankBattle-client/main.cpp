@@ -64,7 +64,7 @@ int main()
 	dyad_addListener(s, DYAD_EVENT_DATA, onData, NULL);
 	dyad_addListener(s, DYAD_EVENT_ERROR, onError, NULL);
 
-	dyad_connect(s, "192.168.1.16", 11000);
+	dyad_connect(s, "127.0.0.1", 11000);
 
 	while (dyad_getStreamCount() > 0)
 	{
@@ -76,6 +76,8 @@ int main()
             // poll for input
             if (_kbhit())
             {
+                std::cout << "Send.\n";
+
                 // prepare message
                 unsigned char msg[sizeof(tankBattleHeader)];
                 tankBattleHeader ex;

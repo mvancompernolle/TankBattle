@@ -67,7 +67,7 @@ public class SocketListener
 {
     Socket localListener;
     List<StateObject> remoteConnections = new List<StateObject>();
-    Dictionary<StateObject, NetworkPlayer> players = new Dictionary<StateObject, NetworkPlayer>();
+    Dictionary<Socket, NetworkPlayer> players = new Dictionary<Socket, NetworkPlayer>();
 
     public int port { get; private set; }
     private ManualResetEvent allDone = new ManualResetEvent(false);
@@ -83,8 +83,6 @@ public class SocketListener
     // TODO: Add RTCs for data size. Should not exceed max.
 
     //public 
-
-    public event SocketEventHandler socketTransmission;
 
     public void Send(Socket handler, String data)
     {
@@ -110,7 +108,9 @@ public class SocketListener
         Socket listener = (Socket)ar.AsyncState;
         Socket handler = listener.EndAccept(ar);
 
-        Debug.Log("Connection from " + ((IPEndPoint)handler.RemoteEndPoint).Address.ToString());
+        var endpoint = (IPEndPoint)handler.RemoteEndPoint;
+
+        Debug.Log("Connection from " + endpoint.Address.ToString());
 
         StateObject state = new StateObject();
         state.workSocket = handler;
@@ -120,10 +120,11 @@ public class SocketListener
         NetworkPlayer netPlayer = new NetworkPlayer();
         netPlayer.line = handler;
 
-        players[state] = netPlayer;
+        players[handler] = netPlayer;
 
-        if (socketTransmission != null)
-        { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.ACCEPT, netPlayer)); }
+        events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.ACCEPT, netPlayer), null));
+
+        Debug.Log("Setting up to recieve from " + endpoint.Address.ToString());
 
         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
             new AsyncCallback(ReadCallback), state);
@@ -150,10 +151,10 @@ public class SocketListener
                     var data = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
                     Debug.Log(data.msg);
 
+                    events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[handler]), state.buffer));
+
                     Debug.Log("Message recieved.");
 
-                    if (socketTransmission != null)
-                    { socketTransmission.Invoke(state.buffer, new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[state])); }
                 }
                 else
                 {
@@ -169,52 +170,35 @@ public class SocketListener
         }
         catch (Exception e)
         {
-            Debug.LogError(e.Message);
+            Debug.LogError(e.Message + e.StackTrace);
         }
     }
     private void SendCallback(IAsyncResult ar)
     {
         try
         {
-            StateObject state = (StateObject)ar.AsyncState;
-
-            Socket handler = (Socket)ar.AsyncState;
+            Socket handler = (Socket)ar.AsyncState; // how the fuck did this become the AsyncState now?
+                                                    // ... the send call is different. data is the buffer, socket is state.
 
             int bytesSent = handler.EndSend(ar);
             Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
-            if (socketTransmission != null)
-            { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.SEND, players[state])); }
+            events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.SEND, players[handler]), null));
+
             Debug.Log("Message sent.");
         }
         catch (Exception e)
         {
-            Debug.LogError(e.Message);
+            Debug.LogError(e.Message + e.StackTrace);
         }
 
         
     }
 
-    private void DuplicateEventsToList(byte[] data, SocketEventArgs e)
-    {
-        events.Add(new SocketEvent(e, data));
-    }
-    private void LogEvents(byte[] data, SocketEventArgs e)
-    {
-        StringBuilder strBr = new StringBuilder();
-        strBr.Append(e.socketEvent.ToString());
-        strBr.Append(data.Length + " bytes ");
-
-        Debug.Log(strBr.ToString());
-    }
-
     public void StartListening(int port)
     {
-        IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
-        IPAddress ipAddress = ipHostInfo.AddressList[0];
-
-        
-        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
+        // bind to all local IPv4 interfaces
+        IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
 
         Socket listener = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
@@ -222,7 +206,7 @@ public class SocketListener
         localListener = listener;
         try
         {
-            Debug.LogFormat("Binding to <{0}>.", ipHostInfo.AddressList[0]);
+            Debug.LogFormat("Binding to all local IPv4 interfaces.");
             listener.Bind(localEndPoint);
             listener.Listen(100);
 
@@ -238,11 +222,6 @@ public class SocketListener
 
         Debug.Log("Socket Initialized.");
         Debug.LogFormat("Listening on port <{0}>.", port);
-
-        socketTransmission += DuplicateEventsToList;
-#if DEBUG
-        socketTransmission += LogEvents;
-#endif
     }
     public void StopListening()
     {
@@ -256,7 +235,7 @@ public class SocketListener
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                Debug.LogError(e.Message + e.StackTrace);
             }
         }
 
@@ -272,7 +251,7 @@ public class SocketListener
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                Debug.LogError(e.Message + e.StackTrace);
             }
         }
     }

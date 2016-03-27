@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
+using System;
 
 public class GameMode : MonoBehaviour
 {
@@ -60,14 +60,20 @@ public class GameMode : MonoBehaviour
     // - if none, returns a transform referring to the origin of the world
     public Transform GetPlayerStart()
     {
-        if (playerStarts.Count < 1)
+        Transform spawnTransform;
+
+        try
         {
-            return new GameObject("PlayerStart").transform;
+            spawnTransform = playerStarts[(UnityEngine.Random.Range(0, playerStarts.Count - 1))];
         }
-        else
+        catch (Exception e)
         {
-            return playerStarts[(Random.Range(0, playerStarts.Count - 1))];
+            Debug.LogWarning(e.Message);
+
+            spawnTransform = new GameObject("PlayerStart").transform;
         }
+
+        return spawnTransform;
     }
 
     // Instantiates a new player and returns its ID
@@ -95,7 +101,7 @@ public class GameMode : MonoBehaviour
                 reply.playerID = AddPlayer();
 
                 // send the reply
-                connectionSocket.Send(e.endpoint, DataUtils.GetBytes(reply));
+                connectionSocket.Send(e.endpoint, reply);
                 
                 break;
             case SocketEventArgs.SocketEventType.READ:
