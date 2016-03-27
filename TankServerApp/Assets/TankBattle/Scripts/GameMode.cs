@@ -40,12 +40,13 @@ public class GameMode : MonoBehaviour
 
     void Update()
     {
-        // poll for events
+        // poll and process network events
         foreach (var evnt in connectionSocket.events)
         {
             OnNetworkEvent(evnt.data, evnt.eventArgs);
         }
 
+        // clear the queue
         connectionSocket.flushEvents();
     }
 
