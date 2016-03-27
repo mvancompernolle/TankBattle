@@ -12,6 +12,9 @@ public class GameMode : MonoBehaviour
     }
 
     [SerializeField]
+    private SocketListener connectionSocket;
+
+    [SerializeField]
     private MatchState currentState;    // current state of the match
     private int playerIDQueue;          // next player ID to allocate
 
@@ -58,5 +61,28 @@ public class GameMode : MonoBehaviour
 
     void Start()
     {
+        // listen to the socket listener for events
+        connectionSocket.socketTransmission += OnNetworkEvent;
+    }
+
+    private void OnNetworkEvent(byte[] data, SocketEventArgs e)
+    {
+        switch (e.socketEvent)
+        {
+            case SocketEventArgs.SocketEventType.ACCEPT:
+                TankBattleHeader reply = new TankBattleHeader();
+                reply.playerID = AddPlayer();
+
+                // send the reply
+                connectionSocket.Send(e.endpoint, DataUtils.GetBytes(reply));
+                
+                break;
+            case SocketEventArgs.SocketEventType.READ:
+
+                break;
+            case SocketEventArgs.SocketEventType.SEND:
+
+                break;
+        }
     }
 }

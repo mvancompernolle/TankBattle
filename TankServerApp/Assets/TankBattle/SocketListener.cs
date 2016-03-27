@@ -9,6 +9,16 @@ using System.Runtime.InteropServices;
 
 using UnityEngine;
 
+public class NetworkPlayer
+{
+    public Socket line;
+
+    public static implicit operator Socket(NetworkPlayer p)
+    {
+        return p.line;
+    }
+}
+
 public class StateObject
 {
     public Socket workSocket = null;
@@ -26,30 +36,16 @@ public class SocketEventArgs : EventArgs
         READ,
         SEND
     }
-    SocketEventType socketEvent;
+    public readonly SocketEventType socketEvent;
+    public readonly NetworkPlayer endpoint;
 
-    public SocketEventArgs(SocketEventType e)
+    public SocketEventArgs(SocketEventType e, NetworkPlayer remote)
     {
         socketEvent = e;
+        endpoint = remote;
     }
 }
 public delegate void SocketEventHandler(byte[] data, SocketEventArgs e);
-
-public enum TankBattleMessage
-{
-    NONE,
-    FWRD,
-    BACK,
-    KILL,
-    QUIT
-}
-
-public struct TankBattleHeader
-{
-    public int playerID;
-    public TankBattleMessage msg;
-    public int messageLength;
-}
 
 // TODO: need a way to get messages from this to something else
 // - perhaps an event?
@@ -97,25 +93,26 @@ public class SocketListener : MonoBehaviour
 {
     Socket localListener;
     List<StateObject> remoteConnections = new List<StateObject>();
+    Dictionary<StateObject, NetworkPlayer> players = new Dictionary<StateObject, NetworkPlayer>();
 
     public int port;
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
     public event SocketEventHandler socketTransmission;
 
-    private void Send(Socket handler, String data)
+    public void Send(Socket handler, String data)
     {
         byte[] byteData = Encoding.ASCII.GetBytes(data);
 
         handler.BeginSend(byteData, 0, byteData.Length, 0,
             new AsyncCallback(SendCallback), handler);
     }
-    private void Send(Socket handler, byte[] data)
+    public void Send(Socket handler, byte[] data)
     {
         handler.BeginSend(data, 0, data.Length, 0,
             new AsyncCallback(SendCallback), handler);
     }
-    private void Send(Socket handler, object data)
+    public void Send(Socket handler, object data)
     {
         Send(handler, DataUtils.GetBytes(data));
     }
@@ -134,8 +131,13 @@ public class SocketListener : MonoBehaviour
 
         remoteConnections.Add(state);
 
+        NetworkPlayer netPlayer = new NetworkPlayer();
+        netPlayer.line = handler;
+
+        players[state] = netPlayer;
+
         if (socketTransmission != null)
-        { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.ACCEPT)); }
+        { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.ACCEPT, netPlayer)); }
 
         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
             new AsyncCallback(ReadCallback), state);
@@ -163,13 +165,7 @@ public class SocketListener : MonoBehaviour
                 Debug.Log("Message recieved.");
 
                 if (socketTransmission != null)
-                { socketTransmission.Invoke(state.buffer, new SocketEventArgs(SocketEventArgs.SocketEventType.READ)); }
-
-                //TankBattleHeader retMsg = new TankBattleHeader();
-                //retMsg.playerID = 99;
-
-                //Send(handler, retMsg);
-                //Send(handler, "OK\n");
+                { socketTransmission.Invoke(state.buffer, new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[state])); }
             }
             else
             {
@@ -187,13 +183,15 @@ public class SocketListener : MonoBehaviour
     {
         try
         {
+            StateObject state = (StateObject)ar.AsyncState;
+
             Socket handler = (Socket)ar.AsyncState;
 
             int bytesSent = handler.EndSend(ar);
             Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
             if (socketTransmission != null)
-            { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.SEND)); }
+            { socketTransmission.Invoke(null, new SocketEventArgs(SocketEventArgs.SocketEventType.SEND, players[state])); }
         }
         catch (Exception e)
         {
