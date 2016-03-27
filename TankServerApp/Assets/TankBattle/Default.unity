@@ -224,14 +224,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 660171230}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc539d1e22371d14eaa63d8dd644425d, type: 3}
+  m_Script: {fileID: 11500000, guid: 89783d88f3c835d45bf1fb47a053f1b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gamePort: 11000
   currentState: 0
-  PlayerControllerPrefab: {fileID: 193180, guid: 4bd76689ff251324b851d9dacfa94a41,
+  PlayerControllerPrefab: {fileID: 193180, guid: 013a9d84829646d4497aa03e2c1aa34c,
     type: 2}
-  PawnPrefab: {fileID: 169832, guid: 5f8ee63037308484087fc74391b89341, type: 2}
+  PawnPrefab: {fileID: 169832, guid: d515070a73424624298c0f06a312905b, type: 2}
   playerStarts:
   - {fileID: 75089497}
   - {fileID: 202288855}
@@ -390,7 +390,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_Materials:
-  - {fileID: 2100000, guid: 8bcf4a6e26faee844810648f278d451f, type: 2}
+  - {fileID: 2100000, guid: c602a12a053034e4fbed001ebd3f0e5f, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1
