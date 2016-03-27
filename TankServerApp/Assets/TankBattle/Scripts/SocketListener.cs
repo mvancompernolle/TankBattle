@@ -89,14 +89,14 @@ public static class DataUtils
 }
 
 // Setup a listener on a given port
-public class SocketListener : MonoBehaviour
+public class SocketListener
 {
     Socket localListener;
     List<StateObject> remoteConnections = new List<StateObject>();
     Dictionary<StateObject, NetworkPlayer> players = new Dictionary<StateObject, NetworkPlayer>();
 
-    public int port;
-    public static ManualResetEvent allDone = new ManualResetEvent(false);
+    public int port { get; private set; }
+    private ManualResetEvent allDone = new ManualResetEvent(false);
 
     public event SocketEventHandler socketTransmission;
 
@@ -201,7 +201,7 @@ public class SocketListener : MonoBehaviour
         Debug.Log("Message sent.");
     }
 
-    void InitializeSocket(int port)
+    public void StartListening(int port)
     {
         IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
         IPAddress ipAddress = ipHostInfo.AddressList[0];
@@ -232,13 +232,7 @@ public class SocketListener : MonoBehaviour
         Debug.Log("Socket Initialized.");
         Debug.LogFormat("Listening on port <{0}>.", port);
     }
-
-    void Start()
-    {
-        InitializeSocket(port);
-    }
-
-    void OnApplicationQuit()
+    public void StopListening()
     {
         // close local socket
         if (localListener != null)

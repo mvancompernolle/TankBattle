@@ -64,7 +64,7 @@ int main()
 	dyad_addListener(s, DYAD_EVENT_DATA, onData, NULL);
 	dyad_addListener(s, DYAD_EVENT_ERROR, onError, NULL);
 
-	dyad_connect(s, "10.15.22.100", 11000);
+	dyad_connect(s, "192.168.1.16", 11000);
 
 	while (dyad_getStreamCount() > 0)
 	{

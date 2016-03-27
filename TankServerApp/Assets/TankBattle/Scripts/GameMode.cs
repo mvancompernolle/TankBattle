@@ -11,8 +11,8 @@ public class GameMode : MonoBehaviour
         WAITING_FOR_RESTART
     }
 
-    [SerializeField]
     private SocketListener connectionSocket;
+    public int gamePort = 11000;
 
     [SerializeField]
     private MatchState currentState;    // current state of the match
@@ -29,6 +29,17 @@ public class GameMode : MonoBehaviour
     private GameObject PawnPrefab;
 
     public List<Transform> playerStarts = new List<Transform>();
+
+    void Start()
+    {
+        connectionSocket = new SocketListener();
+        connectionSocket.StartListening(gamePort);
+        connectionSocket.socketTransmission += OnNetworkEvent;
+    }
+    void OnApplicationQuit()
+    {
+        connectionSocket.StopListening();
+    }
 
     // Returns a random transform the the list of starting locations
     // - if none, returns a transform referring to the origin of the world
@@ -53,16 +64,9 @@ public class GameMode : MonoBehaviour
 
         return newPlayerID;
     }
-
     public void RemovePlayer(int playerID)
     {
 
-    }
-
-    void Start()
-    {
-        // listen to the socket listener for events
-        connectionSocket.socketTransmission += OnNetworkEvent;
     }
 
     private void OnNetworkEvent(byte[] data, SocketEventArgs e)
