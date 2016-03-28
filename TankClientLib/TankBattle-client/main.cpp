@@ -79,9 +79,11 @@ int main()
                 std::cout << "Send.\n";
 
                 // prepare message
-                unsigned char msg[sizeof(tankBattleHeader)];
+                int msgSize = sizeof(tankBattleHeader) + 12;
+                std::vector<unsigned char> msg;
+                msg.reserve(msgSize * 2);
                 tankBattleHeader ex;
-                ex.messageLength = sizeof(tankBattleHeader);    // TODO: support for dynamic message length
+                ex.messageLength = msgSize;    // TODO: support for dynamic message length
 
                 char input = _getch();
 
@@ -98,13 +100,16 @@ int main()
                     break;
                 }
 
+                //std::copy()
+
                 // begin transmission
-                memcpy_s(msg, sizeof(tankBattleHeader), &ex, sizeof(tankBattleHeader));
-                dyad_write(s, msg, sizeof(tankBattleHeader));
+                //memcpy_s(&msg, msgSize, &ex, sizeof(tankBattleHeader));
+                dyad_write(s, &msg, msgSize);
             }
 		}
 	}
 
+    dyad_close(s);
 	dyad_shutdown();
 
 	system("pause");

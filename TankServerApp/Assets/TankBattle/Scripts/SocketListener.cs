@@ -23,10 +23,10 @@ public class StateObject
     public Socket workSocket = null;
 
     public const int BufferSize = 1024;
+    public int bytesRead = 0;
 
     public byte[] buffer = new byte[BufferSize];
 }
-
 public class SocketEventArgs : EventArgs
 {
     public enum SocketEventType
@@ -44,7 +44,6 @@ public class SocketEventArgs : EventArgs
         endpoint = remote;
     }
 }
-
 public class SocketEvent
 {
     public readonly SocketEventArgs eventArgs;
@@ -56,7 +55,6 @@ public class SocketEvent
         data = d;
     }
 }
-
 public delegate void SocketEventHandler(byte[] data, SocketEventArgs e);
 
 // TODO: need a way to get messages from this to something else
@@ -135,38 +133,48 @@ public class SocketListener
         Socket handler = state.workSocket;
 
         int bytesRead = handler.EndReceive(ar);
-
-        Debug.Log("Read " + bytesRead + " bytes ...");
+        state.bytesRead += bytesRead;   // add to running total of bytesRead for this message
 
         try {
 
             if (bytesRead > 0)
             {
+                Console.WriteLine("Read {0} bytes from socket.", bytesRead);
+
                 // TODO: Can we add generics to callbacks?
                 // How can we simplify this to be reusable?
-                if (state.buffer.Length >= DataUtils.SizeOf<TankBattleHeader>())
+
+                // do we have enough data to work from?
+                while (state.bytesRead >= DataUtils.SizeOf<TankBattleHeader>())
                 {
-                    Console.WriteLine("Read {0} bytes from socket.", bytesRead);
+                    var header = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
 
-                    var data = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
-                    Debug.Log(data.msg);
+                    Debug.LogFormat("There are {0} unread bytes in the buffer.", state.bytesRead);
 
-                    events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[handler]), state.buffer));
+                    // have we recieved the full message?
+                    if (state.bytesRead >= header.messageLength)
+                    {
+                        events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[handler]), state.buffer));
+                        Debug.Log("Message recieved.");
 
-                    Debug.Log("Message recieved.");
+                        // subtract the number of bytes needed to be processed
+                        state.bytesRead -= header.messageLength;
 
+                        // remove this record from the buffer
+                        state.buffer.ShiftLeft(header.messageLength);
+                        Array.Clear(state.buffer, header.messageLength, state.buffer.Length - header.messageLength);
+                    }
+                    else
+                    {
+                        Debug.Log("Need more information.");
+                        break;
+                    }
                 }
-                else
-                {
-                    Debug.Log("Need more information.");
-                }
-
-                // wipe out state
-                Array.Clear(state.buffer, 0, state.buffer.Length);
-
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-        new AsyncCallback(ReadCallback), state);
             }
+
+            // set up to recieve again
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                new AsyncCallback(ReadCallback), state);
         }
         catch (Exception e)
         {
