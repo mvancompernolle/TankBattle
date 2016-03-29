@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Complete
+namespace UnityGame.Tanks
 {
     public class CameraControl : MonoBehaviour
     {

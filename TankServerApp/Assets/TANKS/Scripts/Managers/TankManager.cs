@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Complete
+namespace UnityGame.Tanks
 {
     [Serializable]
     public class TankManager

@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-namespace Complete
+namespace UnityGame.Tanks
 {
-    public class TankMovement : MonoBehaviour
+    public class TankMovement : MonoBehaviour, IMoveable
     {
         public int m_PlayerNumber = 1;              // Used to identify which tank belongs to which player.  This is set by this tank's manager.
         public float m_Speed = 12f;                 // How fast the tank moves forward and back.
@@ -13,13 +14,17 @@ namespace Complete
 		public float m_PitchRange = 0.2f;           // The amount by which the pitch of the engine noises can vary.
 
 
-        private string m_MovementAxisName;          // The name of the input axis for moving forward and back.
-        private string m_TurnAxisName;              // The name of the input axis for turning.
         private Rigidbody m_Rigidbody;              // Reference used to move the tank.
         private float m_MovementInputValue;         // The current value of the movement input.
         private float m_TurnInputValue;             // The current value of the turn input.
         private float m_OriginalPitch;              // The pitch of the audio source at the start of the scene.
 
+        private struct UserInput
+        {
+            public float verticalInput;
+            public float horizontalInput;
+        }
+        private UserInput controllerInput;
 
         private void Awake ()
         {
@@ -47,10 +52,6 @@ namespace Complete
 
         private void Start ()
         {
-            // The axes names are based on player number.
-            m_MovementAxisName = "Vertical" + m_PlayerNumber;
-            m_TurnAxisName = "Horizontal" + m_PlayerNumber;
-
             // Store the original pitch of the audio source.
             m_OriginalPitch = m_MovementAudio.pitch;
         }
@@ -59,8 +60,8 @@ namespace Complete
         private void Update ()
         {
             // Store the value of both input axes.
-            m_MovementInputValue = Input.GetAxis (m_MovementAxisName);
-            m_TurnInputValue = Input.GetAxis (m_TurnAxisName);
+            m_MovementInputValue = controllerInput.verticalInput;
+            m_TurnInputValue = controllerInput.horizontalInput;
 
             EngineAudio ();
         }
@@ -76,7 +77,7 @@ namespace Complete
                 {
                     // ... change the clip to idling and play it.
                     m_MovementAudio.clip = m_EngineIdling;
-                    m_MovementAudio.pitch = Random.Range (m_OriginalPitch - m_PitchRange, m_OriginalPitch + m_PitchRange);
+                    m_MovementAudio.pitch = UnityEngine.Random.Range (m_OriginalPitch - m_PitchRange, m_OriginalPitch + m_PitchRange);
                     m_MovementAudio.Play ();
                 }
             }
@@ -87,7 +88,7 @@ namespace Complete
                 {
                     // ... change the clip to driving and play.
                     m_MovementAudio.clip = m_EngineDriving;
-                    m_MovementAudio.pitch = Random.Range(m_OriginalPitch - m_PitchRange, m_OriginalPitch + m_PitchRange);
+                    m_MovementAudio.pitch = UnityEngine.Random.Range(m_OriginalPitch - m_PitchRange, m_OriginalPitch + m_PitchRange);
                     m_MovementAudio.Play();
                 }
             }
@@ -122,6 +123,16 @@ namespace Complete
 
             // Apply this rotation to the rigidbody's rotation.
             m_Rigidbody.MoveRotation (m_Rigidbody.rotation * turnRotation);
+        }
+
+        void IMoveable.MoveForward(float value)
+        {
+            controllerInput.verticalInput = Mathf.Clamp(value, -1, 1);
+        }
+
+        void IMoveable.TurnRight(float value)
+        {
+            controllerInput.horizontalInput = Mathf.Clamp(value, -1, 1);
         }
     }
 }

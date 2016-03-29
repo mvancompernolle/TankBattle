@@ -112,7 +112,7 @@ int main()
     dyad_close(s);
 	dyad_shutdown();
 
-	system("pause");
+	//system("pause");
 
 	return 0;
 }
