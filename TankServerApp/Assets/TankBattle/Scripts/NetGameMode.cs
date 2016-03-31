@@ -13,15 +13,19 @@ public class NetGameMode : MonoBehaviour
 
     private Dictionary<int, PlayerController> playerControllers = new Dictionary<int, PlayerController>();
 
-    private int networkIDs;
+    private int networkIDs = 2;
 
     void CheckNetworkEvents()
     {
+        connectionSocket.paused = true;
+
         // poll and process network events
         foreach (var evnt in connectionSocket.events)
         {
             OnNetworkEvent(evnt.data, evnt.eventArgs);
         }
+
+        connectionSocket.paused = false;
 
         // clear the queue
         connectionSocket.flushEvents();
@@ -40,6 +44,20 @@ public class NetGameMode : MonoBehaviour
 
                 break;
             case SocketEventArgs.SocketEventType.READ:
+                var msg = DataUtils.FromBytes<TankBattleHeader>(data);
+                switch (msg.move)
+                {
+                    case Movement.FWRD:
+                        Debug.Log("FWRD");
+                        break;
+                    case Movement.BACK:
+                        Debug.Log("BACK");
+                        break;
+                    default:
+                        Debug.Log("Unknown movement.");
+                        break;
+                }
+
 
                 break;
             case SocketEventArgs.SocketEventType.SEND:

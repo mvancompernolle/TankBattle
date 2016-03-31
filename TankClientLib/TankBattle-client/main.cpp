@@ -8,20 +8,30 @@
 
 using std::vector;
 
+int myPlayerID = 0;
+
 enum tankBattleMessage
 {
     NONE,
-    FWRD,
-    BACK,
-    KILL,
+    LOGIN,
     QUIT
 };
 
-struct tankBattleHeader
+enum Movement
 {
+    HALT,
+    FWRD,
+    BACK,
+    LEFT,
+    RIGHT,
+};
+
+struct tankBattleHeader
+{   
     int playerID = -1;
     tankBattleMessage msg = QUIT;
-    int messageLength;
+    Movement move = HALT;
+    int messageLength;  // this is only if we had like, a payload to deliver.
 };
 
 bool isConnected = false;
@@ -37,6 +47,10 @@ static void onData(dyad_Event *e)
 	//printf("%s", e->data);
     
     auto msg = (tankBattleHeader*)e->data;
+    std::cout << "DIAGNOSTIC STATUS:\n";
+    std::cout << (msg->playerID) << "\n";
+
+    myPlayerID = msg->playerID;
 }
 static void onError(dyad_Event *e)
 {
@@ -52,7 +66,7 @@ static void onClose(dyad_Event *e)
 #define TANK_FWRD 'w'
 #define TANK_BACK 's'
 
-int myPlayerID = 0;
+
 
 int main()
 {
@@ -79,31 +93,34 @@ int main()
                 std::cout << "Send.\n";
 
                 // prepare message
-                int msgSize = sizeof(tankBattleHeader) + 12;
-                std::vector<unsigned char> msg;
-                msg.reserve(msgSize * 2);
+                const int msgSize = sizeof(tankBattleHeader);
+                unsigned char msg[msgSize];
+
                 tankBattleHeader ex;
                 ex.messageLength = msgSize;    // TODO: support for dynamic message length
+                ex.playerID = myPlayerID;
 
                 char input = _getch();
 
                 switch (input)
                 {
                 case TANK_FWRD:
-                    ex.msg = FWRD;
+                    ex.move = FWRD;
                     break;
                 case TANK_BACK:
-                    ex.msg = BACK;
+                    ex.move = BACK;
                     break;
                 default:
-                    ex.msg = NONE;
+                    ex.move = HALT;
                     break;
                 }
 
                 //std::copy()
 
+                ex.move = FWRD;
+
                 // begin transmission
-                //memcpy_s(&msg, msgSize, &ex, sizeof(tankBattleHeader));
+                memcpy_s(&msg, msgSize, &ex, sizeof(tankBattleHeader));
                 dyad_write(s, &msg, msgSize);
             }
 		}

@@ -44,6 +44,9 @@ namespace UnityGame.Tanks
             m_StartWait = new WaitForSeconds (m_StartDelay);
             m_EndWait = new WaitForSeconds (m_EndDelay);
 
+            Debug.LogWarning("WARN: Dummy present! Please remove to test two players.");
+            SpawnSingleTank();
+
             // Once the tanks have been created and the camera is using them as targets, start the game.
             StartCoroutine (GameLoop ());
         }
@@ -56,7 +59,7 @@ namespace UnityGame.Tanks
 
             newTankManager.m_Instance = (Instantiate(m_TankPrefab) as GameObject);
             newTankManager.m_PlayerNumber = m_TankManagers.Count;
-            newTankManager.m_SpawnPoint = m_SpawnPoints[m_TankManagers.Count];
+            newTankManager.m_SpawnPoint = m_SpawnPoints[m_TankManagers.Count - 1];
             newTankManager.Setup();
 
             m_PlayerCount++;

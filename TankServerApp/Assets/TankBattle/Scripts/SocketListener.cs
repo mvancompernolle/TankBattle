@@ -69,13 +69,33 @@ public class SocketListener
 
     public int port { get; private set; }
     private ManualResetEvent allDone = new ManualResetEvent(false);
+    public bool paused
+    {
+        get
+        {
+            return _paused;
+        }
+        set
+        {
+            if(value)
+            {
+                allDone.Reset();
+            }
+            else
+            {
+                allDone.Set();
+            }
+
+            _paused = value;
+        }
+    }
+    private bool _paused;
 
     public List<SocketEvent> events = new List<SocketEvent>();
     public void flushEvents()
     {
         events.Clear();
     }
-
 
     // TODO: StateObject is hard-coded to max out at 1024 bytes. Please define somewhere consistent.
     // TODO: Add RTCs for data size. Should not exceed max.
@@ -154,7 +174,7 @@ public class SocketListener
                     // have we recieved the full message?
                     if (state.bytesRead >= header.messageLength)
                     {
-                        events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[handler]), state.buffer));
+                        events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[handler]), (byte[])state.buffer.Clone()));
                         Debug.Log("Message recieved.");
 
                         // subtract the number of bytes needed to be processed
@@ -166,7 +186,7 @@ public class SocketListener
                     }
                     else
                     {
-                        Debug.Log("Need more information.");
+                        Debug.Log("Need more information; expecting " + header.messageLength + " bytes of data.");
                         break;
                     }
                 }
