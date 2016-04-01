@@ -60,12 +60,15 @@ namespace UnityGame.Tanks
             newTankManager.m_Instance = (Instantiate(m_TankPrefab) as GameObject);
             newTankManager.m_PlayerNumber = m_TankManagers.Count;
             newTankManager.m_SpawnPoint = m_SpawnPoints[m_TankManagers.Count - 1];
+            
             newTankManager.Setup();
 
             m_PlayerCount++;
 
             var playerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<PlayerController>();
             m_PlayerControllers.Add(playerController);
+
+            playerController.Pawn = newTankManager.m_Instance.GetComponent<TankMovement>();
 
             return playerController;
         }

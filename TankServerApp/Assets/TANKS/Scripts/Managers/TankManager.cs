@@ -23,7 +23,6 @@ namespace UnityGame.Tanks
         private TankShooting m_Shooting;                        // Reference to tank's shooting script, used to disable and enable control.
         private GameObject m_CanvasGameObject;                  // Used to disable the world space UI during the Starting and Ending phases of each round.
 
-
         public void Setup ()
         {
             // Get references to the components.

@@ -19,16 +19,17 @@ public class NetGameMode : MonoBehaviour
     {
         connectionSocket.paused = true;
 
-        for(int i = 0; i < connectionSocket.events.Count; ++i)
+        int readCount = connectionSocket.events.Count;
+        for (int i = 0; i < readCount; ++i)
         {
             var evnt = connectionSocket.events[i];
             OnNetworkEvent(evnt.data, evnt.eventArgs);
         }
 
-        connectionSocket.paused = false;
+        // remove events processed
+        connectionSocket.events.RemoveRange(0, readCount);
 
-        // clear the queue
-        connectionSocket.flushEvents();
+        connectionSocket.paused = false;
     }
 
     private void OnNetworkEvent(byte[] data, SocketEventArgs e)
@@ -48,13 +49,15 @@ public class NetGameMode : MonoBehaviour
                 switch (msg.move)
                 {
                     case Movement.FWRD:
+                        playerControllers[msg.playerID].MoveForward(1.0f);
                         Debug.Log("FWRD");
                         break;
                     case Movement.BACK:
+                        playerControllers[msg.playerID].MoveForward(-1.0f);
                         Debug.Log("BACK");
                         break;
                     default:
-                        Debug.Log("Unknown movement.");
+                        Debug.LogError("Unknown movement.");
                         break;
                 }
 
