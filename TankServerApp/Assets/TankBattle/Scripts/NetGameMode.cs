@@ -19,9 +19,9 @@ public class NetGameMode : MonoBehaviour
     {
         connectionSocket.paused = true;
 
-        // poll and process network events
-        foreach (var evnt in connectionSocket.events)
+        for(int i = 0; i < connectionSocket.events.Count; ++i)
         {
+            var evnt = connectionSocket.events[i];
             OnNetworkEvent(evnt.data, evnt.eventArgs);
         }
 

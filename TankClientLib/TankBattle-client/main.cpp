@@ -117,7 +117,7 @@ int main()
 
                 //std::copy()
 
-                ex.move = FWRD;
+                //ex.move = FWRD;
 
                 // begin transmission
                 memcpy_s(&msg, msgSize, &ex, sizeof(tankBattleHeader));

@@ -79,11 +79,11 @@ public class SocketListener
         {
             if(value)
             {
-                allDone.Reset();
+                allDone.Reset(); // block
             }
             else
             {
-                allDone.Set();
+                allDone.Set();  // allow
             }
 
             _paused = value;
@@ -92,6 +92,7 @@ public class SocketListener
     private bool _paused;
 
     public List<SocketEvent> events = new List<SocketEvent>();
+
     public void flushEvents()
     {
         events.Clear();
@@ -174,6 +175,12 @@ public class SocketListener
                     // have we recieved the full message?
                     if (state.bytesRead >= header.messageLength)
                     {
+                        if (header.messageLength == 0)
+                        {
+                            Debug.LogWarning("Invalid message length; exiting recieve loop.");
+                            break;
+                        }
+
                         events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[handler]), (byte[])state.buffer.Clone()));
                         Debug.Log("Message recieved.");
 
@@ -182,7 +189,7 @@ public class SocketListener
 
                         // remove this record from the buffer
                         state.buffer.ShiftLeft(header.messageLength);
-                        Array.Clear(state.buffer, header.messageLength, state.buffer.Length - header.messageLength);
+                        //Array.Clear(state.buffer, header.messageLength, state.buffer.Length - header.messageLength);
                     }
                     else
                     {
