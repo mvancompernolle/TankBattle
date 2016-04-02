@@ -85,6 +85,8 @@ int main()
         // check TCP streams via dyad
 		dyad_update();
 
+        std::cout << "poll.\n";
+
         if (isConnected)
         {
             // poll for input

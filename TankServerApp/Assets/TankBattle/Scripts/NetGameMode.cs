@@ -56,6 +56,10 @@ public class NetGameMode : MonoBehaviour
                         playerControllers[msg.playerID].MoveForward(-1.0f);
                         Debug.Log("BACK");
                         break;
+                    case Movement.HALT:
+                        playerControllers[msg.playerID].MoveForward(0.0f);
+                        Debug.Log("HALT");
+                        break;
                     default:
                         Debug.LogError("Unknown movement.");
                         break;
