@@ -37,42 +37,74 @@ public class NetGameMode : MonoBehaviour
         switch (e.socketEvent)
         {
             case SocketEventArgs.SocketEventType.ACCEPT:
-                TankBattleHeader reply = new TankBattleHeader();
-                reply.playerID = AddPlayer();
-
-                // send the reply
-                connectionSocket.Send(e.endpoint, reply);
-
                 break;
             case SocketEventArgs.SocketEventType.READ:
                 var msg = DataUtils.FromBytes<TankBattleHeader>(data);
-                switch (msg.move)
-                {
-                    case Movement.FWRD:
-                        playerControllers[msg.playerID].MoveForward(1.0f);
-                        playerControllers[msg.playerID].MoveRight(0.0f);
-                        break;
-                    case Movement.BACK:
-                        playerControllers[msg.playerID].MoveForward(-1.0f);
-                        playerControllers[msg.playerID].MoveRight(0.0f);
-                        break;
-                    case Movement.LEFT:
-                        playerControllers[msg.playerID].MoveForward(0.0f);
-                        playerControllers[msg.playerID].MoveRight(-1.0f);
-                        break;
-                    case Movement.RIGHT:
-                        playerControllers[msg.playerID].MoveForward(0.0f);
-                        playerControllers[msg.playerID].MoveRight(1.0f);
-                        break;
-                    case Movement.HALT:
-                        playerControllers[msg.playerID].MoveForward(0.0f);
-                        playerControllers[msg.playerID].MoveRight(0.0f);
-                        break;
-                    default:
-                        Debug.LogError("Unknown movement.");
-                        break;
-                }
 
+                //switch(msg.msg)
+                //{
+                //    case TankBattleMessage.NONE:
+                //        break;
+                //    case TankBattleMessage.JOIN:
+                //        TankBattleHeader reply = new TankBattleHeader();
+                //        reply.playerID = AddPlayer();
+
+                //        // send the reply
+                //        connectionSocket.Send(e.endpoint, reply);
+                //        break;
+                //    default:
+                //        break;
+                //}
+
+                if (msg.playerID == -1)
+                {
+                    Debug.LogWarning("New player registered.");
+                    TankBattleHeader reply = new TankBattleHeader();
+                    reply.playerID = AddPlayer();
+
+                    // send the reply
+                    connectionSocket.Send(e.endpoint, reply);
+                }
+                else
+                {
+                    try
+                    {
+                        switch (msg.move)
+                        {
+                            case Movement.FWRD:
+                                playerControllers[msg.playerID].MoveForward(1.0f);
+                                playerControllers[msg.playerID].MoveRight(0.0f);
+                                break;
+                            case Movement.BACK:
+                                playerControllers[msg.playerID].MoveForward(-1.0f);
+                                playerControllers[msg.playerID].MoveRight(0.0f);
+                                break;
+                            case Movement.LEFT:
+                                playerControllers[msg.playerID].MoveForward(0.0f);
+                                playerControllers[msg.playerID].MoveRight(-1.0f);
+                                break;
+                            case Movement.RIGHT:
+                                playerControllers[msg.playerID].MoveForward(0.0f);
+                                playerControllers[msg.playerID].MoveRight(1.0f);
+                                break;
+                            case Movement.HALT:
+                                playerControllers[msg.playerID].MoveForward(0.0f);
+                                playerControllers[msg.playerID].MoveRight(0.0f);
+                                break;
+                            default:
+                                Debug.LogError("Unknown movement.");
+                                break;
+                        }
+                    }
+                    catch (KeyNotFoundException ex)
+                    {
+                        TankBattleHeader reply = new TankBattleHeader();
+                        reply.playerID = AddPlayer();
+
+                        // send the reply
+                        connectionSocket.Send(e.endpoint, reply);
+                    }
+                }
 
                 break;
             case SocketEventArgs.SocketEventType.SEND:

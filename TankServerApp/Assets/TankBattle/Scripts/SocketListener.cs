@@ -122,6 +122,7 @@ public class SocketListener
 
     private void AcceptCallback(IAsyncResult ar)
     {
+        Debug.LogWarning("j");
         allDone.Set();
 
         Socket listener = (Socket)ar.AsyncState;

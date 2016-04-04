@@ -4,7 +4,8 @@ using System.Collections;
 public enum TankBattleMessage
 {
     NONE,
-    LOGIN,
+    JOIN,
+    GAME,
     QUIT
 }
 
@@ -19,6 +20,7 @@ public enum Movement
 
 public struct TankBattleHeader
 {
+    public int uuid;
     public int playerID;
     public TankBattleMessage msg;
     public Movement move;

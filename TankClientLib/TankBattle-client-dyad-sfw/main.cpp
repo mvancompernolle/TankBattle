@@ -1,9 +1,12 @@
 #include <iostream>
+#include <random>
+#include <time.h>
 
 enum tankBattleMessage
 {
     NONE,
     JOIN,
+    GAME,
     QUIT
 };
 
@@ -20,8 +23,8 @@ const char FIRE_KEY = 'e';
 
 #include "dyad.h"
 
-int myPlayerID = 0;
-
+int myPlayerID = -1;
+int myUUID = -1;
 
 
 enum Movement
@@ -35,6 +38,8 @@ enum Movement
 
 struct tankBattleHeader
 {
+    int uuid = -1;
+
     int playerID = -1;
     tankBattleMessage msg = QUIT;
     Movement move = HALT;
@@ -42,6 +47,7 @@ struct tankBattleHeader
 };
 
 bool isConnected = false;
+bool isWaiting = false;
 bool isProvisioned = false;
 
 static void onConnect(dyad_Event *e)
@@ -61,6 +67,7 @@ static void onData(dyad_Event *e)
     myPlayerID = msg->playerID;
 
     isProvisioned = true;
+    isWaiting = false;
 }
 static void onError(dyad_Event *e)
 {
@@ -73,6 +80,10 @@ static void onClose(dyad_Event *e)
     printf("%s", e->msg);
 
     isConnected = false;
+}
+static int getUUID()
+{
+    return rand() % 100000000;  // TODO: make a better algo for this
 }
 
 #define TANK_FWRD 'W'
@@ -96,6 +107,9 @@ bool inputPressed()
 
 int main()
 {
+    srand(time(NULL));
+    myUUID = getUUID();
+
     dyad_init();
 
     dyad_Stream *s = dyad_newStream();
@@ -114,7 +128,7 @@ int main()
         dyad_setUpdateTimeout(0.0);
         dyad_update();
 
-        if (isConnected && isProvisioned)
+        if (isConnected && !isWaiting)
         {
             // prepare message
             const int msgSize = sizeof(tankBattleHeader);
@@ -124,6 +138,9 @@ int main()
             ex.msg = tankBattleMessage::NONE;
             ex.messageLength = msgSize;    // TODO: support for dynamic message length
             ex.playerID = myPlayerID;
+
+            if (ex.playerID == -1)
+                isWaiting = true;
 
             // poll for input
             if (inputPressed())
@@ -170,6 +187,8 @@ int main()
     dyad_shutdown();
 
     sfw::termContext();
+
+    system("pause");
 
     return 0;
 }
