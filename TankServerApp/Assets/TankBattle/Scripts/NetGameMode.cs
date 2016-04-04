@@ -50,15 +50,23 @@ public class NetGameMode : MonoBehaviour
                 {
                     case Movement.FWRD:
                         playerControllers[msg.playerID].MoveForward(1.0f);
-                        Debug.Log("FWRD");
+                        playerControllers[msg.playerID].MoveRight(0.0f);
                         break;
                     case Movement.BACK:
                         playerControllers[msg.playerID].MoveForward(-1.0f);
-                        Debug.Log("BACK");
+                        playerControllers[msg.playerID].MoveRight(0.0f);
+                        break;
+                    case Movement.LEFT:
+                        playerControllers[msg.playerID].MoveForward(0.0f);
+                        playerControllers[msg.playerID].MoveRight(-1.0f);
+                        break;
+                    case Movement.RIGHT:
+                        playerControllers[msg.playerID].MoveForward(0.0f);
+                        playerControllers[msg.playerID].MoveRight(1.0f);
                         break;
                     case Movement.HALT:
                         playerControllers[msg.playerID].MoveForward(0.0f);
-                        Debug.Log("HALT");
+                        playerControllers[msg.playerID].MoveRight(0.0f);
                         break;
                     default:
                         Debug.LogError("Unknown movement.");

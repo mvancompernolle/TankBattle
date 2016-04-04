@@ -35,6 +35,7 @@ struct tankBattleHeader
 };
 
 bool isConnected = false;
+bool isReady = false;
 
 static void onConnect(dyad_Event *e)
 {
@@ -51,6 +52,8 @@ static void onData(dyad_Event *e)
     std::cout << (msg->playerID) << "\n";
 
     myPlayerID = msg->playerID;
+
+    isReady = true;
 }
 static void onError(dyad_Event *e)
 {
@@ -61,11 +64,11 @@ static void onClose(dyad_Event *e)
 {
     printf("onClose: ");
 	printf("%s", e->msg);
+    dyad_close(e->stream);
 }
 
 #define TANK_FWRD 'w'
 #define TANK_BACK 's'
-
 
 
 int main()
@@ -82,25 +85,31 @@ int main()
 
 	while (dyad_getStreamCount() > 0)
 	{
+        dyad_setUpdateTimeout(0.0);
+
         // check TCP streams via dyad
 		dyad_update();
 
+        if (!dyad_getStreamCount() > 0)
+            break;
+
         std::cout << "poll.\n";
 
-        if (isConnected)
+        if (isConnected && isReady)
         {
+            // prepare message
+            const int msgSize = sizeof(tankBattleHeader);
+            unsigned char msg[msgSize];
+
+            tankBattleHeader ex;
+            ex.msg = NONE;
+            ex.messageLength = msgSize;    // TODO: support for dynamic message length
+            ex.playerID = myPlayerID;
+
             // poll for input
             if (_kbhit())
             {
                 std::cout << "Send.\n";
-
-                // prepare message
-                const int msgSize = sizeof(tankBattleHeader);
-                unsigned char msg[msgSize];
-
-                tankBattleHeader ex;
-                ex.messageLength = msgSize;    // TODO: support for dynamic message length
-                ex.playerID = myPlayerID;
 
                 char input = _getch();
 
@@ -116,15 +125,11 @@ int main()
                     ex.move = HALT;
                     break;
                 }
-
-                //std::copy()
-
-                //ex.move = FWRD;
-
-                // begin transmission
-                memcpy_s(&msg, msgSize, &ex, sizeof(tankBattleHeader));
-                dyad_write(s, &msg, msgSize);
             }
+
+            // begin transmission
+            memcpy_s(&msg, msgSize, &ex, sizeof(tankBattleHeader));
+            dyad_write(s, &msg, msgSize);
 		}
 	}
 

@@ -3,11 +3,13 @@
 enum tankBattleMessage
 {
     NONE,
-    LOGIN,
+    JOIN,
     QUIT
 };
 
 #include "sfwdraw.h"
+
+#undef NONE
 
 const char FWRD_KEY = 'w';
 const char REVS_KEY = 's';
@@ -40,6 +42,7 @@ struct tankBattleHeader
 };
 
 bool isConnected = false;
+bool isProvisioned = false;
 
 static void onConnect(dyad_Event *e)
 {
@@ -56,6 +59,8 @@ static void onData(dyad_Event *e)
     std::cout << (msg->playerID) << "\n";
 
     myPlayerID = msg->playerID;
+
+    isProvisioned = true;
 }
 static void onError(dyad_Event *e)
 {
@@ -66,10 +71,17 @@ static void onClose(dyad_Event *e)
 {
     printf("onClose: ");
     printf("%s", e->msg);
+
+    isConnected = false;
 }
 
 #define TANK_FWRD 'W'
 #define TANK_BACK 'S'
+
+#define TANK_LEFT 'A'
+#define TANK_RIGT 'D'
+
+#define GAME_QUIT 'Q'
 
 bool inputPressed()
 {
@@ -99,26 +111,24 @@ int main()
     while (dyad_getStreamCount() > 0 && sfw::stepContext())
     {
         // check TCP streams via dyad
-        dyad_setUpdateTimeout(0);
+        dyad_setUpdateTimeout(0.0);
         dyad_update();
 
-        if (isConnected)
+        if (isConnected && isProvisioned)
         {
-            std::cout << "poll.\n";
+            // prepare message
+            const int msgSize = sizeof(tankBattleHeader);
+            unsigned char msg[msgSize];
+
+            tankBattleHeader ex;
+            ex.msg = tankBattleMessage::NONE;
+            ex.messageLength = msgSize;    // TODO: support for dynamic message length
+            ex.playerID = myPlayerID;
 
             // poll for input
             if (inputPressed())
             {
-                std::cout << "Send.\n";
-
-                // prepare message
-                const int msgSize = sizeof(tankBattleHeader);
-                unsigned char msg[msgSize];
-
-                tankBattleHeader ex;
-                ex.messageLength = msgSize;    // TODO: support for dynamic message length
-                ex.playerID = myPlayerID;
-
+                // tank actions
                 if (sfw::getKey(TANK_FWRD))
                 {
                     ex.move = FWRD;
@@ -127,18 +137,33 @@ int main()
                 {
                     ex.move = BACK;
                 }
+                else if (sfw::getKey(TANK_LEFT))
+                {
+                    ex.move = LEFT;
+                }
+                else if (sfw::getKey(TANK_RIGT))
+                {
+                    ex.move = RIGHT;
+                }
                 else
                 {
                     ex.move = HALT;
                 }
 
+                // game actions
+                if (sfw::getKey(GAME_QUIT))
+                {
+                    ex.msg = QUIT;
+                }
+            }
+
+            if (isConnected)
+            {
                 // begin transmission
                 memcpy_s(&msg, msgSize, &ex, sizeof(tankBattleHeader));
                 dyad_write(s, &msg, msgSize);
             }
         }
-
-        
     }
 
     dyad_close(s);
