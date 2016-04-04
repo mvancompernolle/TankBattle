@@ -9,7 +9,7 @@ public enum TankBattleMessage
     QUIT
 }
 
-public enum Movement
+public enum TankMovementOptions
 {
     HALT,
     FWRD,
@@ -18,11 +18,24 @@ public enum Movement
     RIGHT
 }
 
+public enum CannonMovementOptions
+{
+    HALT,
+    LEFT,
+    RIGHT
+}
+
 public struct TankBattleHeader
 {
     public int uuid;
     public int playerID;
+
+
     public TankBattleMessage msg;
-    public Movement move;
+    public TankMovementOptions tankMove;
+    public CannonMovementOptions cannonMove;
+
+    public int fireWish;
+
     public int messageLength;
 }

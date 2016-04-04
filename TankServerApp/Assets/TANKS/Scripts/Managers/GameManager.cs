@@ -44,7 +44,7 @@ namespace UnityGame.Tanks
             m_StartWait = new WaitForSeconds (m_StartDelay);
             m_EndWait = new WaitForSeconds (m_EndDelay);
 
-            Debug.LogWarning("WARN: Dummy present! Please remove to test two players.");
+            //Debug.LogWarning("WARN: Dummy present! Please remove to test two players.");
             //SpawnSingleTank();
 
             // Once the tanks have been created and the camera is using them as targets, start the game.
@@ -69,18 +69,9 @@ namespace UnityGame.Tanks
             m_PlayerControllers.Add(playerController);
 
             playerController.Pawn = newTankManager.m_Instance.GetComponent<TankMovement>();
+            playerController.PawnFire = newTankManager.m_Instance.GetComponent<TankShooting>();
 
             return playerController;
-        }
-
-        private void SpawnAllTanks()
-        {
-            // For all the tanks...
-            for (int i = 0; i < m_TankManagers.Count; i++)
-            {
-                // ... create them, set their player number and references needed for control.
-                SpawnSingleTank();
-            }
         }
 
         public GameObject GetTank(int tankID)

@@ -69,31 +69,36 @@ public class NetGameMode : MonoBehaviour
                 {
                     try
                     {
-                        switch (msg.move)
+                        switch (msg.tankMove)
                         {
-                            case Movement.FWRD:
+                            case TankMovementOptions.FWRD:
                                 playerControllers[msg.playerID].MoveForward(1.0f);
                                 playerControllers[msg.playerID].MoveRight(0.0f);
                                 break;
-                            case Movement.BACK:
+                            case TankMovementOptions.BACK:
                                 playerControllers[msg.playerID].MoveForward(-1.0f);
                                 playerControllers[msg.playerID].MoveRight(0.0f);
                                 break;
-                            case Movement.LEFT:
+                            case TankMovementOptions.LEFT:
                                 playerControllers[msg.playerID].MoveForward(0.0f);
                                 playerControllers[msg.playerID].MoveRight(-1.0f);
                                 break;
-                            case Movement.RIGHT:
+                            case TankMovementOptions.RIGHT:
                                 playerControllers[msg.playerID].MoveForward(0.0f);
                                 playerControllers[msg.playerID].MoveRight(1.0f);
                                 break;
-                            case Movement.HALT:
+                            case TankMovementOptions.HALT:
                                 playerControllers[msg.playerID].MoveForward(0.0f);
                                 playerControllers[msg.playerID].MoveRight(0.0f);
                                 break;
                             default:
                                 Debug.LogError("Unknown movement.");
                                 break;
+                        }
+
+                        if(msg.fireWish == 1)
+                        {
+                            playerControllers[msg.playerID].Fire();
                         }
                     }
                     catch (KeyNotFoundException ex)

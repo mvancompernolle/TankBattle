@@ -999,6 +999,7 @@ MonoBehaviour:
   m_MinLaunchForce: 15
   m_MaxLaunchForce: 30
   m_MaxChargeTime: 0.75
+  m_FireCooldown: 1
 --- !u!198 &19809832
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -4258,6 +4259,10 @@ Prefab:
     - target: {fileID: 0}
       propertyPath: m_MinLaunchForce
       value: 29
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_FireCooldown
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

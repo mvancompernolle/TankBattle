@@ -2,7 +2,7 @@
 #include <random>
 #include <time.h>
 
-enum tankBattleMessage
+enum class tankBattleMessage
 {
     NONE,
     JOIN,
@@ -27,7 +27,7 @@ int myPlayerID = -1;
 int myUUID = -1;
 
 
-enum Movement
+enum class TankMovementOptions
 {
     HALT,
     FWRD,
@@ -36,13 +36,24 @@ enum Movement
     RIGHT,
 };
 
+enum class CannonMovementOptions
+{
+    HALT,
+    LEFT,
+    RIGHT
+};
+
 struct tankBattleHeader
 {
     int uuid = -1;
-
     int playerID = -1;
-    tankBattleMessage msg = QUIT;
-    Movement move = HALT;
+
+    tankBattleMessage msg = tankBattleMessage::NONE;
+    TankMovementOptions tankMove = TankMovementOptions::HALT;
+    CannonMovementOptions cannonMove = CannonMovementOptions::HALT;
+
+    int fireWish = 0;
+    
     int messageLength;  // this is only if we had like, a payload to deliver.
 };
 
@@ -91,6 +102,11 @@ static int getUUID()
 
 #define TANK_LEFT 'A'
 #define TANK_RIGT 'D'
+
+#define CANN_LEFT 'Q'
+#define CANN_RIGT 'E'
+
+#define TANK_FIRE 'F'
 
 #define GAME_QUIT 'Q'
 
@@ -148,29 +164,47 @@ int main()
                 // tank actions
                 if (sfw::getKey(TANK_FWRD))
                 {
-                    ex.move = FWRD;
+                    ex.tankMove = TankMovementOptions::FWRD;
                 }
                 else if (sfw::getKey(TANK_BACK))
                 {
-                    ex.move = BACK;
+                    ex.tankMove = TankMovementOptions::BACK;
                 }
                 else if (sfw::getKey(TANK_LEFT))
                 {
-                    ex.move = LEFT;
+                    ex.tankMove = TankMovementOptions::LEFT;
                 }
                 else if (sfw::getKey(TANK_RIGT))
                 {
-                    ex.move = RIGHT;
+                    ex.tankMove = TankMovementOptions::RIGHT;
                 }
                 else
                 {
-                    ex.move = HALT;
+                    ex.tankMove = TankMovementOptions::HALT;
+                }
+
+                if (sfw::getKey(CANN_LEFT))
+                {
+                    ex.cannonMove = CannonMovementOptions::LEFT;
+                }
+                else if (sfw::getKey(CANN_RIGT))
+                {
+                    ex.cannonMove = CannonMovementOptions::RIGHT;
+                }
+                else
+                {
+                    ex.cannonMove = CannonMovementOptions::HALT;
+                }
+
+                if (sfw::getKey(TANK_FIRE))
+                {
+                    ex.fireWish = true;
                 }
 
                 // game actions
                 if (sfw::getKey(GAME_QUIT))
                 {
-                    ex.msg = QUIT;
+                    ex.msg = tankBattleMessage::QUIT;
                 }
             }
 
@@ -188,7 +222,7 @@ int main()
 
     sfw::termContext();
 
-    system("pause");
+    //system("pause");
 
     return 0;
 }

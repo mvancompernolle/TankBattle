@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
+
 
 namespace UnityGame.Tanks
 {
-    public class TankShooting : MonoBehaviour
+    public class TankShooting : MonoBehaviour, IFireable
     {
         public int m_PlayerNumber = 1;              // Used to identify the different players.
         public Rigidbody m_Shell;                   // Prefab of the shell.
@@ -21,7 +23,11 @@ namespace UnityGame.Tanks
         private float m_CurrentLaunchForce;         // The force that will be given to the shell when the fire button is released.
         private float m_ChargeSpeed;                // How fast the launch force increases, based on the max charge time.
         private bool m_Fired;                       // Whether or not the shell has been launched with this button press.
+        private bool m_FireWish;                    // Is the user intending to fire?
 
+        [SerializeField]
+        private float m_FireCooldown = 5.0f;        // How long is the cooldown between fires?
+        private bool m_IsFireOnCooldown;            // Is the tank currently on cooldown for firing?
 
         private void OnEnable()
         {
@@ -46,12 +52,28 @@ namespace UnityGame.Tanks
             // The slider should have a default value of the minimum launch force.
             m_AimSlider.value = m_MinLaunchForce;
 
+            // If a fire has been requested and we can fire...
+            if (m_FireWish)
+            {
+                m_FireWish = false;
+
+                if (CanFire())
+                {
+                    m_IsFireOnCooldown = true;
+                    
+                    Launch();
+                    StartCoroutine(StartGunCooldown(m_FireCooldown));
+                }
+            }
+
+            // Charge-type logic...
+
             // If the max force has been exceeded and the shell hasn't yet been launched...
             if (m_CurrentLaunchForce >= m_MaxLaunchForce && !m_Fired)
             {
                 // ... use the max force and launch the shell.
                 m_CurrentLaunchForce = m_MaxLaunchForce;
-                Fire ();
+                Launch ();
             }
             // Otherwise, if the fire button has just started being pressed...
             else if (Input.GetButtonDown (m_FireButton))
@@ -76,26 +98,48 @@ namespace UnityGame.Tanks
             else if (Input.GetButtonUp (m_FireButton) && !m_Fired)
             {
                 // ... launch the shell.
-                Fire ();
+                Launch ();
             }
         }
 
+        IEnumerator StartGunCooldown(float cooldownTimer)
+        {
+            yield return new WaitForSeconds(cooldownTimer);
 
-        private void Fire ()
+            m_IsFireOnCooldown = false;
+        }
+
+        public bool CanFire()
+        {
+            return !m_IsFireOnCooldown;
+        }
+
+        public void Fire ()
+        {
+            m_FireWish = true;
+        }
+
+        public void Launch(bool maximumForce = false)
         {
             // Set the fired flag so only Fire is only called once.
             m_Fired = true;
 
             // Create an instance of the shell and store a reference to it's rigidbody.
             Rigidbody shellInstance =
-                Instantiate (m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
+                Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as Rigidbody;
+
+            // Instantly up to max?
+            if(maximumForce)
+            {
+                m_CurrentLaunchForce = m_MaxLaunchForce;
+            }
 
             // Set the shell's velocity to the launch force in the fire position's forward direction.
-            shellInstance.velocity = m_CurrentLaunchForce * m_FireTransform.forward; 
+            shellInstance.velocity = m_CurrentLaunchForce * m_FireTransform.forward;
 
             // Change the clip to the firing clip and play it.
             m_ShootingAudio.clip = m_FireClip;
-            m_ShootingAudio.Play ();
+            m_ShootingAudio.Play();
 
             // Reset the launch force.  This is a precaution in case of missing button events.
             m_CurrentLaunchForce = m_MinLaunchForce;
