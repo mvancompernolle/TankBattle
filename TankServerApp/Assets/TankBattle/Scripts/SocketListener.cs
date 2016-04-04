@@ -146,6 +146,8 @@ public class SocketListener
 
         Debug.Log("Setting up to recieve from " + endpoint.Address.ToString());
 
+        listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+
         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
             new AsyncCallback(ReadCallback), state);
     }
@@ -161,7 +163,7 @@ public class SocketListener
 
             if (bytesRead > 0)
             {
-                Console.WriteLine("Read {0} bytes from socket.", bytesRead);
+                //Console.WriteLine("Read {0} bytes from socket.", bytesRead);
 
                 // TODO: Can we add generics to callbacks?
                 // How can we simplify this to be reusable?
@@ -171,19 +173,19 @@ public class SocketListener
                 {
                     var header = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
 
-                    Debug.LogFormat("There are {0} unread bytes in the buffer.", state.bytesRead);
+                    //Debug.LogFormat("There are {0} unread bytes in the buffer.", state.bytesRead);
 
                     // have we recieved the full message?
                     if (state.bytesRead >= header.messageLength)
                     {
-                        if (header.messageLength == 0)
+                        if (header.messageLength <= 0)
                         {
                             Debug.LogWarning("Invalid message length; exiting recieve loop.");
                             break;
                         }
 
                         events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[handler]), (byte[])state.buffer.Clone()));
-                        Debug.Log("Message recieved.");
+                        //Debug.Log("Message recieved.");
 
                         // subtract the number of bytes needed to be processed
                         state.bytesRead -= header.messageLength;
