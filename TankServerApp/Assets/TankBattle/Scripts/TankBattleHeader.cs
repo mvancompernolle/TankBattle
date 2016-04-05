@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
-public enum TankBattleMessage
+﻿public enum TankBattleMessage
 {
     NONE,
     JOIN,

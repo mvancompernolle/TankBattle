@@ -22,8 +22,32 @@ public class NetGameMode : MonoBehaviour
         int readCount = connectionSocket.events.Count;
         for (int i = 0; i < readCount; ++i)
         {
-            var evnt = connectionSocket.events[i];
-            OnNetworkEvent(evnt.data, evnt.eventArgs);
+            try
+            {
+                var evnt = connectionSocket.events[i];
+
+                if(evnt != null)
+                    OnNetworkEvent(evnt.data, evnt.eventArgs);
+                else
+                {
+                    Debug.LogError("The network event was null.");
+                }
+            }
+            catch (Exception ex)
+            {
+                if(ex is NullReferenceException)
+                {
+                    var nullEx = ex as NullReferenceException;
+                    Debug.LogError(nullEx.Message);
+                }
+                else if (ex is IndexOutOfRangeException)
+                {
+                    var indEx = ex as IndexOutOfRangeException;
+                    Debug.LogError(indEx.Message);
+                }
+                
+                Debug.LogError(ex.Message);
+            }
         }
 
         // remove events processed
@@ -37,102 +61,105 @@ public class NetGameMode : MonoBehaviour
         switch (e.socketEvent)
         {
             case SocketEventArgs.SocketEventType.ACCEPT:
+                OnNetPlayerConnected(e.endpoint);
                 break;
             case SocketEventArgs.SocketEventType.READ:
-                var msg = DataUtils.FromBytes<TankBattleHeader>(data);
-
-                //switch(msg.msg)
-                //{
-                //    case TankBattleMessage.NONE:
-                //        break;
-                //    case TankBattleMessage.JOIN:
-                //        TankBattleHeader reply = new TankBattleHeader();
-                //        reply.playerID = AddPlayer();
-
-                //        // send the reply
-                //        connectionSocket.Send(e.endpoint, reply);
-                //        break;
-                //    default:
-                //        break;
-                //}
-
-                if (msg.playerID == -1)
-                {
-                    Debug.LogWarning("New player registered.");
-                    TankBattleHeader reply = new TankBattleHeader();
-                    reply.playerID = AddPlayer();
-
-                    // send the reply
-                    connectionSocket.Send(e.endpoint, reply);
-                }
-                else
-                {
-                    try
-                    {
-                        switch (msg.tankMove)
-                        {
-                            case TankMovementOptions.FWRD:
-                                playerControllers[msg.playerID].MoveForward(1.0f);
-                                playerControllers[msg.playerID].MoveRight(0.0f);
-                                break;
-                            case TankMovementOptions.BACK:
-                                playerControllers[msg.playerID].MoveForward(-1.0f);
-                                playerControllers[msg.playerID].MoveRight(0.0f);
-                                break;
-                            case TankMovementOptions.LEFT:
-                                playerControllers[msg.playerID].MoveForward(0.0f);
-                                playerControllers[msg.playerID].MoveRight(-1.0f);
-                                break;
-                            case TankMovementOptions.RIGHT:
-                                playerControllers[msg.playerID].MoveForward(0.0f);
-                                playerControllers[msg.playerID].MoveRight(1.0f);
-                                break;
-                            case TankMovementOptions.HALT:
-                                playerControllers[msg.playerID].MoveForward(0.0f);
-                                playerControllers[msg.playerID].MoveRight(0.0f);
-                                break;
-                            default:
-                                Debug.LogError("Unknown movement.");
-                                break;
-                        }
-
-                        if(msg.fireWish == 1)
-                        {
-                            playerControllers[msg.playerID].Fire();
-                        }
-                    }
-                    catch (KeyNotFoundException ex)
-                    {
-                        TankBattleHeader reply = new TankBattleHeader();
-                        reply.playerID = AddPlayer();
-
-                        // send the reply
-                        connectionSocket.Send(e.endpoint, reply);
-                    }
-                }
-
-                break;
-            case SocketEventArgs.SocketEventType.SEND:
-
+                OnNetPlayerData(e.endpoint, DataUtils.FromBytes<TankBattleHeader>(data));
                 break;
         }
     }
 
+    private void OnNetPlayerConnected(NetworkPlayer netPlayer)
+    {
+        var PID = AddPlayer();
+        var welcomeMsg = new TankBattleHeader();
+        welcomeMsg.playerID = PID;
+        welcomeMsg.msg = TankBattleMessage.JOIN;
+        welcomeMsg.messageLength = DataUtils.SizeOf<TankBattleHeader>();
+
+        connectionSocket.Send(netPlayer, DataUtils.GetBytes(welcomeMsg));
+    }
+    private void OnNetPlayerData(NetworkPlayer netPlayer, TankBattleHeader header)
+    {
+        if(header.playerID == -1)
+        {
+            Debug.LogWarning("Invalid player ID provided!");
+            return;
+        }
+
+        try
+        {
+            // process tank movement
+            switch (header.tankMove)
+            {
+                case TankMovementOptions.FWRD:
+                    playerControllers[header.playerID].MoveForward(1.0f);
+                    playerControllers[header.playerID].MoveRight(0.0f);
+                    break;
+                case TankMovementOptions.BACK:
+                    playerControllers[header.playerID].MoveForward(-1.0f);
+                    playerControllers[header.playerID].MoveRight(0.0f);
+                    break;
+                case TankMovementOptions.LEFT:
+                    playerControllers[header.playerID].MoveForward(0.0f);
+                    playerControllers[header.playerID].MoveRight(-1.0f);
+                    break;
+                case TankMovementOptions.RIGHT:
+                    playerControllers[header.playerID].MoveForward(0.0f);
+                    playerControllers[header.playerID].MoveRight(1.0f);
+                    break;
+                case TankMovementOptions.HALT:
+                    playerControllers[header.playerID].MoveForward(0.0f);
+                    playerControllers[header.playerID].MoveRight(0.0f);
+                    break;
+                default:
+                    Debug.LogError("Unknown movement.");
+                    break;
+            }
+
+            // process tank actions
+            if (header.fireWish == 1)
+            {
+                playerControllers[header.playerID].Fire();
+            }
+        }
+        catch (KeyNotFoundException ex)
+        {
+            TankBattleHeader reply = new TankBattleHeader();
+            reply.playerID = AddPlayer();
+
+            // send the reply
+            connectionSocket.Send(netPlayer, reply);
+        }
+    }
+    private void OnNetPlayerDisconnected(NetworkPlayer netPlayer)
+    {
+        RemovePlayer(netPlayer);
+    }
+
     void Start()
     {
+        Debug.Log("Initializing NetGameMode...");
+
         // listen for network players
         connectionSocket = new SocketListener();
         connectionSocket.StartListening(gamePort);
     }
-
     void Update()
     {
         CheckNetworkEvents();
     }
-
     void OnApplicationQuit()
     {
-        // close socket for communication
+        CleanUpConnections();
+    }
+    void OnDestroy()
+    {
+        CleanUpConnections();
+    }
+
+    private void CleanUpConnections()
+    {
         connectionSocket.StopListening();
     }
 
@@ -140,12 +167,11 @@ public class NetGameMode : MonoBehaviour
     public int AddPlayer()
     {
         playerControllers[networkIDs] = gameManager.SpawnSingleTank();
-
         return networkIDs++; 
     }
 
     // Removes a player from the game by their ID
-    public void RemovePlayer(int playerID)
+    public void RemovePlayer(NetworkPlayer netPlayer)
     {
 
     }

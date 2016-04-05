@@ -44,9 +44,6 @@ namespace UnityGame.Tanks
             m_StartWait = new WaitForSeconds (m_StartDelay);
             m_EndWait = new WaitForSeconds (m_EndDelay);
 
-            //Debug.LogWarning("WARN: Dummy present! Please remove to test two players.");
-            //SpawnSingleTank();
-
             // Once the tanks have been created and the camera is using them as targets, start the game.
             StartCoroutine (GameLoop ());
         }

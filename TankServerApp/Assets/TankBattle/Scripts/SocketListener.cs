@@ -99,9 +99,7 @@ public class SocketListener
     }
 
     // TODO: StateObject is hard-coded to max out at 1024 bytes. Please define somewhere consistent.
-    // TODO: Add RTCs for data size. Should not exceed max.
-
-    //public 
+    // TODO: Add RTCs for data size. Should not exceed max or be less than zero.
 
     public void Send(Socket handler, String data)
     {
@@ -122,7 +120,6 @@ public class SocketListener
 
     private void AcceptCallback(IAsyncResult ar)
     {
-        Debug.LogWarning("j");
         allDone.Set();
 
         Socket listener = (Socket)ar.AsyncState;
@@ -252,14 +249,15 @@ public class SocketListener
 
             listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
             Debug.Log("Ready to accept connections.");
+
+            Debug.Log("Socket Initialized.");
+            Debug.LogFormat("Listening on port <{0}>.", port);
         }
         catch (Exception e)
         {
             Debug.LogError(e.ToString());
+            Debug.LogError("Failed to initialize socket.");
         }
-
-        Debug.Log("Socket Initialized.");
-        Debug.LogFormat("Listening on port <{0}>.", port);
     }
     public void StopListening()
     {
@@ -268,11 +266,21 @@ public class SocketListener
         {
             try
             {
-                localListener.Shutdown(SocketShutdown.Both);
-                localListener.Close();
+                if (localListener.Connected)
+                {
+                    localListener.Disconnect(true);
+
+                    localListener.Shutdown(SocketShutdown.Both);
+                    localListener.Close();
+                }
             }
             catch (Exception e)
             {
+                if(e is SocketException)
+                {
+                    Debug.LogError("Socket ErrorCode:" + ((SocketException)e).SocketErrorCode);
+                }
+                
                 Debug.LogError(e.Message + e.StackTrace);
             }
         }
@@ -284,11 +292,22 @@ public class SocketListener
             try
             {
                 var connSock = remoteConnections[i].workSocket;
-                connSock.Shutdown(SocketShutdown.Both);
-                connSock.Close();
+
+                if (connSock.Connected)
+                {
+                    connSock.Disconnect(true);
+
+                    connSock.Shutdown(SocketShutdown.Both);
+                    connSock.Close();
+                }
             }
             catch (Exception e)
             {
+                if (e is SocketException)
+                {
+                    Debug.LogError("Socket ErrorCode:" + ((SocketException)e).SocketErrorCode);
+                }
+
                 Debug.LogError(e.Message + e.StackTrace);
             }
         }
