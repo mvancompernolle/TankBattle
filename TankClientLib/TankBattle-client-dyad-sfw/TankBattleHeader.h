@@ -1,5 +1,13 @@
 #pragma once
 
+enum class tankBattleMessage
+{
+    NONE,
+    JOIN,
+    GAME,
+    QUIT
+};
+
 enum class TankMovementOptions
 {
     HALT,

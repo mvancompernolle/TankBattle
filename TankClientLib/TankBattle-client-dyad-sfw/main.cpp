@@ -2,41 +2,25 @@
 #include <random>
 #include <time.h>
 
-enum class tankBattleMessage
-{
-    NONE,
-    JOIN,
-    GAME,
-    QUIT
-};
-
+#include "dyad.h"
 #include "sfwdraw.h"
-
 #undef NONE
 
-const char FWRD_KEY = 'w';
-const char REVS_KEY = 's';
-const char LEFT_KEY = 'a';
-const char RIGT_KEY = 'd';
-
-const char FIRE_KEY = 'e';
-
-#include "dyad.h"
 #include "TankBattleHeader.h"
 
-int myPlayerID = -1;
-int myUUID = -1;
+int     myPlayerID = -1;
+int     myUUID = -1;
 
-bool isConnected = false;
-bool isWaiting = false;
-bool isProvisioned = false;
+bool    isConnected = false;   
+bool    isWaiting = false;
+bool    isProvisioned = false;
 
-static void onConnect(dyad_Event *e)
+void    onConnect(dyad_Event *e)
 {
     printf("connected: %s\n", e->msg);
     isConnected = true;
 }
-static void onData(dyad_Event *e)
+void    onData(dyad_Event *e)
 {
     printf("onData: ");
     //printf("%s", e->data);
@@ -50,37 +34,23 @@ static void onData(dyad_Event *e)
     isProvisioned = true;
     isWaiting = false;
 }
-static void onError(dyad_Event *e)
+void    onError(dyad_Event *e)
 {
     printf("onError: ");
     printf("%s", e->msg);
 }
-static void onClose(dyad_Event *e)
+void    onClose(dyad_Event *e)
 {
     printf("onClose: ");
     printf("%s", e->msg);
 
     isConnected = false;
 }
-static int getUUID()
+int     getUUID()
 {
     return rand() % 100000000;  // TODO: make a better algo for this
 }
-
-#define TANK_FWRD 'W'
-#define TANK_BACK 'S'
-
-#define TANK_LEFT 'A'
-#define TANK_RIGT 'D'
-
-#define CANN_LEFT 'Q'
-#define CANN_RIGT 'E'
-
-#define TANK_FIRE 'F'
-
-#define GAME_QUIT 'Q'
-
-bool inputPressed()
+bool    inputPressed()
 {
     for (unsigned int i = 0; i < 150; ++i)
     {
@@ -91,10 +61,54 @@ bool inputPressed()
     return false;
 }
 
-int main()
+#define TANK_FWRD 'W'
+#define TANK_BACK 'S'
+#define TANK_LEFT 'A'
+#define TANK_RIGT 'D'
+
+#define CANN_LEFT 'Q'
+#define CANN_RIGT 'E'
+
+#define TANK_FIRE 'F'
+
+#define GAME_QUIT 'Q'
+
+#define CLIENT_MAJOR_VERSION 0
+#define CLIENT_MINOR_VERSION 1
+
+int main(int argc, char** argv)
 {
+    char * serverIPAddress = "";
+
+    // handle console arguments
+    if (argc > 2)
+    {
+        std::cout << "Unsupported number of arguments." << std::endl;
+        std::cout << "Specify the IP address of the target server. Ex: tankbattle.exe 127.0.0.1" << std::endl;
+
+        return EXIT_FAILURE;
+    }
+    else if (argc == 2)
+    {
+        serverIPAddress = argv[1];
+    }
+
+    // Boot-up sequence
+    std::cout << "TankBattleClient v" << CLIENT_MAJOR_VERSION << "." << CLIENT_MINOR_VERSION << "\n";
+    
+    // acquire server IP if not provided in args
+    if (serverIPAddress[0] == '\0')
+    {
+        std::cout << "Enter the server address. \n";
+
+        char userInput[17];
+        std::cin.getline(serverIPAddress, 16);
+    }
+
     srand(time(NULL));
     myUUID = getUUID();
+
+    // initialize dyad
 
     dyad_init();
 
@@ -104,7 +118,11 @@ int main()
     dyad_addListener(s, DYAD_EVENT_DATA, onData, NULL);
     dyad_addListener(s, DYAD_EVENT_ERROR, onError, NULL);
 
-    dyad_connect(s, "127.0.0.1", 11000);
+    if (dyad_connect(s, serverIPAddress, 11000) == -1)
+    {
+        std::cerr << "Failed to connect to specified server at " << serverIPAddress << ".\n";
+        return EXIT_FAILURE;
+    }
 
     sfw::initContext(400, 400, "TankController");
 
@@ -192,7 +210,5 @@ int main()
 
     sfw::termContext();
 
-    //system("pause");
-
-    return 0;
+    return EXIT_SUCCESS;
 }
