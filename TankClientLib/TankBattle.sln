@@ -3,11 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TankBattle-client-dyad", "TankBattle-client\TankBattle-client.vcxproj", "{B7D61F75-B2B1-48E8-8323-1F613FB0573C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TankBattle-server", "TankBattle-server\TankBattle-server.csproj", "{867B8F21-44D7-4778-9848-AC01BC710057}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TankBattle-client-winsock", "TankBattle-client-winsock\TankBattle-client-winsock.vcxproj", "{1A17126E-0514-4CF3-A13B-800AFF60CBBF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TankBattle-client-dyad-sfw", "TankBattle-client-dyad-sfw\TankBattle-client-dyad-sfw.vcxproj", "{E9EED422-7049-4C27-9539-B426DC98230F}"
 EndProject
@@ -21,18 +17,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Debug|Any CPU.Build.0 = Debug|Win32
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Debug|x64.ActiveCfg = Debug|x64
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Debug|x64.Build.0 = Debug|x64
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Debug|x86.ActiveCfg = Debug|Win32
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Debug|x86.Build.0 = Debug|Win32
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Release|Any CPU.ActiveCfg = Release|Win32
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Release|Any CPU.Build.0 = Release|Win32
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Release|x64.ActiveCfg = Release|x64
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Release|x64.Build.0 = Release|x64
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Release|x86.ActiveCfg = Release|Win32
-		{B7D61F75-B2B1-48E8-8323-1F613FB0573C}.Release|x86.Build.0 = Release|Win32
 		{867B8F21-44D7-4778-9848-AC01BC710057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{867B8F21-44D7-4778-9848-AC01BC710057}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{867B8F21-44D7-4778-9848-AC01BC710057}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -45,18 +29,6 @@ Global
 		{867B8F21-44D7-4778-9848-AC01BC710057}.Release|x64.Build.0 = Release|Any CPU
 		{867B8F21-44D7-4778-9848-AC01BC710057}.Release|x86.ActiveCfg = Release|Any CPU
 		{867B8F21-44D7-4778-9848-AC01BC710057}.Release|x86.Build.0 = Release|Any CPU
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Debug|Any CPU.Build.0 = Debug|Win32
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Debug|x64.ActiveCfg = Debug|x64
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Debug|x64.Build.0 = Debug|x64
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Debug|x86.ActiveCfg = Debug|Win32
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Debug|x86.Build.0 = Debug|Win32
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Release|Any CPU.ActiveCfg = Release|Win32
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Release|Any CPU.Build.0 = Release|Win32
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Release|x64.ActiveCfg = Release|x64
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Release|x64.Build.0 = Release|x64
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Release|x86.ActiveCfg = Release|Win32
-		{1A17126E-0514-4CF3-A13B-800AFF60CBBF}.Release|x86.Build.0 = Release|Win32
 		{E9EED422-7049-4C27-9539-B426DC98230F}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{E9EED422-7049-4C27-9539-B426DC98230F}.Debug|Any CPU.Build.0 = Debug|Win32
 		{E9EED422-7049-4C27-9539-B426DC98230F}.Debug|x64.ActiveCfg = Debug|x64
