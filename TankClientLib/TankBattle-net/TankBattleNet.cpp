@@ -126,4 +126,24 @@ namespace tankNet
         return _isProvisioned;
     }
 
+    adjacencyMatrix getAdjacencyMatrix()
+    {
+        auto adjMat = adjacencyMatrix();
+        adjMat.reserve(10);
+
+        for (int i = 0; i < adjMat.size(); ++i)
+        {
+            adjMat[i].reserve(10);
+        }
+
+        for (int i = 0; i < adjMat.size(); ++i)
+        {
+            for (int j = 0; i < adjMat[i].size(); ++j)
+            {
+                adjMat[i][j] = 1;
+            }
+        }
+
+        return adjMat;
+    }
 }
