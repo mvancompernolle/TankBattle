@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,8 +16,10 @@ namespace UnityGame.Tanks
         public int m_NumRoundsToWin = 5;            // The number of rounds a single player has to win to win the game.
         public float m_StartDelay = 3f;             // The delay between the start of RoundStarting and RoundPlaying phases.
         public float m_EndDelay = 3f;               // The delay between the end of RoundPlaying and RoundEnding phases.
+        public float m_RoundTime = 2f;              // The time limit for each round to finish.
         public CameraControl m_CameraControl;       // Reference to the CameraControl script for control during different phases.
         public Text m_MessageText;                  // Reference to the overlay Text to display winning text, etc.
+        public Text m_RoundText;                    // Reference to the overlay Text to display time remaining per round.
 
         public GameObject m_TankPrefab;
         public TankManager[] m_TankManagerPresets;  // Reference to the prefab the players will control.
@@ -66,7 +69,6 @@ namespace UnityGame.Tanks
             m_PlayerControllers.Add(playerController);
 
             // HACK: why
-
             playerController.Pawn = newTankManager.m_Instance.GetComponent<TankMovement>();
             playerController.PawnFire = newTankManager.m_Instance.GetComponent<TankShooting>();
             playerController.TankGun = newTankManager.m_Instance.GetComponent<CannonMovement>();
@@ -121,6 +123,7 @@ namespace UnityGame.Tanks
         {
             // Display diagnostic
             m_MessageText.text = "WAITING FOR PLAYERS";
+            m_RoundText.text = "";
 
             // Wait for enough players to connnect
             while (m_PlayerCount < m_MinimumPlayerCount)
@@ -156,6 +159,9 @@ namespace UnityGame.Tanks
             m_RoundNumber++;
             m_MessageText.text = "ROUND " + m_RoundNumber;
 
+            var timer = TimeSpan.FromSeconds(m_RoundTime * 60f);
+            m_RoundText.text = string.Format("{0}:{1}", timer.Minutes.ToString("D2"), timer.Seconds.ToString("D2"));
+
             // Wait for the specified length of time until yielding control back to the game loop.
             yield return m_StartWait;
         }
@@ -171,11 +177,29 @@ namespace UnityGame.Tanks
             // Clear the text from the screen.
             m_MessageText.text = string.Empty;
 
+            // TODO: How are null ref errors handled in coroutines? They quit?
+
+            float roundTime = m_RoundTime * 60;
+            Debug.Log(roundTime);
+
             // While there is not one tank left...
-            while (!OneTankLeft())
+            while (!OneTankLeft() && roundTime > 0f)
             {
+                roundTime -= Time.deltaTime;
+
+                var timer = TimeSpan.FromSeconds(roundTime);
+
+                m_RoundText.text = string.Format("{0}:{1}", timer.Minutes.ToString("D2"), timer.Seconds.ToString("D2"));
+
                 // ... return on the next frame.
                 yield return null;
+            }
+
+            // If the round ended without a clear winner, kill everyone to force a draw.
+            if(roundTime < 0f)
+            {
+                KillAllTanks();
+                m_RoundText.text = "00:00";
             }
         }
 
@@ -298,8 +322,6 @@ namespace UnityGame.Tanks
                 m_TankManagers[i].Reset();
             }
         }
-
-
         private void EnableTankControl()
         {
             for (int i = 0; i < m_TankManagers.Count; i++)
@@ -307,13 +329,18 @@ namespace UnityGame.Tanks
                 m_TankManagers[i].EnableControl();
             }
         }
-
-
         private void DisableTankControl()
         {
             for (int i = 0; i < m_TankManagers.Count; i++)
             {
                 m_TankManagers[i].DisableControl();
+            }
+        }
+        private void KillAllTanks()
+        {
+            for (int i = 0; i < m_TankManagers.Count; i++)
+            {
+                m_TankManagers[i].Kill();
             }
         }
     }

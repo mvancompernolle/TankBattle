@@ -13,13 +13,12 @@ namespace UnityGame.Tanks
         public AudioClip m_EngineDriving;           // Audio to play when the tank is moving.
 		public float m_PitchRange = 0.2f;           // The amount by which the pitch of the engine noises can vary.
 
-        private Collider m_Collider;
         private Rigidbody m_Rigidbody;              // Reference used to move the tank.
         private float m_MovementInputValue;         // The current value of the movement input.
         private float m_TurnInputValue;             // The current value of the turn input.
         private float m_OriginalPitch;              // The pitch of the audio source at the start of the scene.
 
-        private float m_NoiseRadius = 20f;
+        private float m_NoiseRadius = 20f;          // Radius for broadcasting movement events
 
         private struct UserInput
         {
@@ -35,7 +34,6 @@ namespace UnityGame.Tanks
                 return transform.position;
             }
         }
-
         public Vector3 forward
         {
             get
@@ -43,12 +41,11 @@ namespace UnityGame.Tanks
                 return transform.forward;
             }
         }
-
         public bool isMoving
         {
             get
             {
-                return (m_Rigidbody.velocity.magnitude > 0.1f);
+                return (velocity.magnitude > 0.1f);
             }
         }
 
@@ -65,10 +62,7 @@ namespace UnityGame.Tanks
         private void Awake ()
         {
             m_Rigidbody = GetComponent<Rigidbody> ();
-            m_Collider = GetComponent<Collider>();
         }
-
-
         private void OnEnable ()
         {
             // When the tank is turned on, make sure it's not kinematic.
@@ -78,22 +72,11 @@ namespace UnityGame.Tanks
             m_MovementInputValue = 0f;
             m_TurnInputValue = 0f;
         }
-
-
-        private void OnDisable ()
-        {
-            // When the tank is turned off, set it to kinematic so it stops moving.
-            m_Rigidbody.isKinematic = true;
-        }
-
-
         private void Start ()
         {
             // Store the original pitch of the audio source.
             m_OriginalPitch = m_MovementAudio.pitch;
         }
-
-
         private void Update ()
         {
             // Store the value of both input axes.
@@ -102,7 +85,22 @@ namespace UnityGame.Tanks
 
             EngineAudio ();
         }
+        private void FixedUpdate()
+        {
+            // Adjust the rigidbodies position and orientation in FixedUpdate.
+            Move();
+            Turn();
 
+            BroadcastEvents();
+
+            _velocity = (transform.position - prevPosition) / Time.deltaTime;
+            prevPosition = transform.position;
+        }
+        private void OnDisable()
+        {
+            // When the tank is turned off, set it to kinematic so it stops moving.
+            m_Rigidbody.isKinematic = true;
+        }
 
         private void EngineAudio ()
         {
@@ -131,19 +129,6 @@ namespace UnityGame.Tanks
             }
         }
 
-
-        private void FixedUpdate ()
-        {
-            // Adjust the rigidbodies position and orientation in FixedUpdate.
-            Move ();
-            Turn ();
-
-            BroadcastEvents();
-
-            _velocity = (transform.position - prevPosition) / Time.deltaTime;
-            prevPosition = transform.position;
-        }
-
         private void BroadcastEvents()
         {
             var objectsInRange = Physics.OverlapSphere(transform.position, m_NoiseRadius, ~(LayerMask.NameToLayer("Players")));
@@ -153,13 +138,11 @@ namespace UnityGame.Tanks
                 var receptor = objectsInRange[i].GetComponent<TankPercepts>();
                 if(receptor != null && receptor.gameObject != gameObject)
                 {
-
                     receptor.lastKnownDirection = (transform.position - receptor.transform.position).normalized;
                     break;
                 }
             }
         }
-
 
         private void Move ()
         {
@@ -169,8 +152,6 @@ namespace UnityGame.Tanks
             // Apply this movement to the rigidbody's position.
             m_Rigidbody.MovePosition(m_Rigidbody.position + movement);
         }
-
-
         private void Turn ()
         {
             // Determine the number of degrees to be turned based on the input, speed and time between frames.
@@ -187,7 +168,6 @@ namespace UnityGame.Tanks
         {
             controllerInput.verticalInput = Mathf.Clamp(value, -1, 1);
         }
-
         void IMoveable.TurnRight(float value)
         {
             controllerInput.horizontalInput = Mathf.Clamp(value, -1, 1);

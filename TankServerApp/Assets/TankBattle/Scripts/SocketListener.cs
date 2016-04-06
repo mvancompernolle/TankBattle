@@ -209,19 +209,14 @@ public class SocketListener
             Socket handler = (Socket)ar.AsyncState; // how the fuck did this become the AsyncState now?
                                                     // ... the send call is different. data is the buffer, socket is state.
 
-            int bytesSent = handler.EndSend(ar);
-            //Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+            handler.EndSend(ar);
 
             events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.SEND, players[handler]), null));
-
-            //Debug.Log("Message sent.");
         }
         catch (Exception e)
         {
             Debug.LogError(e.Message + e.StackTrace);
         }
-
-        
     }
 
     private void Disconnect(Socket remote)

@@ -21,6 +21,7 @@ namespace UnityGame.Tanks
         public TankMovement m_Movement;                        // Reference to tank's movement script, used to disable and enable control.
         public TankShooting m_Shooting;                        // Reference to tank's shooting script, used to disable and enable control.
         public TankPercepts m_Percepts;                        // Reference to tank's percepts script, used to reset and clear information.
+        public TankHealth m_Health;
         private GameObject m_CanvasGameObject;                  // Used to disable the world space UI during the Starting and Ending phases of each round.
 
         public void Setup ()
@@ -29,6 +30,7 @@ namespace UnityGame.Tanks
             m_Movement = m_Instance.GetComponent<TankMovement> ();
             m_Shooting = m_Instance.GetComponent<TankShooting> ();
             m_Percepts = m_Instance.GetComponent<TankPercepts> ();
+            m_Health = m_Instance.GetComponent<TankHealth>();
             m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas> ().gameObject;
 
             // Set the player numbers to be consistent across the scripts.
@@ -67,6 +69,12 @@ namespace UnityGame.Tanks
             m_Shooting.enabled = true;
 
             m_CanvasGameObject.SetActive (true);
+        }
+
+        // Used to force a stalemate when a round has gone on too long.
+        public void Kill()
+        {
+            m_Health.TakeDamage(Mathf.Infinity);
         }
 
 

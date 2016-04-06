@@ -2,51 +2,50 @@
 using System.Collections;
 using System;
 
-public class CannonMovement : MonoBehaviour, IMoveable
+namespace UnityGame.Tanks
 {
-    
-    public float m_turnSpeed = 1.0f;
-
-    [SerializeField]
-    private Transform cannon;   // HACK: How should I handle accessibility for sub-comps?
-    private float axisInput;
-
-    public Vector3 position
+    public class CannonMovement : MonoBehaviour, IMoveable
     {
-        get
+        public float m_turnSpeed = 1.0f;
+
+        [SerializeField]
+        private Transform cannon;   // HACK: How should I handle accessibility for sub-comps?
+        private float axisInput;
+
+        public Vector3 position
         {
-            return cannon.position;
+            get
+            {
+                return cannon.position;
+            }
         }
-    }
-
-    public Vector3 forward
-    {
-        get
+        public Vector3 forward
         {
-            return cannon.forward;
+            get
+            {
+                return cannon.forward;
+            }
         }
-    }
-
-    public bool isMoving
-    {
-        get
+        public bool isMoving
         {
-            return Mathf.Abs(axisInput) > 0.1f;
+            get
+            {
+                return Mathf.Abs(axisInput) > 0.1f;
+            }
         }
-    }
 
-    public void MoveForward(float value)
-    {
-        return;
-    }
+        public void MoveForward(float value)
+        {
+            return;
+        }
+        public void TurnRight(float value)
+        {
+            axisInput = Mathf.Clamp(value, -1.0f, 1.0f);
+        }
 
-    public void TurnRight(float value)
-    {
-        axisInput = Mathf.Clamp(value, -1.0f, 1.0f);
-    }
-
-    public void FixedUpdate()
-    {
-        cannon.Rotate(transform.up, axisInput * m_turnSpeed);
+        public void FixedUpdate()
+        {
+            cannon.Rotate(transform.up, axisInput * m_turnSpeed);
+        }
     }
 }
