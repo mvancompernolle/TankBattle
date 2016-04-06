@@ -9,7 +9,6 @@
 #include "TankBattleHeader.h"
 
 int     myPlayerID = -1;
-int     myUUID = -1;
 
 bool    isConnected = false;   
 bool    isWaiting = false;
@@ -22,8 +21,6 @@ void    onConnect(dyad_Event *e)
 }
 void    onData(dyad_Event *e)
 {
-    
-
     printf("onData: ");
 
     auto msg = (TankBattleStateData*)e->data;
@@ -47,6 +44,12 @@ void    onData(dyad_Event *e)
         
         std::cout << "direction" << "\n";
         std::cout << "  x: " << msg->forward[0] << "\n  y: " << msg->forward[1] << "\n  z: " << msg->forward[2] << "\n\n";
+
+        std::cout << "cannon direction" << "\n";
+        std::cout << "  x: " << msg->cannonForward[0] << "\n  y: " << msg->cannonForward[1] << "\n  z: " << msg->cannonForward[2] << "\n\n";
+
+        std::cout << "canShoot\n  " << (msg->canFire ? "yes" : "no") << "\n";
+        std::cout << "los to enemy\n  " << (msg->enemyInSight ? "yes" : "no") << "\n";
     }
 }
 void    onError(dyad_Event *e)
@@ -60,10 +63,6 @@ void    onClose(dyad_Event *e)
     printf("%s", e->msg);
 
     isConnected = false;
-}
-int     getUUID()
-{
-    return rand() % 100000000;  // TODO: make a better algo for this
 }
 bool    inputPressed()
 {
@@ -121,7 +120,6 @@ int main(int argc, char** argv)
     }
 
     srand(time(NULL));
-    myUUID = getUUID();
 
     // initialize dyad
 

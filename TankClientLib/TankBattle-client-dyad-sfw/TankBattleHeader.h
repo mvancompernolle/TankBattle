@@ -44,7 +44,7 @@ struct TankBattleStateData
     float position[3];
     float forward[3];
 
-    float gunForward[3];
+    float cannonForward[3];
 
     bool canFire;
     bool enemyInSight;

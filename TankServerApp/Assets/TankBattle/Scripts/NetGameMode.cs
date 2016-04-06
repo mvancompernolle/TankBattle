@@ -70,6 +70,7 @@ public class NetGameMode : MonoBehaviour
             stateMsg.playerID = netPlayer.Key;
             stateMsg.position = player.Pawn.position;
             stateMsg.forward  = player.Pawn.forward;
+            stateMsg.cannonForward = player.TankGun.forward;
             stateMsg.canFire  = player.PawnFire.CanFire();
             stateMsg.enemyInSight = false;
 

@@ -210,11 +210,11 @@ public class SocketListener
                                                     // ... the send call is different. data is the buffer, socket is state.
 
             int bytesSent = handler.EndSend(ar);
-            Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+            //Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
             events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.SEND, players[handler]), null));
 
-            Debug.Log("Message sent.");
+            //Debug.Log("Message sent.");
         }
         catch (Exception e)
         {

@@ -43,6 +43,9 @@ public struct TankBattleStateData
 
     public Vector3 position;    // world position
     public Vector3 forward;     // forward position of tank
+
+    public Vector3 cannonForward;  // forward of cannon
+
     public bool canFire;        // reloaded?
     public bool enemyInSight;   // is enemy within FOV of tank?
 }
