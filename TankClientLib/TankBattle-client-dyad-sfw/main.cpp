@@ -58,21 +58,18 @@ int main(int argc, char** argv)
 
     // Boot-up sequence
     std::cout << "TankBattleClient v" << CLIENT_MAJOR_VERSION << "." << CLIENT_MINOR_VERSION << "\n";
-    
-    // acquire server IP if not provided in args
-    if (serverIPAddress[0] == '\0')
-    {
-        std::cout << "Enter the server address. \n";
-
-        char userInput[17];
-        std::cin.getline(serverIPAddress, 16);
-    }
 
     srand(time(NULL));
 
     // initialize networking
-    tankNet::init(serverIPAddress, 11000);
-
+    if (serverIPAddress[0] == '\0')
+    {
+        tankNet::init(11000);
+    }
+    else
+    {
+        tankNet::init(11000, serverIPAddress);
+    }
 
     sfw::initContext(400, 400, "TankController");
     

@@ -54,7 +54,7 @@ namespace tankNet
         _isProvisioned = false;
     }
     
-    bool init(char * address, int port)
+    bool init(int port, char * address)
     {
         dyad_init();
 
