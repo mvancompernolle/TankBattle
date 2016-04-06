@@ -25,9 +25,13 @@ namespace UnityGame.Tanks
         private bool m_Fired;                       // Whether or not the shell has been launched with this button press.
         private bool m_FireWish;                    // Is the user intending to fire?
 
+        private bool m_FireEvent;
+
         [SerializeField]
         private float m_FireCooldown = 5.0f;        // How long is the cooldown between fires?
         private bool m_IsFireOnCooldown;            // Is the tank currently on cooldown for firing?
+
+        private float m_NoiseRadius = 100f;
 
         private void OnEnable()
         {
@@ -102,6 +106,11 @@ namespace UnityGame.Tanks
             }
         }
 
+        private void FixedUpdate()
+        {
+            BroadcastEvents();
+        }
+
         IEnumerator StartGunCooldown(float cooldownTimer)
         {
             yield return new WaitForSeconds(cooldownTimer);
@@ -143,6 +152,30 @@ namespace UnityGame.Tanks
 
             // Reset the launch force.  This is a precaution in case of missing button events.
             m_CurrentLaunchForce = m_MinLaunchForce;
+
+            m_FireEvent = true;
+        }
+
+        public void BroadcastEvents()
+        {
+            if(m_FireEvent)
+            {
+                m_FireEvent = false;
+
+                var objectsInRadius = Physics.OverlapSphere(transform.position, m_NoiseRadius);
+
+                for (int i = 0; i < objectsInRadius.Length; ++i)
+                {
+                    if (objectsInRadius[i] != null && objectsInRadius[i].gameObject != gameObject)
+                    {
+                        var percepts = objectsInRadius[i].GetComponent<TankPercepts>();
+                        if (percepts != null)
+                        {
+                            percepts.lastKnownPosition = transform.position;
+                        }
+                    }
+                }
+            }
         }
     }
 }

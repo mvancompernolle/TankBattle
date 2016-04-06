@@ -8,4 +8,6 @@ public interface IMoveable
 
     Vector3 position { get; }
     Vector3 forward { get; }
+
+    bool isMoving { get; }
 }

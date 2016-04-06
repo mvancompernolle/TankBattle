@@ -48,4 +48,7 @@ struct TankBattleStateData
 
     bool canFire;
     bool enemyInSight;
+
+    float lastKnownPosition[3];   // last known enemy position (must have LOS or fire)
+    float lastKnownDirection[3];  // must be in proximity and moving
 };

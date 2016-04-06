@@ -91,7 +91,7 @@ int main(int argc, char** argv)
         // check TCP streams via dyad
         tankNet::update(0.0);
 
-        tankNet::recieve();
+        auto state = tankNet::recieve();
 
         // prepare message
         const int msgSize = sizeof(tankBattleHeader);

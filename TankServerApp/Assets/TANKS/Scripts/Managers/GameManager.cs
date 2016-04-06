@@ -58,6 +58,8 @@ namespace UnityGame.Tanks
             
             newTankManager.Setup();
 
+            newTankManager.m_Instance.name = string.Format("Tank No. {0}", m_TankManagers.Count - 1);
+
             m_PlayerCount++;
 
             var playerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<TankPlayerController>();
@@ -68,6 +70,7 @@ namespace UnityGame.Tanks
             playerController.Pawn = newTankManager.m_Instance.GetComponent<TankMovement>();
             playerController.PawnFire = newTankManager.m_Instance.GetComponent<TankShooting>();
             playerController.TankGun = newTankManager.m_Instance.GetComponent<CannonMovement>();
+            playerController.manager = newTankManager;
 
             return playerController;
         }

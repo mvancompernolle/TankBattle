@@ -10,7 +10,6 @@ public class CannonMovement : MonoBehaviour, IMoveable
     [SerializeField]
     private Transform cannon;   // HACK: How should I handle accessibility for sub-comps?
     private float axisInput;
-    
 
     public Vector3 position
     {
@@ -25,6 +24,14 @@ public class CannonMovement : MonoBehaviour, IMoveable
         get
         {
             return cannon.forward;
+        }
+    }
+
+    public bool isMoving
+    {
+        get
+        {
+            return Mathf.Abs(axisInput) > 0.1f;
         }
     }
 

@@ -13,11 +13,13 @@ namespace UnityGame.Tanks
         public AudioClip m_EngineDriving;           // Audio to play when the tank is moving.
 		public float m_PitchRange = 0.2f;           // The amount by which the pitch of the engine noises can vary.
 
-
+        private Collider m_Collider;
         private Rigidbody m_Rigidbody;              // Reference used to move the tank.
         private float m_MovementInputValue;         // The current value of the movement input.
         private float m_TurnInputValue;             // The current value of the turn input.
         private float m_OriginalPitch;              // The pitch of the audio source at the start of the scene.
+
+        private float m_NoiseRadius = 20f;
 
         private struct UserInput
         {
@@ -42,9 +44,18 @@ namespace UnityGame.Tanks
             }
         }
 
+        public bool isMoving
+        {
+            get
+            {
+                return (m_Rigidbody.velocity.magnitude > 0.1f);
+            }
+        }
+
         private void Awake ()
         {
             m_Rigidbody = GetComponent<Rigidbody> ();
+            m_Collider = GetComponent<Collider>();
         }
 
 
@@ -116,6 +127,24 @@ namespace UnityGame.Tanks
             // Adjust the rigidbodies position and orientation in FixedUpdate.
             Move ();
             Turn ();
+
+            BroadcasatEvents();
+        }
+
+        private void BroadcasatEvents()
+        {
+            var objectsInRange = Physics.OverlapSphere(transform.position, m_NoiseRadius);
+
+            for(int i = 0; i < objectsInRange.Length; ++i)
+            {
+                var receptor = objectsInRange[i].GetComponent<TankPercepts>();
+                if(receptor != null && receptor.gameObject != gameObject)
+                {
+                    Debug.Log("Sent to " + receptor.gameObject.name);
+                    receptor.lastKnownDirection = (transform.position - receptor.transform.position).normalized;
+                    break;
+                }
+            }
         }
 
 
@@ -149,6 +178,11 @@ namespace UnityGame.Tanks
         void IMoveable.TurnRight(float value)
         {
             controllerInput.horizontalInput = Mathf.Clamp(value, -1, 1);
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.DrawWireSphere(transform.position, m_NoiseRadius);
         }
     }
 }

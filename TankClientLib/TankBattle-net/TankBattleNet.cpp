@@ -23,6 +23,7 @@ namespace tankNet
     void onData(dyad_Event *e)
     {
         auto msg = (TankBattleStateData*)e->data;
+        //assert(e->size == sizeof(TankBattleStateData));
 
         // TODO: RTCs
 

@@ -48,4 +48,6 @@ public struct TankBattleStateData
 
     public bool canFire;        // reloaded?
     public bool enemyInSight;   // is enemy within FOV of tank?
+    public Vector3 lastKnownPosition;   // last known enemy position (must have LOS or fire)
+    public Vector3 lastKnownDirection;  // must be in proximity and moving
 }

@@ -73,6 +73,8 @@ public class NetGameMode : MonoBehaviour
             stateMsg.cannonForward = player.TankGun.forward;
             stateMsg.canFire  = player.PawnFire.CanFire();
             stateMsg.enemyInSight = false;
+            stateMsg.lastKnownDirection = player.manager.m_Percepts.lastKnownDirection;
+            stateMsg.lastKnownPosition = Vector3.zero;
 
             connectionSocket.Send(netPlayer.Value, stateMsg);
         }
