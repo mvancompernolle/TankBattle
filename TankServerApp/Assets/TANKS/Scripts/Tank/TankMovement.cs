@@ -52,6 +52,16 @@ namespace UnityGame.Tanks
             }
         }
 
+        private Vector3 prevPosition;
+        private Vector3 _velocity;
+        public Vector3 velocity
+        {
+            get
+            {
+                return _velocity;
+            }
+        }
+
         private void Awake ()
         {
             m_Rigidbody = GetComponent<Rigidbody> ();
@@ -129,6 +139,9 @@ namespace UnityGame.Tanks
             Turn ();
 
             BroadcastEvents();
+
+            _velocity = (transform.position - prevPosition) / Time.deltaTime;
+            prevPosition = transform.position;
         }
 
         private void BroadcastEvents()
@@ -182,6 +195,8 @@ namespace UnityGame.Tanks
 
         private void OnDrawGizmos()
         {
+            // draw movement-sound radius
+            Gizmos.color = (velocity.magnitude / m_Speed) * Color.red;
             Gizmos.DrawWireSphere(transform.position, m_NoiseRadius);
         }
     }

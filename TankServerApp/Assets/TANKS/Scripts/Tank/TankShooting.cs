@@ -39,6 +39,7 @@ namespace UnityGame.Tanks
             m_CurrentLaunchForce = m_MinLaunchForce;
             m_AimSlider.value = m_MinLaunchForce;
             m_IsFireOnCooldown = false;
+            m_FireWish = false;
         }
 
 
