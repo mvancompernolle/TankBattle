@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TankBattle-server", "TankBattle-server\TankBattle-server.csproj", "{867B8F21-44D7-4778-9848-AC01BC710057}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TankBattle-client-dyad-sfw", "TankBattle-client-dyad-sfw\TankBattle-client-dyad-sfw.vcxproj", "{E9EED422-7049-4C27-9539-B426DC98230F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9DEAD430-4754-40D1-ABBB-4D28373985B3} = {9DEAD430-4754-40D1-ABBB-4D28373985B3}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TankBattle-net", "TankBattle-net\TankBattle-net.vcxproj", "{9DEAD430-4754-40D1-ABBB-4D28373985B3}"
 EndProject

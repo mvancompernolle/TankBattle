@@ -18,6 +18,7 @@ namespace tankNet
     void onConnect(dyad_Event *e)
     {
         _isConnected = true;
+        std::cout << "Connected.\n";
     }
     void onData(dyad_Event *e)
     {
@@ -32,7 +33,9 @@ namespace tankNet
         }
         else // or is this for setting first join?
         {
+            lastState = *msg;
             _isProvisioned = true;
+            std::cout << "Provisioned.\n";
         }
     }
     void onError(dyad_Event *e)
@@ -57,6 +60,11 @@ namespace tankNet
         assert(stream == nullptr);
 
         stream = dyad_newStream();
+
+        dyad_addListener(stream, DYAD_EVENT_DATA, onData, 0);
+        dyad_addListener(stream, DYAD_EVENT_ERROR, onError, 0);
+        dyad_addListener(stream, DYAD_EVENT_CONNECT, onConnect, 0);
+        dyad_addListener(stream, DYAD_EVENT_CLOSE, onClose, 0);
 
 
         if (dyad_connect(stream, address, port) == -1)

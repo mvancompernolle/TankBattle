@@ -100,6 +100,8 @@ public class NetGameMode : MonoBehaviour
         networkPlayersByPID[PID] = netPlayer;
 
         connectionSocket.Send(netPlayer, DataUtils.GetBytes(welcomeMsg));
+
+        Debug.Log("New player initialized at ID" + PID);
     }
     private void OnNetPlayerData(NetworkPlayer netPlayer, TankBattleHeader header)
     {
