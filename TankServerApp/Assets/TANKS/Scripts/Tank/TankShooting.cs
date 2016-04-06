@@ -162,7 +162,7 @@ namespace UnityGame.Tanks
             {
                 m_FireEvent = false;
 
-                var objectsInRadius = Physics.OverlapSphere(transform.position, m_NoiseRadius);
+                var objectsInRadius = Physics.OverlapSphere(transform.position, m_NoiseRadius, ~(LayerMask.NameToLayer("Players")));
 
                 for (int i = 0; i < objectsInRadius.Length; ++i)
                 {

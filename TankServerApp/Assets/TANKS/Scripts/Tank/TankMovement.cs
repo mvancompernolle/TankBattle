@@ -128,19 +128,19 @@ namespace UnityGame.Tanks
             Move ();
             Turn ();
 
-            BroadcasatEvents();
+            BroadcastEvents();
         }
 
-        private void BroadcasatEvents()
+        private void BroadcastEvents()
         {
-            var objectsInRange = Physics.OverlapSphere(transform.position, m_NoiseRadius);
+            var objectsInRange = Physics.OverlapSphere(transform.position, m_NoiseRadius, ~(LayerMask.NameToLayer("Players")));
 
             for(int i = 0; i < objectsInRange.Length; ++i)
             {
                 var receptor = objectsInRange[i].GetComponent<TankPercepts>();
                 if(receptor != null && receptor.gameObject != gameObject)
                 {
-                    Debug.Log("Sent to " + receptor.gameObject.name);
+
                     receptor.lastKnownDirection = (transform.position - receptor.transform.position).normalized;
                     break;
                 }
