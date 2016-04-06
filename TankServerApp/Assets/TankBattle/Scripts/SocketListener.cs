@@ -10,22 +10,23 @@ using UnityEngine;
 
 public class NetworkPlayer
 {
-    public Socket line;
+    public Socket remoteSocket;
+    public bool isActive;
 
     public static implicit operator Socket(NetworkPlayer p)
     {
-        return p.line;
+        return p.remoteSocket;
     }
 }
 
 public class StateObject
 {
-    public Socket workSocket = null;
+    public Socket remoteSocket = null;                // socket to player
 
-    public const int BufferSize = 1024;
-    public int bytesRead = 0;
+    public const int BufferSize = 1024;             // maximum amount of data buffered for a user
+    public int bytesRead = 0;                       // bytes currently in the buffer
 
-    public byte[] buffer = new byte[BufferSize];
+    public byte[] buffer = new byte[BufferSize];    // access to buffer
 }
 public class SocketEventArgs : EventArgs
 {
@@ -56,9 +57,6 @@ public class SocketEvent
     }
 }
 public delegate void SocketEventHandler(byte[] data, SocketEventArgs e);
-
-// TODO: need a way to get messages from this to something else
-// - perhaps an event?
 
 // Setup a listener on a given port
 public class SocketListener
@@ -93,13 +91,9 @@ public class SocketListener
 
     public List<SocketEvent> events = new List<SocketEvent>();
 
-    public void flushEvents()
-    {
-        events.Clear();
-    }
-
     // TODO: StateObject is hard-coded to max out at 1024 bytes. Please define somewhere consistent.
     // TODO: Add RTCs for data size. Should not exceed max or be less than zero.
+    // TODO: Genericize this to work with other types of data
 
     public void Send(Socket handler, String data)
     {
@@ -130,12 +124,12 @@ public class SocketListener
         Debug.Log("Connection from " + endpoint.Address.ToString());
 
         StateObject state = new StateObject();
-        state.workSocket = handler;
+        state.remoteSocket = handler;
 
         remoteConnections.Add(state);
 
         NetworkPlayer netPlayer = new NetworkPlayer();
-        netPlayer.line = handler;
+        netPlayer.remoteSocket = handler;
 
         players[handler] = netPlayer;
 
@@ -151,7 +145,7 @@ public class SocketListener
     private void ReadCallback(IAsyncResult ar)
     {
         StateObject state = (StateObject)ar.AsyncState;
-        Socket handler = state.workSocket;
+        Socket handler = state.remoteSocket;
 
         int bytesRead = handler.EndReceive(ar);
         state.bytesRead += bytesRead;   // add to running total of bytesRead for this message
@@ -230,6 +224,29 @@ public class SocketListener
         
     }
 
+    private void Disconnect(Socket remote)
+    {
+        try
+        {
+            if (remote.Connected)
+            {
+                remote.Disconnect(true);
+
+                remote.Shutdown(SocketShutdown.Both);
+                remote.Close();
+            }
+        }
+        catch (Exception e)
+        {
+            if (e is SocketException)
+            {
+                Debug.LogError("Socket ErrorCode:" + ((SocketException)e).SocketErrorCode);
+            }
+
+            Debug.LogError(e.Message + e.StackTrace);
+        }
+    }
+
     public void StartListening(int port)
     {
         // bind to all local IPv4 interfaces
@@ -262,54 +279,13 @@ public class SocketListener
     public void StopListening()
     {
         // close local socket
-        if (localListener != null)
-        {
-            try
-            {
-                if (localListener.Connected)
-                {
-                    localListener.Disconnect(true);
-
-                    localListener.Shutdown(SocketShutdown.Both);
-                    localListener.Close();
-                }
-            }
-            catch (Exception e)
-            {
-                if(e is SocketException)
-                {
-                    Debug.LogError("Socket ErrorCode:" + ((SocketException)e).SocketErrorCode);
-                }
-                
-                Debug.LogError(e.Message + e.StackTrace);
-            }
-        }
+        Disconnect(localListener);
 
         // close sockets to other machines
         Debug.LogFormat("Closing {0} sockets to remote machines.", remoteConnections.Count);
         for(int i = 0; i < remoteConnections.Count; ++i)
         {
-            try
-            {
-                var connSock = remoteConnections[i].workSocket;
-
-                if (connSock.Connected)
-                {
-                    connSock.Disconnect(true);
-
-                    connSock.Shutdown(SocketShutdown.Both);
-                    connSock.Close();
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is SocketException)
-                {
-                    Debug.LogError("Socket ErrorCode:" + ((SocketException)e).SocketErrorCode);
-                }
-
-                Debug.LogError(e.Message + e.StackTrace);
-            }
+            Disconnect(remoteConnections[i].remoteSocket);
         }
     }
 }

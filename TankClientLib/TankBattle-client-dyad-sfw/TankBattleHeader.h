@@ -37,3 +37,14 @@ struct tankBattleHeader
 
     int messageLength;  // this is only if we had like, a payload to deliver.
 };
+
+struct TankBattleServerData
+{
+    int playerID;
+
+    float position[3];
+    bool canFire;
+    bool enemyInSight;
+
+    // sounds
+};

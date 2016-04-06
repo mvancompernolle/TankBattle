@@ -12,9 +12,11 @@ public class NetGameMode : MonoBehaviour
     private UnityGame.Tanks.GameManager gameManager;
 
     private Dictionary<int, PlayerController> playerControllers = new Dictionary<int, PlayerController>();
+    private Dictionary<int, NetworkPlayer> networkPlayersByPID = new Dictionary<int, NetworkPlayer>();
 
     private int networkIDs = 2;
 
+    // HACK: Unity API is not thread-safe, so can't subscribe to delegates that get trigger asynchronously
     void CheckNetworkEvents()
     {
         connectionSocket.paused = true;
@@ -30,7 +32,10 @@ public class NetGameMode : MonoBehaviour
                     OnNetworkEvent(evnt.data, evnt.eventArgs);
                 else
                 {
-                    Debug.LogError("The network event was null.");
+                    Debug.LogWarning("The network event was null.");
+                    // not sure why this happens
+
+                    continue;
                 }
             }
             catch (Exception ex)
@@ -55,6 +60,21 @@ public class NetGameMode : MonoBehaviour
 
         connectionSocket.paused = false;
     }
+    void UpdateClients()
+    {
+        foreach(var netPlayer in networkPlayersByPID)
+        {
+            var player = playerControllers[netPlayer.Key];
+
+            var stateMsg = new TankBattleServerData();
+            stateMsg.playerID = netPlayer.Key;
+            stateMsg.position = player.Pawn.position;
+            stateMsg.canFire = player.PawnFire.CanFire();
+            stateMsg.enemyInSight = false;
+
+            connectionSocket.Send(netPlayer.Value, stateMsg);
+        }
+    }
 
     private void OnNetworkEvent(byte[] data, SocketEventArgs e)
     {
@@ -72,10 +92,10 @@ public class NetGameMode : MonoBehaviour
     private void OnNetPlayerConnected(NetworkPlayer netPlayer)
     {
         var PID = AddPlayer();
-        var welcomeMsg = new TankBattleHeader();
+        var welcomeMsg = new TankBattleServerData();
         welcomeMsg.playerID = PID;
-        welcomeMsg.msg = TankBattleMessage.JOIN;
-        welcomeMsg.messageLength = DataUtils.SizeOf<TankBattleHeader>();
+
+        networkPlayersByPID[PID] = netPlayer;
 
         connectionSocket.Send(netPlayer, DataUtils.GetBytes(welcomeMsg));
     }
@@ -85,6 +105,15 @@ public class NetGameMode : MonoBehaviour
         {
             Debug.LogWarning("Invalid player ID provided!");
             return;
+        }
+
+        switch(header.msg)
+        {
+            case TankBattleMessage.QUIT:
+                RemovePlayer(netPlayer);
+                break;
+            default:
+                break;
         }
 
         try
@@ -149,6 +178,12 @@ public class NetGameMode : MonoBehaviour
     {
         CheckNetworkEvents();
     }
+
+    void FixedUpdate()
+    {
+        UpdateClients();
+    }
+
     void OnApplicationQuit()
     {
         CleanUpConnections();
@@ -167,12 +202,17 @@ public class NetGameMode : MonoBehaviour
     public int AddPlayer()
     {
         playerControllers[networkIDs] = gameManager.SpawnSingleTank();
+
         return networkIDs++; 
     }
 
     // Removes a player from the game by their ID
     public void RemovePlayer(NetworkPlayer netPlayer)
     {
+        netPlayer.isActive = false;
 
+        netPlayer.remoteSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+        netPlayer.remoteSocket.Disconnect(true);
+        netPlayer.remoteSocket.Close();
     }
 }

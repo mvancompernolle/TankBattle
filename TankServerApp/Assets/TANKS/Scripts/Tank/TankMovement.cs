@@ -26,6 +26,14 @@ namespace UnityGame.Tanks
         }
         private UserInput controllerInput;
 
+        public Vector3 position
+        {
+            get
+            {
+                return transform.position;
+            }
+        }
+
         private void Awake ()
         {
             m_Rigidbody = GetComponent<Rigidbody> ();

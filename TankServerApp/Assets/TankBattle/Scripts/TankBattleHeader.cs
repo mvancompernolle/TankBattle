@@ -1,4 +1,6 @@
-﻿public enum TankBattleMessage
+﻿using UnityEngine;
+
+public enum TankBattleMessage
 {
     NONE,
     JOIN,
@@ -27,12 +29,23 @@ public struct TankBattleHeader
     public int uuid;
     public int playerID;
 
-
     public TankBattleMessage msg;
     public TankMovementOptions tankMove;
     public CannonMovementOptions cannonMove;
 
     public int fireWish;
-
     public int messageLength;
+}
+
+
+
+public struct TankBattleServerData
+{
+    public int playerID;
+
+    public Vector3 position;
+    public bool canFire;
+    public bool enemyInSight;
+
+    // sounds
 }

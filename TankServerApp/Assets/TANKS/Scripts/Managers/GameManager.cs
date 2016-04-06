@@ -36,8 +36,6 @@ namespace UnityGame.Tanks
         public int m_MinimumPlayerCount = 2;
         private int m_PlayerCount;                  // Number of players logged into the game
 
-        
-
         private void Start()
         {
             // Create the delays so they only have to be made once.

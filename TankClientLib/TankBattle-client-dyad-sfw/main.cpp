@@ -25,14 +25,24 @@ void    onData(dyad_Event *e)
     printf("onData: ");
     //printf("%s", e->data);
 
-    auto msg = (tankBattleHeader*)e->data;
-    std::cout << "DIAGNOSTIC STATUS:\n";
-    std::cout << (msg->playerID) << "\n";
+    auto msg = (TankBattleServerData*)e->data;
+    
+    if (myPlayerID == -1)
+    {
+        std::cout << "DIAGNOSTIC STATUS:\n";
+        std::cout << (msg->playerID) << "\n";
 
-    myPlayerID = msg->playerID;
+        myPlayerID = msg->playerID;
 
-    isProvisioned = true;
-    isWaiting = false;
+        isProvisioned = true;
+        isWaiting = false;
+    }
+    else
+    {
+        std::cout << "Position:" << "\n";
+        std::cout << "x: " << msg->position[0] << "\ny: " << msg->position[1] << "\nz:" << msg->position[2] << "\n\n";
+        
+    }
 }
 void    onError(dyad_Event *e)
 {
@@ -193,6 +203,7 @@ int main(int argc, char** argv)
                 if (sfw::getKey(GAME_QUIT))
                 {
                     ex.msg = tankBattleMessage::QUIT;
+                    break;
                 }
             }
 
