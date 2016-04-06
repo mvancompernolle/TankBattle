@@ -34,6 +34,14 @@ namespace UnityGame.Tanks
             }
         }
 
+        public Vector3 forward
+        {
+            get
+            {
+                return transform.forward;
+            }
+        }
+
         private void Awake ()
         {
             m_Rigidbody = GetComponent<Rigidbody> ();

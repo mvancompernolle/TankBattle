@@ -26,25 +26,26 @@ enum class CannonMovementOptions
 
 struct tankBattleHeader
 {
-    int uuid = -1;
-    int playerID = -1;
+    int playerID = -1;                  // if left -1, server will issue an ID
+                                        // upon reciept of a message
 
-    tankBattleMessage msg = tankBattleMessage::NONE;
-    TankMovementOptions tankMove = TankMovementOptions::HALT;
-    CannonMovementOptions cannonMove = CannonMovementOptions::HALT;
+    tankBattleMessage msg;              // declare message type
+    TankMovementOptions tankMove;       // assign an action for the tank
+    CannonMovementOptions cannonMove;   // TODO: implement rotate cannon on tank gun
 
     int fireWish = 0;
-
-    int messageLength;  // this is only if we had like, a payload to deliver.
+    int messageLength;
 };
 
-struct TankBattleServerData
+struct TankBattleStateData
 {
     int playerID;
 
     float position[3];
+    float forward[3];
+
+    float gunForward[3];
+
     bool canFire;
     bool enemyInSight;
-
-    // sounds
 };

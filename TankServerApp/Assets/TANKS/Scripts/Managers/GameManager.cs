@@ -22,7 +22,7 @@ namespace UnityGame.Tanks
         public TankManager[] m_TankManagerPresets;  // Reference to the prefab the players will control.
         public List<TankManager> m_TankManagers = new List<TankManager>();               // A collection of managers for enabling and disabling different aspects of the tanks.
         public GameObject m_PlayerControllerPrefab;
-        public List<PlayerController> m_PlayerControllers = new List<PlayerController>();
+        public List<TankPlayerController> m_PlayerControllers = new List<TankPlayerController>();
         
         private int m_RoundNumber;                  // Which round the game is currently on.
         private WaitForSeconds m_StartWait;         // Used to have a delay whilst the round starts.
@@ -46,7 +46,7 @@ namespace UnityGame.Tanks
             StartCoroutine (GameLoop ());
         }
 
-        public PlayerController SpawnSingleTank()
+        public TankPlayerController SpawnSingleTank()
         {
             m_TankManagers.Add(new TankManager());
 
@@ -60,11 +60,14 @@ namespace UnityGame.Tanks
 
             m_PlayerCount++;
 
-            var playerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<PlayerController>();
+            var playerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<TankPlayerController>();
             m_PlayerControllers.Add(playerController);
+
+            // HACK: why
 
             playerController.Pawn = newTankManager.m_Instance.GetComponent<TankMovement>();
             playerController.PawnFire = newTankManager.m_Instance.GetComponent<TankShooting>();
+            playerController.TankGun = newTankManager.m_Instance.GetComponent<CannonMovement>();
 
             return playerController;
         }

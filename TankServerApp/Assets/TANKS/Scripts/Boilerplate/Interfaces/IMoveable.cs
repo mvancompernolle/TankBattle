@@ -7,4 +7,5 @@ public interface IMoveable
     void TurnRight(float value);
 
     Vector3 position { get; }
+    Vector3 forward { get; }
 }

@@ -26,26 +26,23 @@ public enum CannonMovementOptions
 
 public struct TankBattleHeader
 {
-    public int uuid;
-    public int playerID;
+    public int playerID;                        // if left -1, server will issue an ID
+                                                // upon reciept of a message
 
-    public TankBattleMessage msg;
-    public TankMovementOptions tankMove;
-    public CannonMovementOptions cannonMove;
+    public TankBattleMessage msg;               // declare message type
+    public TankMovementOptions tankMove;        // assign action for the tank treads
+    public CannonMovementOptions cannonMove;    // TODO: implement rotation on tank gun
 
     public int fireWish;
     public int messageLength;
 }
 
-
-
-public struct TankBattleServerData
+public struct TankBattleStateData
 {
     public int playerID;
 
-    public Vector3 position;
-    public bool canFire;
-    public bool enemyInSight;
-
-    // sounds
+    public Vector3 position;    // world position
+    public Vector3 forward;     // forward position of tank
+    public bool canFire;        // reloaded?
+    public bool enemyInSight;   // is enemy within FOV of tank?
 }

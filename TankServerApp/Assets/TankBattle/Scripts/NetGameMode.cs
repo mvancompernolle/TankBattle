@@ -11,7 +11,7 @@ public class NetGameMode : MonoBehaviour
     [SerializeField]
     private UnityGame.Tanks.GameManager gameManager;
 
-    private Dictionary<int, PlayerController> playerControllers = new Dictionary<int, PlayerController>();
+    private Dictionary<int, TankPlayerController> playerControllers = new Dictionary<int, TankPlayerController>();
     private Dictionary<int, NetworkPlayer> networkPlayersByPID = new Dictionary<int, NetworkPlayer>();
 
     private int networkIDs = 2;
@@ -66,10 +66,11 @@ public class NetGameMode : MonoBehaviour
         {
             var player = playerControllers[netPlayer.Key];
 
-            var stateMsg = new TankBattleServerData();
+            var stateMsg = new TankBattleStateData();
             stateMsg.playerID = netPlayer.Key;
             stateMsg.position = player.Pawn.position;
-            stateMsg.canFire = player.PawnFire.CanFire();
+            stateMsg.forward  = player.Pawn.forward;
+            stateMsg.canFire  = player.PawnFire.CanFire();
             stateMsg.enemyInSight = false;
 
             connectionSocket.Send(netPlayer.Value, stateMsg);
@@ -92,7 +93,7 @@ public class NetGameMode : MonoBehaviour
     private void OnNetPlayerConnected(NetworkPlayer netPlayer)
     {
         var PID = AddPlayer();
-        var welcomeMsg = new TankBattleServerData();
+        var welcomeMsg = new TankBattleStateData();
         welcomeMsg.playerID = PID;
 
         networkPlayersByPID[PID] = netPlayer;
@@ -118,31 +119,49 @@ public class NetGameMode : MonoBehaviour
 
         try
         {
+            var pc = playerControllers[header.playerID];
+
             // process tank movement
             switch (header.tankMove)
             {
                 case TankMovementOptions.FWRD:
-                    playerControllers[header.playerID].MoveForward(1.0f);
-                    playerControllers[header.playerID].MoveRight(0.0f);
+                    pc.MoveForward(1.0f);
+                    pc.MoveRight(0.0f);
                     break;
                 case TankMovementOptions.BACK:
-                    playerControllers[header.playerID].MoveForward(-1.0f);
-                    playerControllers[header.playerID].MoveRight(0.0f);
+                    pc.MoveForward(-1.0f);
+                    pc.MoveRight(0.0f);
                     break;
                 case TankMovementOptions.LEFT:
-                    playerControllers[header.playerID].MoveForward(0.0f);
-                    playerControllers[header.playerID].MoveRight(-1.0f);
+                    pc.MoveForward(0.0f);
+                    pc.MoveRight(-1.0f);
                     break;
                 case TankMovementOptions.RIGHT:
-                    playerControllers[header.playerID].MoveForward(0.0f);
-                    playerControllers[header.playerID].MoveRight(1.0f);
+                    pc.MoveForward(0.0f);
+                    pc.MoveRight(1.0f);
                     break;
                 case TankMovementOptions.HALT:
-                    playerControllers[header.playerID].MoveForward(0.0f);
-                    playerControllers[header.playerID].MoveRight(0.0f);
+                    pc.MoveForward(0.0f);
+                    pc.MoveRight(0.0f);
                     break;
                 default:
                     Debug.LogError("Unknown movement.");
+                    break;
+            }
+
+            switch(header.cannonMove)
+            {
+                case CannonMovementOptions.LEFT:
+                    pc.RotateRight(-1.0f);
+                    break;
+                case CannonMovementOptions.RIGHT:
+                    pc.RotateRight(1.0f);
+                    break;
+                case CannonMovementOptions.HALT:
+                    pc.RotateRight(0.0f);
+                    break;
+                default:
+                    Debug.LogError("Unknown cannon movement.");
                     break;
             }
 
@@ -178,7 +197,6 @@ public class NetGameMode : MonoBehaviour
     {
         CheckNetworkEvents();
     }
-
     void FixedUpdate()
     {
         UpdateClients();

@@ -22,10 +22,11 @@ void    onConnect(dyad_Event *e)
 }
 void    onData(dyad_Event *e)
 {
-    printf("onData: ");
-    //printf("%s", e->data);
+    
 
-    auto msg = (TankBattleServerData*)e->data;
+    printf("onData: ");
+
+    auto msg = (TankBattleStateData*)e->data;
     
     if (myPlayerID == -1)
     {
@@ -39,9 +40,13 @@ void    onData(dyad_Event *e)
     }
     else
     {
-        std::cout << "Position:" << "\n";
-        std::cout << "x: " << msg->position[0] << "\ny: " << msg->position[1] << "\nz:" << msg->position[2] << "\n\n";
+        system("cls");
+
+        std::cout << "position" << "\n";
+        std::cout << "  x: " << msg->position[0] << "\n  y: " << msg->position[1] << "\n  z: " << msg->position[2] << "\n\n";
         
+        std::cout << "direction" << "\n";
+        std::cout << "  x: " << msg->forward[0] << "\n  y: " << msg->forward[1] << "\n  z: " << msg->forward[2] << "\n\n";
     }
 }
 void    onError(dyad_Event *e)
@@ -81,7 +86,7 @@ bool    inputPressed()
 
 #define TANK_FIRE 'F'
 
-#define GAME_QUIT 'Q'
+#define GAME_QUIT 'L'
 
 #define CLIENT_MAJOR_VERSION 0
 #define CLIENT_MINOR_VERSION 1
@@ -150,6 +155,8 @@ int main(int argc, char** argv)
 
             tankBattleHeader ex;
             ex.msg = tankBattleMessage::NONE;
+            ex.tankMove = TankMovementOptions::HALT;
+            ex.cannonMove = CannonMovementOptions::HALT;
             ex.messageLength = msgSize;    // TODO: support for dynamic message length
             ex.playerID = myPlayerID;
 
