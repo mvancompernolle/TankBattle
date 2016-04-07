@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 // source: http://answers.unity3d.com/questions/489942/how-to-make-a-readonly-property-in-inspector.html
 
@@ -7,7 +10,7 @@ public class ReadOnlyAttribute : PropertyAttribute
 {
 
 }
-
+#if UNITY_EDITOR
 [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
 public class ReadOnlyDrawer : PropertyDrawer
 {
@@ -26,3 +29,4 @@ public class ReadOnlyDrawer : PropertyDrawer
         GUI.enabled = true;
     }
 }
+#endif
