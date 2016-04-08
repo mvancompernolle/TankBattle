@@ -902,6 +902,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lastKnownPosition: {x: 0, y: 0, z: 0}
   lastKnownDirection: {x: 0, y: 0, z: 0}
+  VisionRadius: 30
+  eyePoint: {fileID: 494770}
+  eyeFOV: 90
 --- !u!114 &11455676
 MonoBehaviour:
   m_ObjectHideFlags: 1
