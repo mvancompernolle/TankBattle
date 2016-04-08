@@ -34,7 +34,7 @@ struct tankBattleHeader
     CannonMovementOptions cannonMove;   // TODO: implement rotate cannon on tank gun
 
     int fireWish = 0;
-    int messageLength;
+    int messageLength = sizeof(tankBattleHeader);
 };
 
 struct TankBattleStateData

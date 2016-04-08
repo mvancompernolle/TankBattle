@@ -180,7 +180,6 @@ namespace UnityGame.Tanks
             // TODO: How are null ref errors handled in coroutines? They quit?
 
             float roundTime = m_RoundTime * 60;
-            Debug.Log(roundTime);
 
             // While there is not one tank left...
             while (!OneTankLeft() && roundTime > 0f)

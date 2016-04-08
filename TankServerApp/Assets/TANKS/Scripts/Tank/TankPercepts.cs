@@ -19,26 +19,33 @@ public class TankPercepts : MonoBehaviour
     {
         Reset();
     }
-
     void Reset()
     {
         lastKnownDirection = Vector3.zero;
         lastKnownDirection = Vector3.zero;
     }
-
     void FixedUpdate()
     {
+        VisionCheck(VisionRadius);
+    }
+    void OnDrawGizmos()
+    {
+        Debug.DrawLine(transform.position, transform.position + (lastKnownDirection * 5f), Color.green);
+    }
+
+    void VisionCheck(float radarRadius)
+    {
         var radar = Physics.OverlapSphere(transform.position, VisionRadius, ~(LayerMask.NameToLayer("Players")));
-        foreach(var ping in radar)
+        foreach (var ping in radar)
         {
-            if(ping.gameObject != gameObject)
+            if (ping.gameObject != gameObject)
             {
                 var direction = (ping.transform.position - transform.position).normalized;
 
-                if(Vector3.Angle(eyePoint.forward, direction) < eyeFOV)
+                if (Vector3.Angle(eyePoint.forward, direction) < eyeFOV)
                 {
                     RaycastHit hit;
-                    if(Physics.Raycast(transform.position, direction, out hit))
+                    if (Physics.Raycast(transform.position, direction, out hit))
                     {
                         if (hit.collider == ping)
                         {
@@ -48,10 +55,5 @@ public class TankPercepts : MonoBehaviour
                 }
             }
         }
-    }
-
-    void OnDrawGizmos()
-    {
-        Debug.DrawLine(transform.position, transform.position + (lastKnownDirection * 5f), Color.green);
     }
 }

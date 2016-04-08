@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
 using System.Collections.Generic;
@@ -89,19 +88,17 @@ public class SocketListener
     }
     private bool _paused;
 
-    public List<SocketEvent> events = new List<SocketEvent>();
+    public List<SocketEvent> events { get; private set; }
+
+    public SocketListener()
+    {
+        events = new List<SocketEvent>();
+    }
 
     // TODO: StateObject is hard-coded to max out at 1024 bytes. Please define somewhere consistent.
     // TODO: Add RTCs for data size. Should not exceed max or be less than zero.
     // TODO: Genericize this to work with other types of data
 
-    public void Send(Socket handler, String data)
-    {
-        byte[] byteData = Encoding.ASCII.GetBytes(data);
-
-        handler.BeginSend(byteData, 0, byteData.Length, 0,
-            new AsyncCallback(SendCallback), handler);
-    }
     public void Send(Socket handler, byte[] data)
     {
         handler.BeginSend(data, 0, data.Length, 0,
@@ -154,8 +151,6 @@ public class SocketListener
 
             if (bytesRead > 0)
             {
-                //Console.WriteLine("Read {0} bytes from socket.", bytesRead);
-
                 // TODO: Can we add generics to callbacks?
                 // How can we simplify this to be reusable?
 
@@ -164,26 +159,32 @@ public class SocketListener
                 {
                     var header = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
 
-                    //Debug.LogFormat("There are {0} unread bytes in the buffer.", state.bytesRead);
+                    // RTC: Verify that the header has a valid message length
+                    if (header.messageLength <= 0)
+                    {
+                        Debug.LogError("Invalid message length provided. Dropping client.");
+                        DropConnection(handler);
+                        break;
+                    }
+                    // RTC: Validate message length
+                    else if (header.messageLength >= StateObject.BufferSize)
+                    {
+                        Debug.LogErrorFormat("Message size is slated to be larger than buffer capacity. ({0} bytes)",
+                            header.messageLength);
+                        DropConnection(handler);
+                        break;
+                    }
 
                     // have we recieved the full message?
                     if (state.bytesRead >= header.messageLength)
                     {
-                        if (header.messageLength <= 0)
-                        {
-                            Debug.LogWarning("Invalid message length; exiting recieve loop.");
-                            break;
-                        }
-
                         events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.READ, players[handler]), (byte[])state.buffer.Clone()));
-                        //Debug.Log("Message recieved.");
 
                         // subtract the number of bytes needed to be processed
                         state.bytesRead -= header.messageLength;
 
                         // remove this record from the buffer
                         state.buffer.ShiftLeft(header.messageLength);
-                        //Array.Clear(state.buffer, header.messageLength, state.buffer.Length - header.messageLength);
                     }
                     else
                     {
@@ -206,9 +207,7 @@ public class SocketListener
     {
         try
         {
-            Socket handler = (Socket)ar.AsyncState; // how the fuck did this become the AsyncState now?
-                                                    // ... the send call is different. data is the buffer, socket is state.
-
+            Socket handler = (Socket)ar.AsyncState;
             handler.EndSend(ar);
 
             events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.SEND, players[handler]), null));
@@ -219,7 +218,7 @@ public class SocketListener
         }
     }
 
-    private void Disconnect(Socket remote)
+    private void DropConnection(Socket remote)
     {
         try
         {
@@ -274,13 +273,13 @@ public class SocketListener
     public void StopListening()
     {
         // close local socket
-        Disconnect(localListener);
+        DropConnection(localListener);
 
         // close sockets to other machines
         Debug.LogFormat("Closing {0} sockets to remote machines.", remoteConnections.Count);
         for(int i = 0; i < remoteConnections.Count; ++i)
         {
-            Disconnect(remoteConnections[i].remoteSocket);
+            DropConnection(remoteConnections[i].remoteSocket);
         }
     }
 }

@@ -14,8 +14,6 @@ public class NetGameMode : MonoBehaviour
     private Dictionary<int, TankPlayerController> playerControllers = new Dictionary<int, TankPlayerController>();
     private Dictionary<int, NetworkPlayer> networkPlayersByPID = new Dictionary<int, NetworkPlayer>();
 
-    private int networkIDs = 2;
-
     // HACK: Unity API is not thread-safe, so can't subscribe to delegates that get trigger asynchronously
     void CheckNetworkEvents()
     {
@@ -80,6 +78,44 @@ public class NetGameMode : MonoBehaviour
         }
     }
 
+    private void CleanUpConnections()
+    {
+        connectionSocket.StopListening();
+    }
+
+    // Instantiates a new player and returns its ID
+    public int AddPlayer()
+    {
+        int newID = UnityEngine.Random.Range(0, int.MaxValue);
+
+        int retryLimit = 100;
+        while (retryLimit > 0)
+        {
+            retryLimit--;
+
+            if (playerControllers.ContainsKey(newID))
+            {
+                break;
+            }
+
+            newID = UnityEngine.Random.Range(0, int.MaxValue);
+        }
+
+        playerControllers[newID] = gameManager.SpawnSingleTank(); 
+
+        return newID; 
+    }
+
+    // Removes a player from the game by their ID
+    public void RemovePlayer(NetworkPlayer netPlayer)
+    {
+        netPlayer.isActive = false;
+
+        netPlayer.remoteSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+        netPlayer.remoteSocket.Disconnect(true);
+        netPlayer.remoteSocket.Close();
+    }
+
     private void OnNetworkEvent(byte[] data, SocketEventArgs e)
     {
         switch (e.socketEvent)
@@ -107,13 +143,13 @@ public class NetGameMode : MonoBehaviour
     }
     private void OnNetPlayerData(NetworkPlayer netPlayer, TankBattleHeader header)
     {
-        if(header.playerID == -1)
+        if (header.playerID == -1)
         {
             Debug.LogWarning("Invalid player ID provided!");
             return;
         }
 
-        switch(header.msg)
+        switch (header.msg)
         {
             case TankBattleMessage.QUIT:
                 RemovePlayer(netPlayer);
@@ -154,7 +190,7 @@ public class NetGameMode : MonoBehaviour
                     break;
             }
 
-            switch(header.cannonMove)
+            switch (header.cannonMove)
             {
                 case CannonMovementOptions.LEFT:
                     pc.RotateRight(-1.0f);
@@ -206,36 +242,12 @@ public class NetGameMode : MonoBehaviour
     {
         UpdateClients();
     }
-
-    void OnApplicationQuit()
-    {
-        CleanUpConnections();
-    }
     void OnDestroy()
     {
         CleanUpConnections();
     }
-
-    private void CleanUpConnections()
+    void OnApplicationQuit()
     {
-        connectionSocket.StopListening();
-    }
-
-    // Instantiates a new player and returns its ID
-    public int AddPlayer()
-    {
-        playerControllers[networkIDs] = gameManager.SpawnSingleTank();
-
-        return networkIDs++; 
-    }
-
-    // Removes a player from the game by their ID
-    public void RemovePlayer(NetworkPlayer netPlayer)
-    {
-        netPlayer.isActive = false;
-
-        netPlayer.remoteSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
-        netPlayer.remoteSocket.Disconnect(true);
-        netPlayer.remoteSocket.Close();
+        CleanUpConnections();
     }
 }
