@@ -110,6 +110,7 @@ int main(int argc, char** argv)
             if (sfw::getKey(GAME_QUIT))
             {
                 ex.msg = tankBattleMessage::QUIT;
+                break;
             }
         }
 

@@ -50,7 +50,13 @@ public class NetGameMode : MonoBehaviour
                     var indEx = ex as IndexOutOfRangeException;
                     Debug.LogError(indEx.Message);
                 }
-                
+                else if(ex is ObjectDisposedException)
+                {
+                    Debug.LogWarning("Disconnected player message in the network queue.");
+
+                    
+                }
+
                 Debug.LogError(ex.Message);
             }
         }
@@ -64,6 +70,10 @@ public class NetGameMode : MonoBehaviour
     {
         foreach(var netPlayer in networkPlayers)
         {
+            // skip inactive players
+            if (!netPlayer.isActive)
+                continue;
+
             var netPlayerController = netPlayer.playerController as TankPlayerController;
             var netPlayerPawn = (netPlayer.playerController.Pawn as TankMovement).gameObject;
 
@@ -95,15 +105,17 @@ public class NetGameMode : MonoBehaviour
         networkPlayers.Add(netPlayer);
 
         netPlayer.playerController = gameManager.AddPlayer();
+        netPlayer.playerController.isActive = false;
 
 
         GameObject newPawn = gameManager.SpawnSingleTank();
 
         netPlayer.playerController.Pawn = newPawn.GetComponent<TankMovement>();
-        netPlayer.playerController.PawnFire = newPawn.GetComponent<TankShooting>();
 
         var evilDowncasting = netPlayer.playerController as TankPlayerController;
         evilDowncasting.TankGun = newPawn.GetComponent<CannonMovement>();
+        evilDowncasting.PawnFire = newPawn.GetComponent<TankShooting>();
+        evilDowncasting.TankHealth = newPawn.GetComponent<TankHealth>();
 
         return netPlayer.playerController;
     }
@@ -112,6 +124,8 @@ public class NetGameMode : MonoBehaviour
     public void RemovePlayer(NetworkPlayer netPlayer)
     {
         netPlayer.isActive = false;
+        netPlayer.playerController.isActive = false;
+        (netPlayer.playerController as TankPlayerController).Kill();    // HACK: omg downcast i am so sorry
 
         netPlayer.remoteSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
         netPlayer.remoteSocket.Disconnect(true);
@@ -127,6 +141,9 @@ public class NetGameMode : MonoBehaviour
                 break;
             case SocketEventArgs.SocketEventType.READ:
                 OnNetPlayerData(e.endpoint, DataUtils.FromBytes<TankBattleHeader>(data));
+                break;
+            case SocketEventArgs.SocketEventType.DROP:
+                OnNetPlayerDisconnected(e.endpoint);
                 break;
         }
     }
@@ -233,10 +250,6 @@ public class NetGameMode : MonoBehaviour
         UpdateClients();
     }
     void OnDestroy()
-    {
-        CleanUpConnections();
-    }
-    void OnApplicationQuit()
     {
         CleanUpConnections();
     }

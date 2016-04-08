@@ -34,7 +34,8 @@ public class SocketEventArgs : EventArgs
     {
         ACCEPT,
         READ,
-        SEND
+        SEND,
+        DROP
     }
     public readonly SocketEventType socketEvent;
     public readonly NetworkPlayer endpoint;
@@ -193,6 +194,14 @@ public class SocketListener
                         break;
                     }
                 }
+            }
+            else 
+            {
+                // client has probably disconnected, so drop them
+                handler.Close(1);
+                events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.DROP, players[handler]), null));
+
+                return;
             }
 
             // set up to recieve again

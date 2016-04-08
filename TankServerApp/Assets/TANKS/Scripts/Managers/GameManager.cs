@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,6 +39,13 @@ namespace UnityGame.Tanks
 
         public int m_MinimumPlayerCount = 2;
         private int m_PlayerCount;                  // Number of players logged into the game
+        public int activePlayerCount
+        {
+            get
+            {
+                return 0;// m_PlayerControllers.Count(p => p.isActive);
+            }
+        }
 
         private void Start()
         {
@@ -47,6 +55,10 @@ namespace UnityGame.Tanks
 
             // Once the tanks have been created and the camera is using them as targets, start the game.
             StartCoroutine (GameLoop ());
+        }
+        private void Update()
+        {
+            Debug.Log(activePlayerCount);
         }
 
         public PlayerController AddPlayer()

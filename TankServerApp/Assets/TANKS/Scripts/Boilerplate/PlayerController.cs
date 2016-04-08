@@ -1,18 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
     public int pid;
-
-    // pawn controlled by this controller
+    public bool isActive;
     public IMoveable Pawn;
-    public IFireable PawnFire;
-
-    public void Fire()
-    {
-        PawnFire.Fire();
-    }
 
     public void MoveForward(float value)
     {
