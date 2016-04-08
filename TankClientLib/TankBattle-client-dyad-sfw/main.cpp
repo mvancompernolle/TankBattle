@@ -62,8 +62,6 @@ int main(int argc, char** argv)
         tankNet::init(11000, serverIPAddress);
     }
 
-    sfw::initContext(400, 400, "TankController");
-    
     while (!tankNet::isProvisioned())
     {
         tankNet::update(0.0);
@@ -73,7 +71,7 @@ int main(int argc, char** argv)
 
     myPlayerID = serverData.playerID;
 
-
+    sfw::initContext(400, 400, "TankController");
     while (sfw::stepContext() && tankNet::isConnected() && tankNet::isProvisioned())
     {
         // check TCP streams via dyad
