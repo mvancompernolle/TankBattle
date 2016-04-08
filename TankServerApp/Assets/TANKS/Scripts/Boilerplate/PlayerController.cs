@@ -3,6 +3,8 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
+    public int pid;
+
     // pawn controlled by this controller
     public IMoveable Pawn;
     public IFireable PawnFire;

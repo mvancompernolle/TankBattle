@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System;
 
+// HACK: Tightly coupling NetGameMode with Unity GameMode...
+using UnityGame.Tanks;
+
 public class NetGameMode : MonoBehaviour
 {
     private SocketListener connectionSocket;
@@ -9,10 +12,9 @@ public class NetGameMode : MonoBehaviour
 
     // HACK: let's not couple these together
     [SerializeField]
-    private UnityGame.Tanks.GameManager gameManager;
+    private GameManager gameManager;
 
-    private Dictionary<int, TankPlayerController> playerControllers = new Dictionary<int, TankPlayerController>();
-    private Dictionary<int, NetworkPlayer> networkPlayersByPID = new Dictionary<int, NetworkPlayer>();
+    private List<NetworkPlayer> networkPlayers = new List<NetworkPlayer>();
 
     // HACK: Unity API is not thread-safe, so can't subscribe to delegates that get trigger asynchronously
     void CheckNetworkEvents()
@@ -60,21 +62,24 @@ public class NetGameMode : MonoBehaviour
     }
     void UpdateClients()
     {
-        foreach(var netPlayer in networkPlayersByPID)
+        foreach(var netPlayer in networkPlayers)
         {
-            var player = playerControllers[netPlayer.Key];
+            var netPlayerController = netPlayer.playerController as TankPlayerController;
+            var netPlayerPawn = (netPlayer.playerController.Pawn as TankMovement).gameObject;
+
+            var percepts = netPlayerPawn.GetComponent<TankPercepts>();
 
             var stateMsg = new TankBattleStateData();
-            stateMsg.playerID = netPlayer.Key;
-            stateMsg.position = player.Pawn.position;
-            stateMsg.forward  = player.Pawn.forward;
-            stateMsg.cannonForward = player.TankGun.forward;
-            stateMsg.canFire  = player.PawnFire.CanFire();
+            stateMsg.playerID = netPlayerController.pid;
+            stateMsg.position = netPlayerController.Pawn.position;
+            stateMsg.forward  = netPlayerController.Pawn.forward;
+            stateMsg.cannonForward = netPlayerController.TankGun.forward;
+            stateMsg.canFire  = netPlayerController.PawnFire.CanFire();
             stateMsg.enemyInSight = false;
-            stateMsg.lastKnownDirection = player.manager.m_Percepts.lastKnownDirection;
-            stateMsg.lastKnownPosition = Vector3.zero;
+            stateMsg.lastKnownDirection = percepts.lastKnownDirection;
+            stateMsg.lastKnownPosition = percepts.lastKnownPosition;
 
-            connectionSocket.Send(netPlayer.Value, stateMsg);
+            connectionSocket.Send(netPlayer, stateMsg);
         }
     }
 
@@ -84,26 +89,23 @@ public class NetGameMode : MonoBehaviour
     }
 
     // Instantiates a new player and returns its ID
-    public int AddPlayer()
+    public PlayerController AddPlayer(NetworkPlayer netPlayer)
     {
-        int newID = UnityEngine.Random.Range(0, int.MaxValue);
+        // record player in array
+        networkPlayers.Add(netPlayer);
 
-        int retryLimit = 100;
-        while (retryLimit > 0)
-        {
-            retryLimit--;
+        netPlayer.playerController = gameManager.AddPlayer();
 
-            if (playerControllers.ContainsKey(newID))
-            {
-                break;
-            }
 
-            newID = UnityEngine.Random.Range(0, int.MaxValue);
-        }
+        GameObject newPawn = gameManager.SpawnSingleTank();
 
-        playerControllers[newID] = gameManager.SpawnSingleTank(); 
+        netPlayer.playerController.Pawn = newPawn.GetComponent<TankMovement>();
+        netPlayer.playerController.PawnFire = newPawn.GetComponent<TankShooting>();
 
-        return newID; 
+        var evilDowncasting = netPlayer.playerController as TankPlayerController;
+        evilDowncasting.TankGun = newPawn.GetComponent<CannonMovement>();
+
+        return netPlayer.playerController;
     }
 
     // Removes a player from the game by their ID
@@ -131,24 +133,16 @@ public class NetGameMode : MonoBehaviour
 
     private void OnNetPlayerConnected(NetworkPlayer netPlayer)
     {
-        var PID = AddPlayer();
+        var newPlayerController = AddPlayer(netPlayer);
         var welcomeMsg = new TankBattleStateData();
-        welcomeMsg.playerID = PID;
-
-        networkPlayersByPID[PID] = netPlayer;
+        welcomeMsg.playerID = newPlayerController.pid;
 
         connectionSocket.Send(netPlayer, DataUtils.GetBytes(welcomeMsg));
 
-        Debug.Log("New player initialized at ID" + PID);
+        Debug.Log("New player initialized at ID" + newPlayerController.pid);
     }
     private void OnNetPlayerData(NetworkPlayer netPlayer, TankBattleHeader header)
     {
-        if (header.playerID == -1)
-        {
-            Debug.LogWarning("Invalid player ID provided!");
-            return;
-        }
-
         switch (header.msg)
         {
             case TankBattleMessage.QUIT:
@@ -160,7 +154,7 @@ public class NetGameMode : MonoBehaviour
 
         try
         {
-            var pc = playerControllers[header.playerID];
+            var pc = netPlayer.playerController as TankPlayerController;
 
             // process tank movement
             switch (header.tankMove)
@@ -209,16 +203,12 @@ public class NetGameMode : MonoBehaviour
             // process tank actions
             if (header.fireWish == 1)
             {
-                playerControllers[header.playerID].Fire();
+                pc.Fire();
             }
         }
-        catch (KeyNotFoundException ex)
+        catch (NullReferenceException ex)
         {
-            TankBattleHeader reply = new TankBattleHeader();
-            reply.playerID = AddPlayer();
-
-            // send the reply
-            connectionSocket.Send(netPlayer, reply);
+            Debug.LogError(ex.Message);
         }
     }
     private void OnNetPlayerDisconnected(NetworkPlayer netPlayer)

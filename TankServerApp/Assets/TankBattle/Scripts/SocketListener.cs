@@ -10,6 +10,7 @@ using UnityEngine;
 public class NetworkPlayer
 {
     public Socket remoteSocket;
+    public PlayerController playerController;
     public bool isActive;
 
     public static implicit operator Socket(NetworkPlayer p)

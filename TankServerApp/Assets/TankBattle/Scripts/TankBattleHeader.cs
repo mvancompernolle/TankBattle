@@ -26,9 +26,6 @@ public enum CannonMovementOptions
 
 public struct TankBattleHeader
 {
-    public int playerID;                        // if left -1, server will issue an ID
-                                                // upon reciept of a message
-
     public TankBattleMessage msg;               // declare message type
     public TankMovementOptions tankMove;        // assign action for the tank treads
     public CannonMovementOptions cannonMove;    // TODO: implement rotation on tank gun

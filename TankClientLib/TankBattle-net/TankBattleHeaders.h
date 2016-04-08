@@ -26,9 +26,6 @@ enum class CannonMovementOptions
 
 struct tankBattleHeader
 {
-    int playerID = -1;                  // if left -1, server will issue an ID
-                                        // upon reciept of a message
-
     tankBattleMessage msg;              // declare message type
     TankMovementOptions tankMove;       // assign an action for the tank
     CannonMovementOptions cannonMove;   // TODO: implement rotate cannon on tank gun

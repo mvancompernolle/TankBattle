@@ -25,7 +25,7 @@ namespace UnityGame.Tanks
         public TankManager[] m_TankManagerPresets;  // Reference to the prefab the players will control.
         public List<TankManager> m_TankManagers = new List<TankManager>();               // A collection of managers for enabling and disabling different aspects of the tanks.
         public GameObject m_PlayerControllerPrefab;
-        public List<TankPlayerController> m_PlayerControllers = new List<TankPlayerController>();
+        public List<PlayerController> m_PlayerControllers = new List<PlayerController>();
         
         private int m_RoundNumber;                  // Which round the game is currently on.
         private WaitForSeconds m_StartWait;         // Used to have a delay whilst the round starts.
@@ -49,7 +49,15 @@ namespace UnityGame.Tanks
             StartCoroutine (GameLoop ());
         }
 
-        public TankPlayerController SpawnSingleTank()
+        public PlayerController AddPlayer()
+        {
+            var newPlayerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<PlayerController>();
+            m_PlayerControllers.Add(newPlayerController);
+            newPlayerController.pid = m_PlayerControllers.Count - 1;
+
+            return newPlayerController;
+        }
+        public GameObject SpawnSingleTank()
         {
             m_TankManagers.Add(new TankManager());
 
@@ -65,6 +73,8 @@ namespace UnityGame.Tanks
 
             m_PlayerCount++;
 
+            return newTankManager.m_Instance;
+
             var playerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<TankPlayerController>();
             m_PlayerControllers.Add(playerController);
 
@@ -72,9 +82,8 @@ namespace UnityGame.Tanks
             playerController.Pawn = newTankManager.m_Instance.GetComponent<TankMovement>();
             playerController.PawnFire = newTankManager.m_Instance.GetComponent<TankShooting>();
             playerController.TankGun = newTankManager.m_Instance.GetComponent<CannonMovement>();
-            playerController.manager = newTankManager;
 
-            return playerController;
+            //return playerController;
         }
 
         public GameObject GetTank(int tankID)

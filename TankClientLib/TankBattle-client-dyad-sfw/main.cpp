@@ -86,7 +86,7 @@ int main(int argc, char** argv)
         unsigned char msg[msgSize];
 
         tankBattleHeader ex;
-        ex.playerID = myPlayerID;
+        //ex.playerID = myPlayerID;
         ex.msg = tankBattleMessage::NONE;
         ex.tankMove = TankMovementOptions::HALT;
         ex.cannonMove = CannonMovementOptions::HALT;
