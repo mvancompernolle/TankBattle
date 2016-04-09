@@ -163,11 +163,11 @@ namespace UnityGame.Tanks
             m_Rigidbody.MoveRotation (m_Rigidbody.rotation * turnRotation);
         }
 
-        void IMoveable.MoveForward(float value)
+        public void MoveForward(float value)
         {
             controllerInput.verticalInput = Mathf.Clamp(value, -1, 1);
         }
-        void IMoveable.TurnRight(float value)
+        public void TurnRight(float value)
         {
             controllerInput.horizontalInput = Mathf.Clamp(value, -1, 1);
         }

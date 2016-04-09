@@ -53,8 +53,6 @@ public class NetGameMode : MonoBehaviour
                 else if(ex is ObjectDisposedException)
                 {
                     Debug.LogWarning("Disconnected player message in the network queue.");
-
-                    
                 }
 
                 Debug.LogError(ex.Message);
@@ -75,14 +73,14 @@ public class NetGameMode : MonoBehaviour
                 continue;
 
             var netPlayerController = netPlayer.playerController as TankPlayerController;
-            var netPlayerPawn = (netPlayer.playerController.Pawn as TankMovement).gameObject;
+            var netPlayerPawn = (netPlayer.playerController.MoveTarget as TankMovement).gameObject;
 
             var percepts = netPlayerPawn.GetComponent<TankPercepts>();
 
             var stateMsg = new TankBattleStateData();
             stateMsg.playerID = netPlayerController.pid;
-            stateMsg.position = netPlayerController.Pawn.position;
-            stateMsg.forward  = netPlayerController.Pawn.forward;
+            stateMsg.position = netPlayerController.MoveTarget.position;
+            stateMsg.forward  = netPlayerController.MoveTarget.forward;
             stateMsg.cannonForward = netPlayerController.TankGun.forward;
             stateMsg.canFire  = netPlayerController.PawnFire.CanFire();
             stateMsg.enemyInSight = false;
@@ -105,12 +103,11 @@ public class NetGameMode : MonoBehaviour
         networkPlayers.Add(netPlayer);
 
         netPlayer.playerController = gameManager.AddPlayer();
-        netPlayer.playerController.isActive = false;
-
+        netPlayer.playerController.isActive = true;
 
         GameObject newPawn = gameManager.SpawnSingleTank();
-
-        netPlayer.playerController.Pawn = newPawn.GetComponent<TankMovement>();
+        netPlayer.playerController.Pawn = newPawn;
+        netPlayer.playerController.MoveTarget = newPawn.GetComponent<TankMovement>();
 
         var evilDowncasting = netPlayer.playerController as TankPlayerController;
         evilDowncasting.TankGun = newPawn.GetComponent<CannonMovement>();
@@ -156,7 +153,7 @@ public class NetGameMode : MonoBehaviour
 
         connectionSocket.Send(netPlayer, DataUtils.GetBytes(welcomeMsg));
 
-        Debug.Log("New player initialized at ID" + newPlayerController.pid);
+        Debug.Log("New player initialized at ID " + newPlayerController.pid + ".");
     }
     private void OnNetPlayerData(NetworkPlayer netPlayer, TankBattleHeader header)
     {

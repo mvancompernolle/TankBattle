@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityGame.Tanks;
 
 public class TankPlayerController : PlayerController
 {

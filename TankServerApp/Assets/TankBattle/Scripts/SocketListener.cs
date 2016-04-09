@@ -63,7 +63,6 @@ public delegate void SocketEventHandler(byte[] data, SocketEventArgs e);
 public class SocketListener
 {
     Socket localListener;
-    List<StateObject> remoteConnections = new List<StateObject>();
     Dictionary<Socket, NetworkPlayer> players = new Dictionary<Socket, NetworkPlayer>();
 
     public int port { get; private set; }
@@ -124,8 +123,6 @@ public class SocketListener
 
         StateObject state = new StateObject();
         state.remoteSocket = handler;
-
-        remoteConnections.Add(state);
 
         NetworkPlayer netPlayer = new NetworkPlayer();
         netPlayer.remoteSocket = handler;
@@ -199,7 +196,9 @@ public class SocketListener
             {
                 // client has probably disconnected, so drop them
                 handler.Close(1);
+                
                 events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.DROP, players[handler]), null));
+                players.Remove(handler);
 
                 return;
             }
@@ -237,7 +236,7 @@ public class SocketListener
                 remote.Disconnect(true);
 
                 remote.Shutdown(SocketShutdown.Both);
-                remote.Close();
+                //remote.Close();
             }
         }
         catch (Exception e)
@@ -286,10 +285,12 @@ public class SocketListener
         DropConnection(localListener);
 
         // close sockets to other machines
-        Debug.LogFormat("Closing {0} sockets to remote machines.", remoteConnections.Count);
-        for(int i = 0; i < remoteConnections.Count; ++i)
+        Debug.LogFormat("Closing {0} sockets to remote machines.", players.Count);
+        foreach (var connection in players)
         {
-            DropConnection(remoteConnections[i].remoteSocket);
+            DropConnection(connection.Key);
         }
+
+        players.Clear();
     }
 }
