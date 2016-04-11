@@ -25,8 +25,6 @@ public class TankPlayerController : PlayerController
     public Color m_PlayerColor;                             // This is the color this tank will be tinted.
     public Transform m_SpawnPoint;                          // The position and direction the tank will have when it spawns.
     [HideInInspector]
-    public int m_PlayerNumber;            // This specifies which player this the manager for.
-    [HideInInspector]
     public string m_ColoredPlayerText;    // A string that represents the player with their number colored to match their tank.
     [HideInInspector]
     public GameObject m_Instance;         // A reference to the instance of the tank when it is created.
@@ -49,11 +47,11 @@ public class TankPlayerController : PlayerController
         m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas>().gameObject;
 
         // Set the player numbers to be consistent across the scripts.
-        m_Movement.m_PlayerNumber = m_PlayerNumber;
-        m_Shooting.m_PlayerNumber = m_PlayerNumber;
+        m_Movement.m_PlayerNumber = pid;
+        m_Shooting.m_PlayerNumber = pid;
 
         // Create a string using the correct color that says 'PLAYER 1' etc based on the tank's color and the player's number.
-        m_ColoredPlayerText = "<color=#" + ColorUtility.ToHtmlStringRGB(m_PlayerColor) + ">PLAYER " + m_PlayerNumber + "</color>";
+        m_ColoredPlayerText = "<color=#" + ColorUtility.ToHtmlStringRGB(m_PlayerColor) + ">PLAYER " + pid + "</color>";
         m_Instance.name = "Tank - Player " + pid;
 
         // Get all of the renderers of the tank.

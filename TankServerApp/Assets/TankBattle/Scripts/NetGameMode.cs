@@ -40,7 +40,7 @@ public class NetGameMode : MonoBehaviour
             }
             catch (Exception ex)
             {
-                if(ex is NullReferenceException)
+                if (ex is NullReferenceException)
                 {
                     var nullEx = ex as NullReferenceException;
                     Debug.LogError(nullEx.Message);
@@ -50,12 +50,14 @@ public class NetGameMode : MonoBehaviour
                     var indEx = ex as IndexOutOfRangeException;
                     Debug.LogError(indEx.Message);
                 }
-                else if(ex is ObjectDisposedException)
+                else if (ex is ObjectDisposedException)
                 {
                     Debug.LogWarning("Disconnected player message in the network queue.");
                 }
-
-                Debug.LogError(ex.Message);
+                else
+                {
+                    Debug.LogError(ex.Message);
+                }
             }
         }
 
@@ -125,7 +127,8 @@ public class NetGameMode : MonoBehaviour
     {
         netPlayer.isActive = false;
         netPlayer.playerController.isActive = false;
-        (netPlayer.playerController as TankPlayerController).Kill();    // HACK: omg downcast i am so sorry
+
+        gameManager.RemovePlayer(netPlayer.playerController as TankPlayerController); // HACK: omg downcast i am so sorry
 
         netPlayer.remoteSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
         netPlayer.remoteSocket.Disconnect(true);

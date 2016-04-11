@@ -62,7 +62,7 @@ namespace UnityGame.Tanks
         }
         public void RemovePlayer(TankPlayerController controller)
         {
-
+            controller.Kill();
         }
 
         public GameObject SpawnSingleTank()
@@ -118,11 +118,16 @@ namespace UnityGame.Tanks
             // Set the camera targets
 
             // Create a collection of tanks
-            Transform[] targets = new Transform[m_PlayerControllers.Count];
+            Transform[] targets = new Transform[m_ActivePlayerCount];
 
             // Add each tank's transform to the list of targets
-            for(int i = 0; i < m_ActivePlayerCount; ++i)
+            for(int i = 0; i < m_PlayerControllers.Count; ++i)
             {
+                if (!m_PlayerControllers[i].isActive)
+                {
+                    continue;
+                }
+
                 targets[i] = m_PlayerControllers[i].m_Instance.transform;
             }
 
@@ -278,7 +283,10 @@ namespace UnityGame.Tanks
             // Go through all the tanks and add each of their scores to the message.
             for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
-                message += m_PlayerControllers[i].m_ColoredPlayerText + ": " + m_PlayerControllers[i].m_Wins + " WINS\n";
+                if (m_PlayerControllers[i].isActive)
+                {
+                    message += m_PlayerControllers[i].m_ColoredPlayerText + ": " + m_PlayerControllers[i].m_Wins + " WINS\n";
+                }
             }
 
             // If there is a game winner, change the entire message to reflect that.

@@ -50,6 +50,7 @@ namespace UnityGame.Tanks
             // Go through all the targets and add their positions together.
             for (int i = 0; i < m_Targets.Length; i++)
             {
+                Debug.Assert(m_Targets[i] != null, "Target was null.");
                 // If the target isn't active, go on to the next one.
                 if (!m_Targets[i].gameObject.activeSelf)
                     continue;
