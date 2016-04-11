@@ -19,16 +19,13 @@ namespace UnityGame.Tanks
         public Text m_RoundText;                    // Reference to the overlay Text to display time remaining per round.
 
         public GameObject m_TankPrefab;             // Reference to the prefab of the tank.
-        public TankManager[] m_TankManagerPresets;  // Reference to the prefab the players will control.
-        private List<TankManager> m_TankManagers = new List<TankManager>();               // A collection of managers for enabling and disabling different aspects of the tanks.
-        public GameObject m_PlayerControllerPrefab; // Reference to the prefab of the player controller.
         private List<TankPlayerController> m_PlayerControllers = new List<TankPlayerController>();
         
         private int m_RoundNumber;                  // Which round the game is currently on.
         private WaitForSeconds m_StartWait;         // Used to have a delay whilst the round starts.
         private WaitForSeconds m_EndWait;           // Used to have a delay whilst the round or game ends.
-        private TankManager m_RoundWinner;          // Reference to the winner of the current round.  Used to make an announcement of who won.
-        private TankManager m_GameWinner;           // Reference to the winner of the game.  Used to make an announcement of who won.
+        private TankPlayerController m_RoundWinner;          // Reference to the winner of the current round.  Used to make an announcement of who won.
+        private TankPlayerController m_GameWinner;           // Reference to the winner of the game.  Used to make an announcement of who won.
 
         [SerializeField]
         private Transform[] m_SpawnPoints;
@@ -54,10 +51,12 @@ namespace UnityGame.Tanks
 
         public TankPlayerController AddPlayer()
         {
-            var newPlayerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<TankPlayerController>();
+            var newPlayerController = new TankPlayerController();
             m_PlayerControllers.Add(newPlayerController);
             newPlayerController.isActive = true;
             newPlayerController.pid = m_PlayerControllers.Count - 1;
+
+            newPlayerController.m_SpawnPoint = m_SpawnPoints[newPlayerController.pid];
 
             return newPlayerController;
         }
@@ -68,19 +67,7 @@ namespace UnityGame.Tanks
 
         public GameObject SpawnSingleTank()
         {
-            m_TankManagers.Add(new TankManager());
-
-            var newTankManager = m_TankManagers[m_TankManagers.Count - 1];
-
-            newTankManager.m_Instance = (Instantiate(m_TankPrefab) as GameObject);
-            newTankManager.m_PlayerNumber = m_TankManagers.Count;
-            newTankManager.m_SpawnPoint = m_SpawnPoints[m_TankManagers.Count - 1];
-            
-            newTankManager.Setup();
-
-            newTankManager.m_Instance.name = string.Format("Tank No. {0}", m_TankManagers.Count - 1);
-
-            return newTankManager.m_Instance;
+            return (Instantiate(m_TankPrefab) as GameObject);
         }
 
         private void SetCameraTargets(Transform[] targets)
@@ -131,12 +118,12 @@ namespace UnityGame.Tanks
             // Set the camera targets
 
             // Create a collection of tanks
-            Transform[] targets = new Transform[m_TankManagers.Count];
+            Transform[] targets = new Transform[m_PlayerControllers.Count];
 
             // Add each tank's transform to the list of targets
             for(int i = 0; i < m_ActivePlayerCount; ++i)
             {
-                targets[i] = m_TankManagers[i].m_Instance.transform;
+                targets[i] = m_PlayerControllers[i].m_Instance.transform;
             }
 
             SetCameraTargets(targets);
@@ -231,10 +218,10 @@ namespace UnityGame.Tanks
             int numTanksLeft = 0;
 
             // Go through all the tanks...
-            for (int i = 0; i < m_TankManagers.Count; i++)
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
                 // ... and if they are active, increment the counter.
-                if (m_TankManagers[i].m_Instance.activeSelf)
+                if (m_PlayerControllers[i].m_Instance.activeSelf)
                     numTanksLeft++;
             }
 
@@ -244,16 +231,16 @@ namespace UnityGame.Tanks
         
         // This function is to find out if there is a winner of the round.
         // This function is called with the assumption that 1 or fewer tanks are currently active.
-        private TankManager GetRoundWinner()
+        private TankPlayerController GetRoundWinner()
         {
             Debug.Assert(OneTankLeft(), "GetRoundWinner was called before one tank was left standing!");
 
             // Go through all the tanks...
-            for (int i = 0; i < m_TankManagers.Count; i++)
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
                 // ... and if one of them is active, it is the winner so return it.
-                if (m_TankManagers[i].m_Instance.activeSelf)
-                    return m_TankManagers[i];
+                if (m_PlayerControllers[i].m_Instance.activeSelf)
+                    return m_PlayerControllers[i];
             }
 
             // If none of the tanks are active it is a draw so return null.
@@ -261,14 +248,14 @@ namespace UnityGame.Tanks
         }
 
         // This function is to find out if there is a winner of the game.
-        private TankManager GetGameWinner()
+        private TankPlayerController GetGameWinner()
         {
             // Go through all the tanks...
-            for (int i = 0; i < m_TankManagers.Count; i++)
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
                 // ... and if one of them has enough rounds to win the game, return it.
-                if (m_TankManagers[i].m_Wins == m_NumRoundsToWin)
-                    return m_TankManagers[i];
+                if (m_PlayerControllers[i].m_Wins == m_NumRoundsToWin)
+                    return m_PlayerControllers[i];
             }
 
             // If no tanks have enough rounds to win, return null.
@@ -289,9 +276,9 @@ namespace UnityGame.Tanks
             message += "\n\n\n\n";
 
             // Go through all the tanks and add each of their scores to the message.
-            for (int i = 0; i < m_TankManagers.Count; i++)
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
-                message += m_TankManagers[i].m_ColoredPlayerText + ": " + m_TankManagers[i].m_Wins + " WINS\n";
+                message += m_PlayerControllers[i].m_ColoredPlayerText + ": " + m_PlayerControllers[i].m_Wins + " WINS\n";
             }
 
             // If there is a game winner, change the entire message to reflect that.
@@ -304,30 +291,44 @@ namespace UnityGame.Tanks
         // This function is used to turn all the tanks back on and reset their positions and properties.
         private void ResetAllTanks()
         {
-            for (int i = 0; i < m_TankManagers.Count; i++)
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
-                m_TankManagers[i].Reset();
+                if (m_PlayerControllers[i].isActive)
+                {
+                    m_PlayerControllers[i].Reset();
+                }
             }
         }
         private void EnableTankControl()
         {
-            for (int i = 0; i < m_TankManagers.Count; i++)
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
-                m_TankManagers[i].EnableControl();
+                if (m_PlayerControllers[i].isActive)
+                {
+                    m_PlayerControllers[i].EnableControl();
+                }
             }
         }
         private void DisableTankControl()
         {
-            for (int i = 0; i < m_TankManagers.Count; i++)
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
-                m_TankManagers[i].DisableControl();
+                if (m_PlayerControllers[i].isActive)
+                {
+                    m_PlayerControllers[i].DisableControl();
+
+                }
             }
         }
         private void KillAllTanks()
         {
-            for (int i = 0; i < m_TankManagers.Count; i++)
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
             {
-                m_TankManagers[i].Kill();
+                if (m_PlayerControllers[i].isActive)
+                {
+                    m_PlayerControllers[i].Kill();
+
+                }
             }
         }
     }

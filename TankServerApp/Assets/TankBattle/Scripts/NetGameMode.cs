@@ -73,16 +73,16 @@ public class NetGameMode : MonoBehaviour
                 continue;
 
             var netPlayerController = netPlayer.playerController as TankPlayerController;
-            var netPlayerPawn = (netPlayer.playerController.MoveTarget as TankMovement).gameObject;
+            var netPlayerPawn = (netPlayer.playerController.PawnMove as TankMovement).gameObject;
 
             var percepts = netPlayerPawn.GetComponent<TankPercepts>();
 
             var stateMsg = new TankBattleStateData();
             stateMsg.playerID = netPlayerController.pid;
-            stateMsg.position = netPlayerController.MoveTarget.position;
-            stateMsg.forward  = netPlayerController.MoveTarget.forward;
+            stateMsg.position = netPlayerController.PawnMove.position;
+            stateMsg.forward  = netPlayerController.PawnMove.forward;
             stateMsg.cannonForward = netPlayerController.TankGun.forward;
-            stateMsg.canFire  = netPlayerController.PawnFire.CanFire();
+            stateMsg.canFire  = netPlayerController.TankFire.CanFire();
             stateMsg.enemyInSight = false;
             stateMsg.lastKnownDirection = percepts.lastKnownDirection;
             stateMsg.lastKnownPosition = percepts.lastKnownPosition;
@@ -107,11 +107,14 @@ public class NetGameMode : MonoBehaviour
 
         GameObject newPawn = gameManager.SpawnSingleTank();
         netPlayer.playerController.Pawn = newPawn;
-        netPlayer.playerController.MoveTarget = newPawn.GetComponent<TankMovement>();
+        netPlayer.playerController.PawnMove = newPawn.GetComponent<TankMovement>();
 
         var evilDowncasting = netPlayer.playerController as TankPlayerController;
+        evilDowncasting.m_Instance = newPawn;
+        evilDowncasting.Setup();
+
         evilDowncasting.TankGun = newPawn.GetComponent<CannonMovement>();
-        evilDowncasting.PawnFire = newPawn.GetComponent<TankShooting>();
+        evilDowncasting.TankFire = newPawn.GetComponent<TankShooting>();
         evilDowncasting.TankHealth = newPawn.GetComponent<TankHealth>();
 
         return netPlayer.playerController as TankPlayerController;

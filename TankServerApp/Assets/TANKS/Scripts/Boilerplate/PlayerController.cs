@@ -1,20 +1,19 @@
 ﻿using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController
 {
     public int pid;
     public bool isActive;
 
     public GameObject Pawn;
-
-    public IMoveable MoveTarget;
+    public IMoveable PawnMove;
 
     public void MoveForward(float value)
     {
-        MoveTarget.MoveForward(value);
+        PawnMove.MoveForward(value);
     }
     public void MoveRight(float value)
     {
-        MoveTarget.TurnRight(value);
+        PawnMove.TurnRight(value);
     }
 }
