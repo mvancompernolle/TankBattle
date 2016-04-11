@@ -7,7 +7,7 @@ namespace UnityGame.Tanks
     public class CannonMovement : MonoBehaviour, IMoveable
     {
         public float m_turnSpeed = 1.0f;
-
+         
         [SerializeField]
         private Transform cannon;   // HACK: How should I handle accessibility for sub-comps?
         private float axisInput;

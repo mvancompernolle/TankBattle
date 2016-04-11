@@ -22,7 +22,7 @@ namespace UnityGame.Tanks
         public TankManager[] m_TankManagerPresets;  // Reference to the prefab the players will control.
         private List<TankManager> m_TankManagers = new List<TankManager>();               // A collection of managers for enabling and disabling different aspects of the tanks.
         public GameObject m_PlayerControllerPrefab; // Reference to the prefab of the player controller.
-        private List<PlayerController> m_PlayerControllers = new List<PlayerController>();
+        private List<TankPlayerController> m_PlayerControllers = new List<TankPlayerController>();
         
         private int m_RoundNumber;                  // Which round the game is currently on.
         private WaitForSeconds m_StartWait;         // Used to have a delay whilst the round starts.
@@ -52,16 +52,16 @@ namespace UnityGame.Tanks
             StartCoroutine (GameLoop ());
         }
 
-        public PlayerController AddPlayer()
+        public TankPlayerController AddPlayer()
         {
-            var newPlayerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<PlayerController>();
+            var newPlayerController = (Instantiate(m_PlayerControllerPrefab, Vector3.zero, Quaternion.identity) as GameObject).GetComponent<TankPlayerController>();
             m_PlayerControllers.Add(newPlayerController);
             newPlayerController.isActive = true;
             newPlayerController.pid = m_PlayerControllers.Count - 1;
 
             return newPlayerController;
         }
-        public void RemovePlayer(PlayerController controller)
+        public void RemovePlayer(TankPlayerController controller)
         {
 
         }

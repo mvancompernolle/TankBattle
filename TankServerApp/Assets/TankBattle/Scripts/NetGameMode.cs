@@ -97,7 +97,7 @@ public class NetGameMode : MonoBehaviour
     }
 
     // Instantiates a new player and returns its ID
-    public PlayerController AddPlayer(NetworkPlayer netPlayer)
+    public TankPlayerController AddPlayer(NetworkPlayer netPlayer)
     {
         // record player in array
         networkPlayers.Add(netPlayer);
@@ -114,7 +114,7 @@ public class NetGameMode : MonoBehaviour
         evilDowncasting.PawnFire = newPawn.GetComponent<TankShooting>();
         evilDowncasting.TankHealth = newPawn.GetComponent<TankHealth>();
 
-        return netPlayer.playerController;
+        return netPlayer.playerController as TankPlayerController;
     }
 
     // Removes a player from the game by their ID

@@ -7,6 +7,8 @@ public class TankPlayerController : PlayerController
     public IFireable PawnFire;
     public IDamageable TankHealth;
 
+    public TankManager manager;     // HACK: adapting Unity Tank tutorial.
+
     public void Fire()
     {
         PawnFire.Fire();
