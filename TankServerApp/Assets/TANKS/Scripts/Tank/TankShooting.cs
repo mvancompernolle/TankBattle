@@ -88,16 +88,19 @@ namespace UnityGame.Tanks
                         var percepts = objectsInRadius[i].GetComponent<TankPercepts>();
                         if (percepts != null)
                         {
-                            try
-                            {
-                                percepts.reconInfo[m_PlayerNumber].lastKnownPosition = transform.position;
+                            TankTacticoolInfo targetRecord;
 
-                            }
-                            catch (KeyNotFoundException ex)
+                            if (percepts.reconInfo.ContainsKey(m_PlayerNumber))
                             {
-                                var newRecord = percepts.reconInfo[m_PlayerNumber] = new TankTacticoolInfo();
-                                newRecord.lastKnownPosition = transform.position;
+                                targetRecord = percepts.reconInfo[m_PlayerNumber];
                             }
+                            else
+                            {
+                                targetRecord = new TankTacticoolInfo();
+                            }
+
+                            targetRecord.lastKnownDirection = transform.position;
+                            percepts.reconInfo[m_PlayerNumber] = targetRecord;
                         }
                     }
                 }

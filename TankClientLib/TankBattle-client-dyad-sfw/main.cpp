@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 
         auto state = tankNet::recieve();
         
-        if (state.tacticoolCount > 0)
+        if (state.tacticoolCount > 999)
         {
             std::cout << "Information Available on PIDs...\n";
             for (int i = 0; i < state.tacticoolCount; ++i)

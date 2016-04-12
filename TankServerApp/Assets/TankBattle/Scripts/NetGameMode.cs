@@ -88,18 +88,18 @@ public class NetGameMode : MonoBehaviour
             stateMsg.canFire  = netPlayerController.TankFire.CanFire();
             stateMsg.perceptCount = percepts.reconInfo.Count;
 
-            // pack  reconnaissance
+            // pack reconnaissance
             MemoryStream packetStream = new MemoryStream(DataUtils.SizeOf<TankBattleStateData>() +
                                   DataUtils.SizeOf<TankTacticoolInfo>() * percepts.reconInfo.Count);
 
             packetStream.Write(DataUtils.GetBytes(stateMsg), 0, DataUtils.SizeOf<TankBattleStateData>());
 
-            int writePosition = DataUtils.SizeOf<TankBattleStateData>();
-            foreach (var reconRecord in percepts.reconInfo)
-            {
-                packetStream.Write(DataUtils.GetBytes(reconRecord), writePosition, DataUtils.SizeOf<TankTacticoolInfo>());
-                writePosition += DataUtils.SizeOf<TankTacticoolInfo>();
-            }
+            //int writePosition = DataUtils.SizeOf<TankBattleStateData>();
+            //foreach (var reconRecord in percepts.reconInfo)
+            //{
+            //    packetStream.Write(DataUtils.GetBytes(reconRecord), writePosition, DataUtils.SizeOf<TankTacticoolInfo>());
+            //    writePosition += DataUtils.SizeOf<TankTacticoolInfo>();
+            //}
 
             connectionSocket.Send(netPlayer, packetStream.GetBuffer());
         }

@@ -125,6 +125,7 @@ public class SocketListener
         state.remoteSocket = handler;
 
         NetworkPlayer netPlayer = new NetworkPlayer();
+        netPlayer.isActive = true;
         netPlayer.remoteSocket = handler;
 
         players[handler] = netPlayer;
@@ -235,7 +236,7 @@ public class SocketListener
             {
                 remote.Disconnect(true);
 
-                remote.Shutdown(SocketShutdown.Both);
+                //remote.Shutdown(SocketShutdown.Both);
                 //remote.Close();
             }
         }

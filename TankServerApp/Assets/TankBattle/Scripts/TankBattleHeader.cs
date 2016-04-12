@@ -35,8 +35,7 @@ public struct TankBattleHeader
     public int messageLength;
 }
 
-[System.Serializable]
-public class TankTacticoolInfo
+public struct TankTacticoolInfo
 {
     public int playerID;
 
