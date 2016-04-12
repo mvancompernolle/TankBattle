@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-
+using System.Collections.Generic;
 
 namespace UnityGame.Tanks
 {
@@ -88,7 +88,16 @@ namespace UnityGame.Tanks
                         var percepts = objectsInRadius[i].GetComponent<TankPercepts>();
                         if (percepts != null)
                         {
-                            percepts.lastKnownPosition = transform.position;
+                            try
+                            {
+                                percepts.reconInfo[m_PlayerNumber].lastKnownPosition = transform.position;
+
+                            }
+                            catch (KeyNotFoundException ex)
+                            {
+                                var newRecord = percepts.reconInfo[m_PlayerNumber] = new TankTacticoolInfo();
+                                newRecord.lastKnownPosition = transform.position;
+                            }
                         }
                     }
                 }

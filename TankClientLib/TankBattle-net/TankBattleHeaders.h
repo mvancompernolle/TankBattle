@@ -34,6 +34,15 @@ struct tankBattleHeader
     int messageLength = sizeof(tankBattleHeader);
 };
 
+struct TankTacticoolInfo
+{
+    int playerID;
+
+    bool inSight;
+    float lastKnownPosition[3];
+    float lastKnownDirection[3];
+};
+
 struct TankBattleStateData
 {
     int playerID;
@@ -44,8 +53,6 @@ struct TankBattleStateData
     float cannonForward[3];
 
     bool canFire;
-    bool enemyInSight;
-
-    float lastKnownPosition[3];   // last known enemy position (must have LOS or fire)
-    float lastKnownDirection[3];  // must be in proximity and moving
+    int tacticoolCount;
+    TankTacticoolInfo * tacticoolData;
 };

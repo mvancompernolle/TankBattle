@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public enum TankBattleMessage
 {
@@ -34,6 +35,16 @@ public struct TankBattleHeader
     public int messageLength;
 }
 
+[System.Serializable]
+public class TankTacticoolInfo
+{
+    public int playerID;
+
+    public bool inSight;
+    public Vector3 lastKnownPosition;
+    public Vector3 lastKnownDirection;
+}
+
 public struct TankBattleStateData
 {
     public int playerID;
@@ -44,7 +55,6 @@ public struct TankBattleStateData
     public Vector3 cannonForward;  // forward of cannon
 
     public bool canFire;        // reloaded?
-    public bool enemyInSight;   // is enemy within FOV of tank?
-    public Vector3 lastKnownPosition;   // last known enemy position (must have LOS or fire)
-    public Vector3 lastKnownDirection;  // must be in proximity and moving
+
+    public int perceptCount;
 }
