@@ -78,6 +78,15 @@ int main(int argc, char** argv)
         tankNet::update(0.0);
 
         auto state = tankNet::recieve();
+        
+        if (state.tacticoolCount > 0)
+        {
+            std::cout << "Information Available on PIDs...\n";
+            for (int i = 0; i < state.tacticoolCount; ++i)
+            {
+                std::cout << state.tacticoolData[i].playerID << "\n";
+            }
+        }
 
         // prepare message
         const int msgSize = sizeof(tankBattleHeader);

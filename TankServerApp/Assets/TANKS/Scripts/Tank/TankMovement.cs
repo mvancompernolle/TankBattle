@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace UnityGame.Tanks
 {
@@ -137,7 +138,15 @@ namespace UnityGame.Tanks
                 var receptor = objectsInRange[i].GetComponent<TankPercepts>();
                 if(receptor != null && receptor.gameObject != gameObject)
                 {
-                    receptor.lastKnownDirection = (transform.position - receptor.transform.position).normalized;
+                    try
+                    {
+                        receptor.reconInfo[m_PlayerNumber].lastKnownDirection = (transform.position - receptor.transform.position).normalized;
+                    }
+                    catch (KeyNotFoundException ex)
+                    {
+                        var newRecord = receptor.reconInfo[m_PlayerNumber] = new TankTacticoolInfo();
+                        newRecord.lastKnownDirection = (transform.position - receptor.transform.position).normalized;
+                    }
                     break;
                 }
             }

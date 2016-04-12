@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityGame.Tanks;
+using System.Collections.Generic;
 
 public class TankPercepts : MonoBehaviour
 {
-    //[HideInInspector]
-    public Vector3 lastKnownPosition;
-    //[HideInInspector]
-    public Vector3 lastKnownDirection;
+    public Dictionary<int, TankTacticoolInfo> reconInfo = new Dictionary<int, TankTacticoolInfo>();
+    public int reconInfoCount;
 
     public float VisionRadius;
 
@@ -21,20 +20,28 @@ public class TankPercepts : MonoBehaviour
     }
     void Reset()
     {
-        lastKnownDirection = Vector3.zero;
-        lastKnownDirection = Vector3.zero;
+        reconInfo.Clear();
     }
     void FixedUpdate()
     {
+        reconInfoCount = reconInfo.Count;
         VisionCheck(VisionRadius);
     }
     void OnDrawGizmos()
     {
-        Debug.DrawLine(transform.position, transform.position + (lastKnownDirection * 5f), Color.green);
+        foreach (var enemy in reconInfo)
+        {
+            Debug.DrawLine(transform.position, transform.position + (enemy.Value.lastKnownDirection * 5f), Color.green);
+        }
     }
 
     void VisionCheck(float radarRadius)
     {
+        foreach(var enemy in reconInfo)
+        {
+            enemy.Value.inSight = false;
+        }
+
         var radar = Physics.OverlapSphere(transform.position, VisionRadius, ~(LayerMask.NameToLayer("Players")));
         foreach (var ping in radar)
         {
@@ -49,7 +56,19 @@ public class TankPercepts : MonoBehaviour
                     {
                         if (hit.collider == ping)
                         {
-                            lastKnownPosition = hit.transform.position;
+                            var tankComponent = hit.collider.GetComponent<TankMovement>();
+
+                            if (reconInfo.ContainsKey(tankComponent.m_PlayerNumber))
+                            {
+                                // update existing info
+                                var reconRecord = reconInfo[tankComponent.m_PlayerNumber].lastKnownDirection = hit.transform.position;
+                            }
+                            else
+                            {
+                                var newReconRecord = new TankTacticoolInfo();
+                                newReconRecord.lastKnownDirection = hit.transform.position;
+                                reconInfo[tankComponent.m_PlayerNumber] = newReconRecord;
+                            }
                         }
                     }
                 }
