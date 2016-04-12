@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace UnityGame.Tanks
 {
@@ -7,7 +8,7 @@ namespace UnityGame.Tanks
         public float m_DampTime = 0.2f;                 // Approximate time for the camera to refocus.
         public float m_ScreenEdgeBuffer = 4f;           // Space between the top/bottom most target and the screen edge.
         public float m_MinSize = 6.5f;                  // The smallest orthographic size the camera can be.
-        [HideInInspector] public Transform[] m_Targets; // All the targets the camera needs to encompass.
+        [HideInInspector] public List<Transform> m_Targets; // All the targets the camera needs to encompass.
 
 
         private Camera m_Camera;                        // Used for referencing the camera.
@@ -48,7 +49,7 @@ namespace UnityGame.Tanks
             int numTargets = 0;
 
             // Go through all the targets and add their positions together.
-            for (int i = 0; i < m_Targets.Length; i++)
+            for (int i = 0; i < m_Targets.Count; i++)
             {
                 Debug.Assert(m_Targets[i] != null, "Target was null.");
                 // If the target isn't active, go on to the next one.
@@ -89,7 +90,7 @@ namespace UnityGame.Tanks
             float size = 0f;
 
             // Go through all the targets...
-            for (int i = 0; i < m_Targets.Length; i++)
+            for (int i = 0; i < m_Targets.Count; i++)
             {
                 // ... and if they aren't active continue on to the next target.
                 if (!m_Targets[i].gameObject.activeSelf)

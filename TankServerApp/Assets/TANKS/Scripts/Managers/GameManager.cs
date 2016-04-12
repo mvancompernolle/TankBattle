@@ -20,12 +20,13 @@ namespace UnityGame.Tanks
 
         public GameObject m_TankPrefab;             // Reference to the prefab of the tank.
         private List<TankPlayerController> m_PlayerControllers = new List<TankPlayerController>();
-        
+
         private int m_RoundNumber;                  // Which round the game is currently on.
         private WaitForSeconds m_StartWait;         // Used to have a delay whilst the round starts.
         private WaitForSeconds m_EndWait;           // Used to have a delay whilst the round or game ends.
         private TankPlayerController m_RoundWinner;          // Reference to the winner of the current round.  Used to make an announcement of who won.
         private TankPlayerController m_GameWinner;           // Reference to the winner of the game.  Used to make an announcement of who won.
+        private bool m_RoundInProgress = false;              // Used to determine whether a match is currently occurring.
 
         [SerializeField]
         private Transform[] m_SpawnPoints;
@@ -67,13 +68,14 @@ namespace UnityGame.Tanks
 
         public GameObject SpawnSingleTank()
         {
-            return (Instantiate(m_TankPrefab) as GameObject);
-        }
+            var newTank = Instantiate(m_TankPrefab) as GameObject;
 
-        private void SetCameraTargets(Transform[] targets)
-        {
-            // These are the targets the camera should follow.
-            m_CameraControl.m_Targets = targets;
+            // don't set the tank in play if a round is already going
+            newTank.SetActive(!m_RoundInProgress);
+
+            m_CameraControl.m_Targets.Add(newTank.transform);
+
+            return newTank;
         }
 
         // This is called from start and will run each phase of the game one after another.
@@ -114,24 +116,6 @@ namespace UnityGame.Tanks
             // Wait for enough players to connnect
             while (m_ActivePlayerCount < m_MinimumPlayerCount)
                 yield return null;
-
-            // Set the camera targets
-
-            // Create a collection of tanks
-            Transform[] targets = new Transform[m_ActivePlayerCount];
-
-            // Add each tank's transform to the list of targets
-            for(int i = 0; i < m_PlayerControllers.Count; ++i)
-            {
-                if (!m_PlayerControllers[i].isActive)
-                {
-                    continue;
-                }
-
-                targets[i] = m_PlayerControllers[i].m_Instance.transform;
-            }
-
-            SetCameraTargets(targets);
         }
         private IEnumerator RoundStarting ()
         {
@@ -154,6 +138,8 @@ namespace UnityGame.Tanks
         }
         private IEnumerator RoundPlaying ()
         {
+            m_RoundInProgress = true;
+
             // As soon as the round begins playing let the players control the tanks.
             EnableTankControl ();
 
@@ -186,6 +172,8 @@ namespace UnityGame.Tanks
         }
         private IEnumerator RoundEnding ()
         {
+            m_RoundInProgress = false;
+
             // Stop tanks from moving.
             DisableTankControl ();
 
