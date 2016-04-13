@@ -82,6 +82,7 @@ public class NetGameMode : MonoBehaviour
 
             var stateMsg = new TankBattleStateData();
             stateMsg.playerID = netPlayerController.pid;
+            stateMsg.currentHealth = netPlayerController.m_Health.m_CurrentHealth;
             stateMsg.position = netPlayerController.PawnMove.position;
             stateMsg.forward  = netPlayerController.PawnMove.forward;
             stateMsg.cannonForward = netPlayerController.TankGun.forward;

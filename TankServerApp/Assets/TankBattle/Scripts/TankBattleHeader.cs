@@ -46,17 +46,15 @@ public struct TankTacticoolInfo
 
 public struct TankBattleStateData
 {
-    // OFFSETS                      Managed     Marshalled
-    public int playerID;            // 0        0
+    public int playerID;
+    public float currentHealth;
 
-    public Vector3 position;        // 4        4
-    public Vector3 forward;         // 16       16
+    public Vector3 position;
+    public Vector3 forward;
 
-    public Vector3 cannonForward;   // 28       28
+    public Vector3 cannonForward;
 
-    public int canFire;            // 40       40
+    public int canFire;
 
-    public int perceptCount;        // 41       44  
-    // http://stackoverflow.com/questions/28514373/what-is-the-size-of-a-boolean-in-c-does-it-really-take-4-bytes
-    //                              // 45       48      
+    public int perceptCount; 
 }

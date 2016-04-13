@@ -50,6 +50,7 @@ struct TankTacticoolInfo
 struct TankBattleStateData
 {
     int playerID;
+	float currentHealth;
 
     float position[3];
     float forward[3];
@@ -76,27 +77,3 @@ public:
         END             = TACTICOOL_ARRAY   + sizeof(TankTacticoolInfo *)
     };
 };
-
-//struct TankBattleDummyData
-//{
-//                                // OFFSET
-//    int playerID;               // 0
-//
-//    float position[3];          // 4
-//    float forward[3];           // 16
-//
-//    float cannonForward[3];     // 28
-//
-//    BOOL canFire;               // 40
-//    int tacticoolCount;         // 44
-//
-//                                // 48
-//};
-
-
-//enum testing
-//{
-//    INTE = sizeof(int),
-//    FLOT = sizeof(float),
-//    BOOL = sizeof(bool)
-//};

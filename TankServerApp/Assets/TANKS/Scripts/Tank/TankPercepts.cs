@@ -74,11 +74,4 @@ public class TankPercepts : MonoBehaviour
             Debug.DrawLine(transform.position, transform.position + (enemy.Value.lastKnownDirection * 5f), Color.green);
         }
     }
-    void OnGUI()
-    {
-        foreach(var info in reconInfo.Values)
-        {
-            Debug.Log(info.playerID);
-        }
-    }
 }
