@@ -143,6 +143,7 @@ namespace UnityGame.Tanks
                     if(receptor.reconInfo.ContainsKey(m_PlayerNumber))
                     {
                         targetRecord = receptor.reconInfo[m_PlayerNumber];
+                        targetRecord.playerID = m_PlayerNumber;
                     }
                     else
                     {

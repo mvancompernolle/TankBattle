@@ -13,7 +13,7 @@ namespace tankNet
     void term();
 
     void send(tankBattleHeader output);         // send a struct containing input information
-    TankBattleStateData recieve();              // pull the last state information available
+    TankBattleStateData * recieve();              // pull the last state information available
 
     bool isConnected();                         // has a connection been established
     bool isProvisioned();                       // has the server provisioned this client with an ID

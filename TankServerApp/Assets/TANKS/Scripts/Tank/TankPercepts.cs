@@ -42,6 +42,7 @@ public class TankPercepts : MonoBehaviour
                     if (reconInfo.ContainsKey(tankComponent.m_PlayerNumber))
                     {
                         targetRecord = reconInfo[tankComponent.m_PlayerNumber];
+                        targetRecord.playerID = tankComponent.m_PlayerNumber;
                     }
                     else
                     {

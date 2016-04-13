@@ -51,6 +51,7 @@ int main(int argc, char** argv)
 
     // Boot-up sequence
     std::cout << "TankBattleClient v" << CLIENT_MAJOR_VERSION << "." << CLIENT_MINOR_VERSION << "\n";
+    std::cout << sizeof(TankBattleStateData);
 
     // initialize networking
     if (serverIPAddress[0] == '\0')
@@ -69,7 +70,7 @@ int main(int argc, char** argv)
 
     auto serverData = tankNet::recieve();
 
-    myPlayerID = serverData.playerID;
+    myPlayerID = serverData->playerID;
 
     sfw::initContext(400, 400, "TankController");
     while (sfw::stepContext() && tankNet::isConnected() && tankNet::isProvisioned())
@@ -79,12 +80,19 @@ int main(int argc, char** argv)
 
         auto state = tankNet::recieve();
         
-        if (state.tacticoolCount > 999)
+        for (int i = 0; i < state->tacticoolCount; ++i)
         {
-            std::cout << "Information Available on PIDs...\n";
-            for (int i = 0; i < state.tacticoolCount; ++i)
+            if (i == 0)
             {
-                std::cout << state.tacticoolData[i].playerID << "\n";
+                std::cout << "\nPlayer ID - " << state->playerID << "\n  ";
+                std::cout << "Percepts \n    ";
+            }
+
+            std::cout << "ID: " << state->tacticoolData[i].playerID << "\n    ";
+
+            for (int j = 0; j < 3; ++j)
+            {
+                std::cout << "DIR " << j << ": " << state->tacticoolData[i].lastKnownDirection[j] << "\n    ";
             }
         }
 

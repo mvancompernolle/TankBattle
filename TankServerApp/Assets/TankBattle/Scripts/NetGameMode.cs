@@ -93,13 +93,10 @@ public class NetGameMode : MonoBehaviour
                                   DataUtils.SizeOf<TankTacticoolInfo>() * percepts.reconInfo.Count);
 
             packetStream.Write(DataUtils.GetBytes(stateMsg), 0, DataUtils.SizeOf<TankBattleStateData>());
-
-            //int writePosition = DataUtils.SizeOf<TankBattleStateData>();
-            //foreach (var reconRecord in percepts.reconInfo)
-            //{
-            //    packetStream.Write(DataUtils.GetBytes(reconRecord), writePosition, DataUtils.SizeOf<TankTacticoolInfo>());
-            //    writePosition += DataUtils.SizeOf<TankTacticoolInfo>();
-            //}
+            foreach (var reconRecord in percepts.reconInfo)
+            {
+                packetStream.Write(DataUtils.GetBytes(reconRecord.Value), 0, DataUtils.SizeOf<TankTacticoolInfo>());
+            }
 
             connectionSocket.Send(netPlayer, packetStream.GetBuffer());
         }
@@ -251,6 +248,10 @@ public class NetGameMode : MonoBehaviour
     void Start()
     {
         Debug.Log("Initializing NetGameMode...");
+        Debug.Log("INTE - " + DataUtils.SizeOf<int>());
+        Debug.Log("FLOT - " + DataUtils.SizeOf<float>());
+        Debug.Log("BOOL - " + DataUtils.SizeOf<bool>());
+        Debug.Log("There are " + DataUtils.SizeOf<TankBattleStateData>());
 
         // listen for network players
         connectionSocket = new SocketListener();

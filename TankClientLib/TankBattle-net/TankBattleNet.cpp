@@ -13,7 +13,8 @@ namespace tankNet
 
     static dyad_Stream * stream;
 
-    static TankBattleStateData lastState;
+    static char * lastMessage;
+    static int lastMessageLength;
 
     void onConnect(dyad_Event *e)
     {
@@ -23,18 +24,19 @@ namespace tankNet
     void onData(dyad_Event *e)
     {
         auto msg = (TankBattleStateData*)e->data;
-        //assert(e->size == sizeof(TankBattleStateData));
 
         // TODO: RTCs
-
-        // is this a game state packet?
-        if (isProvisioned())
+        if (lastMessageLength < e->size)
         {
-            lastState = *msg;
+            delete[] lastMessage;
+            lastMessageLength = e->size;
+            lastMessage = new char[lastMessageLength];
         }
-        else // or is this for setting first join?
+
+        memcpy_s(lastMessage, lastMessageLength, e->data, e->size);
+
+        if (!isProvisioned())
         {
-            lastState = *msg;
             _isProvisioned = true;
             std::cout << "Provisioned.\n";
         }
@@ -59,6 +61,9 @@ namespace tankNet
         dyad_init();
 
         assert(stream == nullptr);
+
+        lastMessageLength = sizeof(TankBattleStateData);
+        lastMessage = new char[lastMessageLength];
 
         stream = dyad_newStream();
 
@@ -96,6 +101,8 @@ namespace tankNet
             dyad_close(stream);
         }
 
+        delete[] lastMessage;
+
         dyad_shutdown();
     }
 
@@ -111,8 +118,11 @@ namespace tankNet
         dyad_write(stream, &msg, msgSize);
     }
 
-    TankBattleStateData recieve()
+    TankBattleStateData * recieve()
     {
+        TankBattleStateData * lastState = ((TankBattleStateData*)lastMessage);
+        lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + TankBattleStateData::OFFSETS::TACTICOOL_ARRAY);
+
         return lastState;
     }
 

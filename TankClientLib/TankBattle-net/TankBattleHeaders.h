@@ -1,5 +1,7 @@
 #pragma once
 
+
+
 enum class tankBattleMessage
 {
     NONE,
@@ -34,17 +36,23 @@ struct tankBattleHeader
     int messageLength = sizeof(tankBattleHeader);
 };
 
+
+
 struct TankTacticoolInfo
 {
+    typedef int BOOL;
+
     int playerID;
 
-    bool inSight;
+    BOOL inSight;
     float lastKnownPosition[3];
     float lastKnownDirection[3];
 };
 
 struct TankBattleStateData
 {
+    typedef int BOOL;
+
     int playerID;
 
     float position[3];
@@ -52,7 +60,43 @@ struct TankBattleStateData
 
     float cannonForward[3];
 
-    bool canFire;
+    BOOL canFire;
     int tacticoolCount;
     TankTacticoolInfo * tacticoolData;
+
+    enum OFFSETS
+    {
+        PLAYER_ID       = 0,
+        POSITION        = PLAYER_ID         + sizeof(int),
+        FORWARD         = POSITION          + sizeof(float) * 3,
+        CANNON_FORWARD  = FORWARD           + sizeof(float) * 3,
+        CAN_FIRE        = CANNON_FORWARD    + sizeof(float) * 3,
+        TACTICOOL_COUNT = CAN_FIRE          + sizeof(BOOL),
+        TACTICOOL_ARRAY = TACTICOOL_COUNT   + sizeof(int),
+        END             = TACTICOOL_ARRAY   + sizeof(TankTacticoolInfo *)
+    };
 };
+
+//struct TankBattleDummyData
+//{
+//                                // OFFSET
+//    int playerID;               // 0
+//
+//    float position[3];          // 4
+//    float forward[3];           // 16
+//
+//    float cannonForward[3];     // 28
+//
+//    BOOL canFire;               // 40
+//    int tacticoolCount;         // 44
+//
+//                                // 48
+//};
+
+
+//enum testing
+//{
+//    INTE = sizeof(int),
+//    FLOT = sizeof(float),
+//    BOOL = sizeof(bool)
+//};
