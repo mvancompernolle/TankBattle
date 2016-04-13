@@ -85,7 +85,7 @@ public class NetGameMode : MonoBehaviour
             stateMsg.position = netPlayerController.PawnMove.position;
             stateMsg.forward  = netPlayerController.PawnMove.forward;
             stateMsg.cannonForward = netPlayerController.TankGun.forward;
-            stateMsg.canFire  = netPlayerController.TankFire.CanFire();
+            stateMsg.canFire  = netPlayerController.TankFire.CanFire() ? 1 : 0;
             stateMsg.perceptCount = percepts.reconInfo.Count;
 
             // pack reconnaissance

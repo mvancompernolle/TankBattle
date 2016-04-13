@@ -143,11 +143,11 @@ namespace UnityGame.Tanks
                     if(receptor.reconInfo.ContainsKey(m_PlayerNumber))
                     {
                         targetRecord = receptor.reconInfo[m_PlayerNumber];
-                        targetRecord.playerID = m_PlayerNumber;
                     }
                     else
                     {
                         targetRecord = new TankTacticoolInfo();
+                        targetRecord.playerID = m_PlayerNumber;
                     }
                     targetRecord.lastKnownDirection = (transform.position - receptor.transform.position).normalized;
 

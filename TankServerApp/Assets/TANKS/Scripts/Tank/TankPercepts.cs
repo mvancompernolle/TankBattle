@@ -18,7 +18,7 @@ public class TankPercepts : MonoBehaviour
         foreach (var enemyData in new List<TankTacticoolInfo> (reconInfo.Values))
         {
             var revisedData = enemyData;
-            revisedData.inSight = false;
+            revisedData.inSight = 0;
 
             reconInfo[revisedData.playerID] = revisedData;
         }
@@ -42,11 +42,11 @@ public class TankPercepts : MonoBehaviour
                     if (reconInfo.ContainsKey(tankComponent.m_PlayerNumber))
                     {
                         targetRecord = reconInfo[tankComponent.m_PlayerNumber];
-                        targetRecord.playerID = tankComponent.m_PlayerNumber;
                     }
                     else
                     {
                         targetRecord = new TankTacticoolInfo();
+                        targetRecord.playerID = tankComponent.m_PlayerNumber;
                     }
                     targetRecord.lastKnownDirection = hit.transform.position;
                     reconInfo[tankComponent.m_PlayerNumber] = targetRecord;
@@ -72,6 +72,13 @@ public class TankPercepts : MonoBehaviour
         foreach (var enemy in reconInfo)
         {
             Debug.DrawLine(transform.position, transform.position + (enemy.Value.lastKnownDirection * 5f), Color.green);
+        }
+    }
+    void OnGUI()
+    {
+        foreach(var info in reconInfo.Values)
+        {
+            Debug.Log(info.playerID);
         }
     }
 }

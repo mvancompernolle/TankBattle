@@ -121,8 +121,8 @@ namespace tankNet
     TankBattleStateData * recieve()
     {
         TankBattleStateData * lastState = ((TankBattleStateData*)lastMessage);
-        lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + TankBattleStateData::OFFSETS::TACTICOOL_ARRAY);
-
+        //lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + TankBattleStateData::OFFSETS::TACTICOOL_ARRAY);
+		lastState->tacticoolData = &lastState->tacticoolTest;
         return lastState;
     }
 

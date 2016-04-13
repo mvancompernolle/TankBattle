@@ -39,7 +39,7 @@ public struct TankTacticoolInfo
 {
     public int playerID;
 
-    public bool inSight;
+    public int inSight;
     public Vector3 lastKnownPosition;
     public Vector3 lastKnownDirection;
 }
@@ -54,9 +54,9 @@ public struct TankBattleStateData
 
     public Vector3 cannonForward;   // 28       28
 
-    public bool canFire;            // 40       40
+    public int canFire;            // 40       40
 
     public int perceptCount;        // 41       44  
-    //http://stackoverflow.com/questions/28514373/what-is-the-size-of-a-boolean-in-c-does-it-really-take-4-bytes
+    // http://stackoverflow.com/questions/28514373/what-is-the-size-of-a-boolean-in-c-does-it-really-take-4-bytes
     //                              // 45       48      
 }

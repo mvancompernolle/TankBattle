@@ -40,19 +40,15 @@ struct tankBattleHeader
 
 struct TankTacticoolInfo
 {
-    typedef int BOOL;
-
     int playerID;
 
-    BOOL inSight;
+    int inSight;
     float lastKnownPosition[3];
     float lastKnownDirection[3];
 };
 
 struct TankBattleStateData
 {
-    typedef int BOOL;
-
     int playerID;
 
     float position[3];
@@ -60,8 +56,12 @@ struct TankBattleStateData
 
     float cannonForward[3];
 
-    BOOL canFire;
+    int canFire;
     int tacticoolCount;
+
+	TankTacticoolInfo tacticoolTest;
+
+public:
     TankTacticoolInfo * tacticoolData;
 
     enum OFFSETS
@@ -71,7 +71,7 @@ struct TankBattleStateData
         FORWARD         = POSITION          + sizeof(float) * 3,
         CANNON_FORWARD  = FORWARD           + sizeof(float) * 3,
         CAN_FIRE        = CANNON_FORWARD    + sizeof(float) * 3,
-        TACTICOOL_COUNT = CAN_FIRE          + sizeof(BOOL),
+        TACTICOOL_COUNT = CAN_FIRE          + sizeof(int),
         TACTICOOL_ARRAY = TACTICOOL_COUNT   + sizeof(int),
         END             = TACTICOOL_ARRAY   + sizeof(TankTacticoolInfo *)
     };

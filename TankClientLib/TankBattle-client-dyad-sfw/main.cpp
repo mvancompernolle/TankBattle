@@ -82,18 +82,13 @@ int main(int argc, char** argv)
         
         for (int i = 0; i < state->tacticoolCount; ++i)
         {
-            if (i == 0)
-            {
-                std::cout << "\nPlayer ID - " << state->playerID << "\n  ";
-                std::cout << "Percepts \n    ";
-            }
+			if (i == 0)
+			{
+				std::cout << "\nPlayer ID - " << state->playerID << "\n  ";
+				std::cout << "Percepts \n    ";
 
-            std::cout << "ID: " << state->tacticoolData[i].playerID << "\n    ";
-
-            for (int j = 0; j < 3; ++j)
-            {
-                std::cout << "DIR " << j << ": " << state->tacticoolData[i].lastKnownDirection[j] << "\n    ";
-            }
+				std::cout << "ID: " << state->tacticoolData[0].playerID << "\n    ";
+			}
         }
 
         // prepare message
