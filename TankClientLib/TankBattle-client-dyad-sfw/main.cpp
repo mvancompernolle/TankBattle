@@ -32,6 +32,9 @@ bool inputPressed()
 #define CLIENT_MAJOR_VERSION 0
 #define CLIENT_MINOR_VERSION 1
 
+const int WINDOW_HEIGHT = 400;
+const int WINDOW_WIDTH = 400;
+
 int main(int argc, char** argv)
 {
     char * serverIPAddress = "";
@@ -40,7 +43,7 @@ int main(int argc, char** argv)
     if (argc > 2)
     {
         std::cout << "Unsupported number of arguments." << std::endl;
-        std::cout << "Specify the IP address of the target server. Ex: tankbattle.exe 127.0.0.1" << std::endl;
+        std::cout << "Specify the IP address of the target server. Ex: " << argv[0] << " 127.0.0.1" << std::endl;
 
         return EXIT_FAILURE;
     }
@@ -48,10 +51,6 @@ int main(int argc, char** argv)
     {
         serverIPAddress = argv[1];
     }
-
-    // Boot-up sequence
-    std::cout << "TankBattleClient v" << CLIENT_MAJOR_VERSION << "." << CLIENT_MINOR_VERSION << "\n";
-    std::cout << sizeof(TankBattleStateData);
 
     // initialize networking
     if (serverIPAddress[0] == '\0')
@@ -65,42 +64,34 @@ int main(int argc, char** argv)
 
     while (!tankNet::isProvisioned())
     {
-        tankNet::update(0.0);
+		// block further execution until the server responds
+		// or until the client gives up on connecting
+        tankNet::update();
     }
 
-    auto serverData = tankNet::recieve();
-
+	auto serverData = tankNet::recieve();
     myPlayerID = serverData->playerID;
 
-    sfw::initContext(400, 400, "TankController");
+	// initialize SFW and assets
+    sfw::initContext(WINDOW_WIDTH, WINDOW_HEIGHT, "TankController");
+	unsigned font = sfw::loadTextureMap("./res/fontmap.png", 16, 16);
+
     while (sfw::stepContext() && tankNet::isConnected() && tankNet::isProvisioned())
     {
         // check TCP streams via dyad
-        tankNet::update(0.0);
+        tankNet::update();
+		if (tankNet::isConnected() == false)
+		{
+			break;
+		}
 
-        auto state = tankNet::recieve();
-        
-        for (int i = 0; i < state->tacticoolCount; ++i)
-        {
-			if (i == 0)
-			{
-				std::cout << "\nPlayer ID - " << state->playerID << "\n  ";
-				std::cout << "Percepts \n    ";
-
-				std::cout << "ID: " << state->tacticoolData[0].playerID << "\n    ";
-			}
-        }
+        TankBattleStateData * state = tankNet::recieve();
 
         // prepare message
-        const int msgSize = sizeof(tankBattleHeader);
-        unsigned char msg[msgSize];
-
         tankBattleHeader ex;
-        //ex.playerID = myPlayerID;
         ex.msg = tankBattleMessage::NONE;
         ex.tankMove = TankMovementOptions::HALT;
         ex.cannonMove = CannonMovementOptions::HALT;
-
 
         // poll for input
         if (inputPressed())
@@ -131,7 +122,6 @@ int main(int argc, char** argv)
     }
 
     tankNet::term();
-
     sfw::termContext();
 
     return EXIT_SUCCESS;
