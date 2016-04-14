@@ -1,6 +1,7 @@
 #include "TankBattleNet.h"
 
 #include <cassert>
+#include <ostream>
 #include <iostream>
 
 #include "dyad.h"
@@ -106,15 +107,15 @@ namespace tankNet
         dyad_shutdown();
     }
 
-    void send(tankBattleHeader output)
+    void send(TankBattleHeader output)
     {
         if (!isProvisioned)
             return;
 
-        const int msgSize = sizeof(tankBattleHeader);
+        const int msgSize = sizeof(TankBattleHeader);
         unsigned char msg[msgSize];
 
-        memcpy_s(&msg, msgSize, &output, sizeof(tankBattleHeader));
+        memcpy_s(&msg, msgSize, &output, sizeof(TankBattleHeader));
         dyad_write(stream, &msg, msgSize);
     }
 
@@ -156,4 +157,26 @@ namespace tankNet
 
         return adjMat;
     }
+
+	std::ostream& operator<<(std::ostream &os, TankBattleStateData const &state)
+	{
+		os << "Player ID: " << state.playerID << "\n";
+		os << "Health: " << state.currentHealth << "\n";
+		for (int i = 0; i < 3; ++i)
+		{
+			os << "Position " << i << " = " << state.position[i] << "\n";
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			os << "Forward " << i << " = " << state.forward[i] << "\n";
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			os << "Cannon Forward " << i << " = " << state.cannonForward[i] << "\n";
+		}
+		os << "Can Fire: " << state.canFire << "\n";
+		os << "Tacticool Count: " << state.tacticoolCount << "\n";
+
+		return os;
+	}
 }

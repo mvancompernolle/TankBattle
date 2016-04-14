@@ -1,8 +1,12 @@
 #include <iostream>
+#include <sstream>
 
 #include "TankBattleNet.h"
 #include "sfwdraw.h"
 #undef NONE
+
+using std::stringstream;
+using namespace tankNet;
 
 int myPlayerID = -1;
 
@@ -86,10 +90,17 @@ int main(int argc, char** argv)
 		}
 
         TankBattleStateData * state = tankNet::recieve();
+        
+		// diagnostic report of current state
+		stringstream debugStrings;
+		debugStrings << *state;
+
+		sfw::drawString(font, debugStrings.str().c_str(), 0, WINDOW_HEIGHT, 15, 15);
+
 
         // prepare message
-        tankBattleHeader ex;
-        ex.msg = tankBattleMessage::NONE;
+        TankBattleHeader ex;
+        ex.msg = TankBattleMessage::NONE;
         ex.tankMove = TankMovementOptions::HALT;
         ex.cannonMove = CannonMovementOptions::HALT;
 
@@ -112,7 +123,7 @@ int main(int argc, char** argv)
             // game actions
             if (sfw::getKey(GAME_QUIT))
             {
-                ex.msg = tankBattleMessage::QUIT;
+                ex.msg = TankBattleMessage::QUIT;
                 break;
             }
         }
