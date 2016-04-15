@@ -34,7 +34,7 @@ namespace tankNet
 		TankMovementOptions tankMove;       // assign an action for the tank
 		CannonMovementOptions cannonMove;   // TODO: implement rotate cannon on tank gun
 
-		bool fireWish = 0;
+		int fireWish = 0;
 		int messageLength = sizeof(TankBattleCommand);
 	};
 
@@ -42,7 +42,7 @@ namespace tankNet
 	{
 		int playerID;
 
-		bool inSight;
+		int inSight;
 		float lastKnownPosition[3];
 		float lastKnownDirection[3];
 
@@ -62,7 +62,7 @@ namespace tankNet
 
 		float cannonForward[3];
 
-		bool canFire;
+		int canFire;
 		int tacticoolCount;
 
 		TankTacticoolInfo * tacticoolData;

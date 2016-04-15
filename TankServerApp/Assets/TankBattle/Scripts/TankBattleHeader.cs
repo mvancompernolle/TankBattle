@@ -31,8 +31,7 @@ public struct TankBattleCommand
     public TankMovementOptions tankMove;        // assign action for the tank treads
     public CannonMovementOptions cannonMove;    // TODO: implement rotation on tank gun
 
-    [MarshalAs(UnmanagedType.I1)]
-    public bool fireWish;
+    public int fireWish;
     public int messageLength;
 }
 
@@ -40,7 +39,6 @@ public struct TankTacticalInfo
 {
     public int playerID;
 
-    [MarshalAs(UnmanagedType.I1)]
     public bool inSight;
     public Vector3 lastKnownPosition;
     public Vector3 lastKnownDirection;
@@ -61,8 +59,7 @@ public struct TankBattleStateData
 
     public Vector3 cannonForward;
 
-    [MarshalAs(UnmanagedType.I1)]
-    public bool canFire;
+    public int canFire;
 
     public int perceptCount; 
 }
