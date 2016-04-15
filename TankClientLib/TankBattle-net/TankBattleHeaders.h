@@ -65,18 +65,20 @@ namespace tankNet
 		bool canFire;
 		int tacticoolCount;
 
+
 		TankTacticoolInfo * tacticoolData;
 
 		enum OFFSETS
 		{
-			PLAYER_ID		= 0,
-			POSITION		= PLAYER_ID + sizeof(int),
+			MESSAGE_LENGTH  = 0,
+			PLAYER_ID		= MESSAGE_LENGTH + sizeof(int),
+			CURRENT_HEALTH  = PLAYER_ID + sizeof(int),
+			POSITION		= CURRENT_HEALTH + sizeof(int),
 			FORWARD			= POSITION + sizeof(float) * 3,
 			CANNON_FORWARD	= FORWARD + sizeof(float) * 3,
 			CAN_FIRE		= CANNON_FORWARD + sizeof(float) * 3,
-			TACTICOOL_COUNT = CAN_FIRE + sizeof(int),
+			TACTICOOL_COUNT = CAN_FIRE + sizeof(bool),
 			TACTICOOL_ARRAY = TACTICOOL_COUNT + sizeof(int),
-			END				= TACTICOOL_ARRAY + sizeof(TankTacticoolInfo *)
 		};
 	};
 }

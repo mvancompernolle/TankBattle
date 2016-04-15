@@ -25,6 +25,7 @@ public enum CannonMovementOptions
     RIGHT
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct TankBattleCommand
 {
     public TankBattleMessage msg;               // declare message type
@@ -36,33 +37,36 @@ public struct TankBattleCommand
     public int messageLength;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct TankTacticalInfo
 {
-    public int playerID;
+    public int playerID;                        // 0
 
     [MarshalAs(UnmanagedType.I1)]
-    public bool inSight;
-    public Vector3 lastKnownPosition;
-    public Vector3 lastKnownDirection;
+    public bool inSight;                        // 1
+    public Vector3 lastKnownPosition;           // 13
+    public Vector3 lastKnownDirection;          // 25
 
     //public Vector3 lastKnownTankForward;
     //public Vector3 lastKnownCannonForward;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct TankBattleStateData
 {
-    public int messageLength;
+    public int messageLength;       // 0
 
-    public int playerID;
-    public float currentHealth;
+    public int playerID;            // 4
+    public float currentHealth;     // 8
 
-    public Vector3 position;
-    public Vector3 forward;
+    public Vector3 position;        // 12
+    public Vector3 forward;         // 24
 
-    public Vector3 cannonForward;
+    public Vector3 cannonForward;   // 36
 
     [MarshalAs(UnmanagedType.I1)]
-    public bool canFire;
+    public bool canFire;            // 48
 
-    public int perceptCount; 
+    public int perceptCount;        // 49
+                                    // 53
 }

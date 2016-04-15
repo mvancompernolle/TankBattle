@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "TankBattleNet.h"
 #include "sfwdraw.h"
@@ -42,6 +43,29 @@ const int WINDOW_WIDTH = 400;
 int main(int argc, char** argv)
 {
     char * serverIPAddress = "";
+
+	std::vector<unsigned char> testBytes;
+	testBytes.resize(53);
+	//char * testBytes = new char[53];
+	TankBattleStateData statetest;
+	statetest.messageLength = 53;
+	statetest.playerID = 0;
+	statetest.position;
+	statetest.forward;
+	statetest.cannonForward;
+	statetest.canFire = true;
+	statetest.tacticoolCount = 0;
+	statetest.tacticoolData = nullptr;
+
+
+	memcpy_s(testBytes.data(), 53, &statetest, 53);
+
+	for (int i = 0; i < 53; ++i)
+	{
+		std::cout << testBytes.data()[i] << "\n";
+	}
+
+	system("pause");
 
     // handle console arguments
     if (argc > 2)

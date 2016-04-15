@@ -16,7 +16,7 @@ namespace tankNet
 
     static dyad_Stream * stream;
 
-    static char * lastMessage;
+    static unsigned char * lastMessage;
     static int lastMessageLength;
 
     void onConnect(dyad_Event *e)
@@ -38,10 +38,20 @@ namespace tankNet
         {
             delete[] lastMessage;
             lastMessageLength = e->size;
-            lastMessage = new char[lastMessageLength];
+            lastMessage = new unsigned char[lastMessageLength];
         }
 
         memcpy_s(lastMessage, lastMessageLength, e->data, e->size);
+		std::vector<unsigned char> testBytes;
+		testBytes.resize(53);
+		memcpy_s(testBytes.data(), 53, &msg, 53);
+
+		for (int i = 0; i < 53; ++i)
+		{
+			std::cout << testBytes.data()[i] << "\n";
+		}
+
+		system("pause");
 
         if (!isProvisioned())
         {
@@ -71,7 +81,7 @@ namespace tankNet
         assert(stream == nullptr);
 
         lastMessageLength = sizeof(TankBattleStateData);
-        lastMessage = new char[lastMessageLength];
+        lastMessage = new unsigned char[lastMessageLength];
 
         stream = dyad_newStream();
 
@@ -129,8 +139,8 @@ namespace tankNet
     TankBattleStateData * recieve()
     {
         TankBattleStateData * lastState = ((TankBattleStateData*)lastMessage);
-        lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + offsetof(TankBattleStateData, tacticoolData) + 2);
-
+        //lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + offsetof(TankBattleStateData, tacticoolData));
+		lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + TankBattleStateData::TACTICOOL_ARRAY);
         return lastState;
     }
 

@@ -74,36 +74,43 @@ public class NetGameMode : MonoBehaviour
             if (!netPlayer.isActive)
                 continue;
 
-            var netPlayerController = netPlayer.playerController as TankPlayerController;
-            var netPlayerPawn       = (netPlayer.playerController.PawnMove as TankMovement).gameObject;
-
-            var percepts = netPlayerPawn.GetComponent<TankPercepts>();
+            var controller = netPlayer.playerController as TankPlayerController;
+            var pawn       = (netPlayer.playerController.PawnMove as TankMovement).gameObject;
+            var percepts   = pawn.GetComponent<TankPercepts>();
 
             int packetSize = DataUtils.SizeOf<TankBattleStateData>() +
                              DataUtils.SizeOf<TankTacticalInfo>() * percepts.reconInfo.Count;
 
             var stateMsg = new TankBattleStateData();
             stateMsg.messageLength  = packetSize;
-            stateMsg.playerID       = netPlayerController.pid;
-            stateMsg.currentHealth  = netPlayerController.m_Health.m_CurrentHealth;
-            stateMsg.position       = netPlayerController.PawnMove.position;
-            stateMsg.forward        = netPlayerController.PawnMove.forward;
-            stateMsg.cannonForward  = netPlayerController.TankGun.forward;
-            stateMsg.canFire = netPlayerController.TankFire.CanFire();// ? 1 : 0;
+            stateMsg.playerID       = controller.pid;
+            stateMsg.currentHealth  = controller.m_Health.m_CurrentHealth;
+            stateMsg.position       = controller.PawnMove.position;
+            stateMsg.forward        = controller.PawnMove.forward;
+            stateMsg.cannonForward  = controller.TankGun.forward;
+            stateMsg.canFire        = controller.TankFire.CanFire();
             stateMsg.perceptCount   = percepts.reconInfo.Count;
 
             // pack reconnaissance
-            MemoryStream packetStream = new MemoryStream(DataUtils.SizeOf<TankBattleStateData>() +
-                                  DataUtils.SizeOf<TankTacticalInfo>() * percepts.reconInfo.Count);
+            MemoryStream packetStream = new MemoryStream(packetSize);
 
             packetStream.Write(DataUtils.GetBytes(stateMsg), 0, DataUtils.SizeOf<TankBattleStateData>());
-            packetStream.Write(new byte[2], 0, 2);
+            var testBytes = DataUtils.GetBytes(stateMsg);
+
+            for(int i =0; i < 53; ++i)
+            {
+                bool result = testBytes[i] == packetStream.ToArray()[i];
+            }
+
             foreach (var reconRecord in percepts.reconInfo)
             {
                 packetStream.Write(DataUtils.GetBytes(reconRecord.Value), 0, DataUtils.SizeOf<TankTacticalInfo>());
             }
 
-            connectionSocket.Send(netPlayer, packetStream.GetBuffer());           
+            Debug.Assert(packetSize == packetStream.ToArray().Length, string.Format("Expected {0} bytes, actual {1} bytes", packetSize, packetStream.Length));
+
+            connectionSocket.Send(netPlayer, stateMsg);
+            //connectionSocket.Send(netPlayer, packetStream.ToArray());           
         }
     }
 
@@ -253,6 +260,10 @@ public class NetGameMode : MonoBehaviour
     void Start()
     {
         Debug.Log("Initializing NetGameMode...");
+
+        Debug.Log("Sizeof TankBattleStateInfo" + DataUtils.SizeOf<TankBattleStateData>());
+        Debug.Log("Sizeof TankBattlePercept" + DataUtils.SizeOf<TankTacticalInfo>());
+        Debug.Log("Sizeof float" + DataUtils.SizeOf<Vector3>());
 
         // listen for network players
         connectionSocket = new SocketListener();
