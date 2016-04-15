@@ -62,8 +62,8 @@ public delegate void SocketEventHandler(byte[] data, SocketEventArgs e);
 // Setup a listener on a given port
 public class SocketListener
 {
-    Socket localListener;
-    Dictionary<Socket, NetworkPlayer> players = new Dictionary<Socket, NetworkPlayer>();
+    private Socket localListener;
+    private Dictionary<Socket, NetworkPlayer> players = new Dictionary<Socket, NetworkPlayer>();
 
     public int port { get; private set; }
     private ManualResetEvent allDone = new ManualResetEvent(false);
@@ -245,9 +245,6 @@ public class SocketListener
             if (remote.Connected)
             {
                 remote.Disconnect(true);
-
-                //remote.Shutdown(SocketShutdown.Both);
-                //remote.Close();
             }
         }
         catch (Exception e)
@@ -256,8 +253,6 @@ public class SocketListener
             {
                 Debug.LogError("Socket ErrorCode:" + ((SocketException)e).SocketErrorCode);
             }
-
-            Debug.LogError(e.Message + e.StackTrace);
         }
     }
 
@@ -268,6 +263,9 @@ public class SocketListener
 
         Socket listener = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
+
+        listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+        listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
         localListener = listener;
         try
@@ -293,7 +291,10 @@ public class SocketListener
     public void StopListening()
     {
         // close local socket
-        DropConnection(localListener);
+        //DropConnection(localListener);
+        //localListener.Shutdown(SocketShutdown.Both);
+        //localListener.Disconnect(true);
+        localListener.Close(0);
 
         // close sockets to other machines
         Debug.LogFormat("Closing {0} sockets to remote machines.", players.Count);
