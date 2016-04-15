@@ -43,7 +43,7 @@ public class TankPercepts : MonoBehaviour
         foreach (var enemyData in new List<TankTacticalInfo> (reconInfo.Values))
         {
             var revisedData = enemyData;
-            revisedData.inSight = 0;
+            revisedData.inSight = false;
 
             reconInfo[revisedData.playerID] = revisedData;
         }
@@ -66,7 +66,7 @@ public class TankPercepts : MonoBehaviour
                     var targetRecord = GetRecord(tankComponent.m_PlayerNumber);
 
                     // update existing information
-                    targetRecord.inSight = 1;
+                    targetRecord.inSight = true;
                     targetRecord.lastKnownPosition = hit.transform.position;
                     targetRecord.lastKnownDirection = (hit.transform.position - transform.position).normalized;
 
@@ -94,7 +94,7 @@ public class TankPercepts : MonoBehaviour
         {
             Debug.DrawLine(transform.position, transform.position + (enemy.lastKnownDirection * 5f), Color.green);
 
-            if(enemy.inSight == 1)
+            if(enemy.inSight)
             {
                 Debug.DrawLine(transform.position, enemy.lastKnownPosition, Color.red);
             }

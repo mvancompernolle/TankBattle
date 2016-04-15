@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Runtime.InteropServices;
 
 public enum TankBattleMessage
 {
@@ -30,7 +31,8 @@ public struct TankBattleCommand
     public TankMovementOptions tankMove;        // assign action for the tank treads
     public CannonMovementOptions cannonMove;    // TODO: implement rotation on tank gun
 
-    public int fireWish;
+    [MarshalAs(UnmanagedType.I1)]
+    public bool fireWish;
     public int messageLength;
 }
 
@@ -38,7 +40,8 @@ public struct TankTacticalInfo
 {
     public int playerID;
 
-    public int inSight;
+    [MarshalAs(UnmanagedType.I1)]
+    public bool inSight;
     public Vector3 lastKnownPosition;
     public Vector3 lastKnownDirection;
 
@@ -56,7 +59,8 @@ public struct TankBattleStateData
 
     public Vector3 cannonForward;
 
-    public int canFire;
+    [MarshalAs(UnmanagedType.I1)]
+    public bool canFire;
 
     public int perceptCount; 
 }
