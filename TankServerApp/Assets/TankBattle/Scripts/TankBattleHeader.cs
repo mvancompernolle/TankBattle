@@ -51,6 +51,8 @@ public struct TankTacticalInfo
 
 public struct TankBattleStateData
 {
+    public int messageLength;
+
     public int playerID;
     public float currentHealth;
 

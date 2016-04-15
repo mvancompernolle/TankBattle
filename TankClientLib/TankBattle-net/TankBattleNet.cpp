@@ -28,6 +28,11 @@ namespace tankNet
     {
         auto msg = (TankBattleStateData*)e->data;
 
+		// HACK: discard this transmission
+		// develop a better messaging protocol
+		if (msg->messageLength <= 0)
+			return;
+
         // TODO: RTCs
         if (lastMessageLength < e->size)
         {

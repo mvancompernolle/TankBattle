@@ -79,7 +79,11 @@ public class NetGameMode : MonoBehaviour
 
             var percepts = netPlayerPawn.GetComponent<TankPercepts>();
 
+            int packetSize = DataUtils.SizeOf<TankBattleStateData>() +
+                             DataUtils.SizeOf<TankTacticalInfo>() * percepts.reconInfo.Count;
+
             var stateMsg = new TankBattleStateData();
+            stateMsg.messageLength  = packetSize;
             stateMsg.playerID       = netPlayerController.pid;
             stateMsg.currentHealth  = netPlayerController.m_Health.m_CurrentHealth;
             stateMsg.position       = netPlayerController.PawnMove.position;

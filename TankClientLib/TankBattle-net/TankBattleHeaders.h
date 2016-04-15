@@ -52,6 +52,8 @@ namespace tankNet
 
 	struct TankBattleStateData
 	{
+		int messageLength;
+
 		int playerID;
 		float currentHealth;
 
