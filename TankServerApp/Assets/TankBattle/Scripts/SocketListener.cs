@@ -102,8 +102,18 @@ public class SocketListener
 
     public void Send(Socket handler, byte[] data)
     {
-        handler.BeginSend(data, 0, data.Length, 0,
-            new AsyncCallback(SendCallback), handler);
+        try
+        {
+            handler.BeginSend(data, 0, data.Length, 0,
+                new AsyncCallback(SendCallback), handler);
+        }
+        catch (SocketException ex)
+        {
+            Debug.LogWarning(ex.Message);
+            players[handler].isActive = false;
+            DropConnection(handler);
+            events.Add(new SocketEvent(new SocketEventArgs(SocketEventArgs.SocketEventType.DROP, players[handler]), null));
+        }
     }
     public void Send(Socket handler, object data)
     {
