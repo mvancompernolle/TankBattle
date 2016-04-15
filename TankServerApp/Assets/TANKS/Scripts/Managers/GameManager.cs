@@ -110,7 +110,7 @@ namespace UnityGame.Tanks
         private IEnumerator RoundWaiting ()
         {
             // Display diagnostic
-            m_MessageText.text = "WAITING FOR PLAYERS";
+            m_MessageText.text = "WAITING FOR " + (m_MinimumPlayerCount - m_ActivePlayerCount) + " PLAYERS";
             m_RoundText.text = "";
 
             // Wait for enough players to connnect

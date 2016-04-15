@@ -8,8 +8,7 @@ namespace UnityGame.Tanks
     {
         public float m_turnSpeed = 1.0f;
          
-        [SerializeField]
-        private Transform cannon;   // HACK: How should I handle accessibility for sub-comps?
+        public Transform cannon;   // HACK: How should I handle accessibility for sub-comps?
         private float axisInput;
 
         public Vector3 position
