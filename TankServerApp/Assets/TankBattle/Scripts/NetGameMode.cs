@@ -5,7 +5,6 @@ using System;
 // HACK: Tightly coupling NetGameMode with Unity GameMode...
 using UnityGame.Tanks;
 using System.IO;
-using System.Net.Sockets;
 
 public class NetGameMode : MonoBehaviour
 {
@@ -76,18 +75,18 @@ public class NetGameMode : MonoBehaviour
                 continue;
 
             var netPlayerController = netPlayer.playerController as TankPlayerController;
-            var netPlayerPawn = (netPlayer.playerController.PawnMove as TankMovement).gameObject;
+            var netPlayerPawn       = (netPlayer.playerController.PawnMove as TankMovement).gameObject;
 
             var percepts = netPlayerPawn.GetComponent<TankPercepts>();
 
             var stateMsg = new TankBattleStateData();
-            stateMsg.playerID = netPlayerController.pid;
-            stateMsg.currentHealth = netPlayerController.m_Health.m_CurrentHealth;
-            stateMsg.position = netPlayerController.PawnMove.position;
-            stateMsg.forward  = netPlayerController.PawnMove.forward;
-            stateMsg.cannonForward = netPlayerController.TankGun.forward;
-            stateMsg.canFire  = netPlayerController.TankFire.CanFire() ? 1 : 0;
-            stateMsg.perceptCount = percepts.reconInfo.Count;
+            stateMsg.playerID       = netPlayerController.pid;
+            stateMsg.currentHealth  = netPlayerController.m_Health.m_CurrentHealth;
+            stateMsg.position       = netPlayerController.PawnMove.position;
+            stateMsg.forward        = netPlayerController.PawnMove.forward;
+            stateMsg.cannonForward  = netPlayerController.TankGun.forward;
+            stateMsg.canFire        = netPlayerController.TankFire.CanFire() ? 1 : 0;
+            stateMsg.perceptCount   = percepts.reconInfo.Count;
 
             // pack reconnaissance
             MemoryStream packetStream = new MemoryStream(DataUtils.SizeOf<TankBattleStateData>() +

@@ -61,20 +61,18 @@ namespace tankNet
 		int tacticoolCount;
 
 		TankTacticoolInfo tacticoolTest;
-
-	public:
 		TankTacticoolInfo * tacticoolData;
 
 		enum OFFSETS
 		{
-			PLAYER_ID = 0,
-			POSITION = PLAYER_ID + sizeof(int),
-			FORWARD = POSITION + sizeof(float) * 3,
-			CANNON_FORWARD = FORWARD + sizeof(float) * 3,
-			CAN_FIRE = CANNON_FORWARD + sizeof(float) * 3,
+			PLAYER_ID		= 0,
+			POSITION		= PLAYER_ID + sizeof(int),
+			FORWARD			= POSITION + sizeof(float) * 3,
+			CANNON_FORWARD	= FORWARD + sizeof(float) * 3,
+			CAN_FIRE		= CANNON_FORWARD + sizeof(float) * 3,
 			TACTICOOL_COUNT = CAN_FIRE + sizeof(int),
 			TACTICOOL_ARRAY = TACTICOOL_COUNT + sizeof(int),
-			END = TACTICOOL_ARRAY + sizeof(TankTacticoolInfo *)
+			END				= TACTICOOL_ARRAY + sizeof(TankTacticoolInfo *)
 		};
 	};
 }

@@ -13,8 +13,33 @@ public class TankPercepts : MonoBehaviour
     [SerializeField]
     private float eyeFOV = 90f;
 
+    public TankTacticoolInfo GetRecord(int playerID)
+    {
+        TankTacticoolInfo record;
+
+        // get the existing record, if any, otherwise create a new one
+        if (reconInfo.ContainsKey(playerID))
+        {
+            record = reconInfo[playerID];
+        }
+        else
+        {
+            record = new TankTacticoolInfo();
+            record.playerID = playerID;
+            reconInfo[playerID] = record;
+        }
+
+        return record;
+    }
+
+    public void WriteRecord(TankTacticoolInfo tacticalData)
+    {
+        reconInfo[tacticalData.playerID] = tacticalData;
+    }
+
     void VisionCheck(float radarRadius)
     {
+        // reset vision data for each tank
         foreach (var enemyData in new List<TankTacticoolInfo> (reconInfo.Values))
         {
             var revisedData = enemyData;
@@ -26,30 +51,25 @@ public class TankPercepts : MonoBehaviour
         var radar = Physics.OverlapSphere(transform.position, VisionRadius, ~(LayerMask.NameToLayer("Players")));
         foreach (var ping in radar)
         {
+            // make sure we aren't registering ourselves as an enemy
             if (ping.gameObject != gameObject)
             {
                 var direction = (ping.transform.position - transform.position).normalized;
-
                 RaycastHit hit;
 
+                // is it within view?
                 if (Vector3.Angle(eyePoint.forward, direction) < eyeFOV &&
                     Physics.Raycast(transform.position, direction, out hit) &&
                     hit.collider == ping)
                 {
                     var tankComponent = hit.collider.GetComponent<TankMovement>();
-                    var targetRecord = new TankTacticoolInfo();
+                    var targetRecord = GetRecord(tankComponent.m_PlayerNumber);
 
-                    if (reconInfo.ContainsKey(tankComponent.m_PlayerNumber))
-                    {
-                        targetRecord = reconInfo[tankComponent.m_PlayerNumber];
-                    }
-                    else
-                    {
-                        targetRecord = new TankTacticoolInfo();
-                        targetRecord.playerID = tankComponent.m_PlayerNumber;
-                    }
-                    targetRecord.lastKnownDirection = hit.transform.position;
-                    reconInfo[tankComponent.m_PlayerNumber] = targetRecord;
+                    // update existing information
+                    targetRecord.lastKnownPosition = hit.transform.position;
+                    targetRecord.lastKnownDirection = (hit.transform.position - transform.position).normalized;
+
+                    WriteRecord(targetRecord);
                 }
             }
         }

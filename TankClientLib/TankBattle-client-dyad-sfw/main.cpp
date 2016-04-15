@@ -36,7 +36,7 @@ bool inputPressed()
 #define CLIENT_MAJOR_VERSION 0
 #define CLIENT_MINOR_VERSION 1
 
-const int WINDOW_HEIGHT = 400;
+const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 400;
 
 int main(int argc, char** argv)
@@ -94,9 +94,23 @@ int main(int argc, char** argv)
 		// diagnostic report of current state
 		stringstream debugStrings;
 		debugStrings << *state;
+		debugStrings << "Tacticool Report:\n  ";
+		for (int i = 0; i < state->tacticoolCount; ++i)
+		{
+			debugStrings << state->tacticoolData[i].playerID << "\n    ";
+			for (int j = 0; j < 3; ++j)
+			{
+				debugStrings << state->tacticoolData[i].lastKnownPosition[j] << " , ";
+			}
+			debugStrings << "\n    ";
+			for (int j = 0; j < 3; ++j)
+			{
+				debugStrings << state->tacticoolData[i].lastKnownDirection[j] << " , ";
+			}
+			debugStrings << "inSight: " << (state->tacticoolData[i].inSight ? "true" : "false") << "\n";
+		}
 
 		sfw::drawString(font, debugStrings.str().c_str(), 0, WINDOW_HEIGHT, 15, 15);
-
 
         // prepare message
         TankBattleHeader ex;
