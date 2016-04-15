@@ -4,6 +4,8 @@
 #include <ostream>
 #include <iostream>
 
+#include <vector>
+
 #include "dyad.h"
 
 namespace tankNet
@@ -107,23 +109,23 @@ namespace tankNet
         dyad_shutdown();
     }
 
-    void send(TankBattleHeader output)
+    void send(TankBattleCommand output)
     {
         if (!isProvisioned)
             return;
 
-        const int msgSize = sizeof(TankBattleHeader);
+        const int msgSize = sizeof(TankBattleCommand);
         unsigned char msg[msgSize];
 
-        memcpy_s(&msg, msgSize, &output, sizeof(TankBattleHeader));
+        memcpy_s(&msg, msgSize, &output, sizeof(TankBattleCommand));
         dyad_write(stream, &msg, msgSize);
     }
 
     TankBattleStateData * recieve()
     {
         TankBattleStateData * lastState = ((TankBattleStateData*)lastMessage);
-        //lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + TankBattleStateData::OFFSETS::TACTICOOL_ARRAY);
-		lastState->tacticoolData = &lastState->tacticoolTest;
+        lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + offsetof(TankBattleStateData, tacticoolData) + 2);
+
         return lastState;
     }
 

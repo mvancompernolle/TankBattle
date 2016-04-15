@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class TankPercepts : MonoBehaviour
 {
-    public Dictionary<int, TankTacticoolInfo> reconInfo = new Dictionary<int, TankTacticoolInfo>();
+    public Dictionary<int, TankTacticalInfo> reconInfo = new Dictionary<int, TankTacticalInfo>();
 
     public float VisionRadius;
 
@@ -13,9 +13,9 @@ public class TankPercepts : MonoBehaviour
     [SerializeField]
     private float eyeFOV = 90f;
 
-    public TankTacticoolInfo GetRecord(int playerID)
+    public TankTacticalInfo GetRecord(int playerID)
     {
-        TankTacticoolInfo record;
+        TankTacticalInfo record;
 
         // get the existing record, if any, otherwise create a new one
         if (reconInfo.ContainsKey(playerID))
@@ -24,7 +24,7 @@ public class TankPercepts : MonoBehaviour
         }
         else
         {
-            record = new TankTacticoolInfo();
+            record = new TankTacticalInfo();
             record.playerID = playerID;
             reconInfo[playerID] = record;
         }
@@ -32,7 +32,7 @@ public class TankPercepts : MonoBehaviour
         return record;
     }
 
-    public void WriteRecord(TankTacticoolInfo tacticalData)
+    public void WriteRecord(TankTacticalInfo tacticalData)
     {
         reconInfo[tacticalData.playerID] = tacticalData;
     }
@@ -40,7 +40,7 @@ public class TankPercepts : MonoBehaviour
     void VisionCheck(float radarRadius)
     {
         // reset vision data for each tank
-        foreach (var enemyData in new List<TankTacticoolInfo> (reconInfo.Values))
+        foreach (var enemyData in new List<TankTacticalInfo> (reconInfo.Values))
         {
             var revisedData = enemyData;
             revisedData.inSight = 0;
@@ -66,6 +66,7 @@ public class TankPercepts : MonoBehaviour
                     var targetRecord = GetRecord(tankComponent.m_PlayerNumber);
 
                     // update existing information
+                    targetRecord.inSight = 1;
                     targetRecord.lastKnownPosition = hit.transform.position;
                     targetRecord.lastKnownDirection = (hit.transform.position - transform.position).normalized;
 
@@ -89,9 +90,14 @@ public class TankPercepts : MonoBehaviour
     }
     void OnDrawGizmos()
     {
-        foreach (var enemy in reconInfo)
+        foreach (var enemy in reconInfo.Values)
         {
-            Debug.DrawLine(transform.position, transform.position + (enemy.Value.lastKnownDirection * 5f), Color.green);
+            Debug.DrawLine(transform.position, transform.position + (enemy.lastKnownDirection * 5f), Color.green);
+
+            if(enemy.inSight == 1)
+            {
+                Debug.DrawLine(transform.position, enemy.lastKnownPosition, Color.red);
+            }
         }
     }
 }

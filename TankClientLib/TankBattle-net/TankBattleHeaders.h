@@ -28,14 +28,14 @@ namespace tankNet
 		RIGHT
 	};
 
-	struct TankBattleHeader
+	struct TankBattleCommand
 	{
 		TankBattleMessage msg;              // declare message type
 		TankMovementOptions tankMove;       // assign an action for the tank
 		CannonMovementOptions cannonMove;   // TODO: implement rotate cannon on tank gun
 
 		int fireWish = 0;
-		int messageLength = sizeof(TankBattleHeader);
+		int messageLength = sizeof(TankBattleCommand);
 	};
 
 	struct TankTacticoolInfo
@@ -45,6 +45,9 @@ namespace tankNet
 		int inSight;
 		float lastKnownPosition[3];
 		float lastKnownDirection[3];
+
+		//float lastKnownTankForward[3];		// TODO: implement lastKnownTankForward
+		//float lastKnownCannonForward[3];	// TOOD: implement lastKnownCannonForward
 	};
 
 	struct TankBattleStateData
@@ -60,7 +63,6 @@ namespace tankNet
 		int canFire;
 		int tacticoolCount;
 
-		TankTacticoolInfo tacticoolTest;
 		TankTacticoolInfo * tacticoolData;
 
 		enum OFFSETS

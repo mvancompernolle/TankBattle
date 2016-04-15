@@ -12,7 +12,7 @@ namespace tankNet
     bool update(double timeout=0.0);            // how long should we wait for an update?
     void term();
 
-    void send(TankBattleHeader output);         // send a struct containing input information
+    void send(TankBattleCommand output);         // send a struct containing input information
     TankBattleStateData * recieve();              // pull the last state information available
 
     bool isConnected();                         // has a connection been established

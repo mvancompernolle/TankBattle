@@ -165,9 +165,9 @@ public class SocketListener
                 // How can we simplify this to be reusable?
 
                 // do we have enough data to work from?
-                while (state.bytesRead >= DataUtils.SizeOf<TankBattleHeader>())
+                while (state.bytesRead >= DataUtils.SizeOf<TankBattleCommand>())
                 {
-                    var header = DataUtils.FromBytes<TankBattleHeader>(state.buffer);
+                    var header = DataUtils.FromBytes<TankBattleCommand>(state.buffer);
 
                     // RTC: Verify that the header has a valid message length
                     if (header.messageLength <= 0)

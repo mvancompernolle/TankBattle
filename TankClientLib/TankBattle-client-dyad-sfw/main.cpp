@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 		// diagnostic report of current state
 		stringstream debugStrings;
 		debugStrings << *state;
-		debugStrings << "Tacticool Report:\n  ";
+		debugStrings << "Tacticool Report:\n";
 		for (int i = 0; i < state->tacticoolCount; ++i)
 		{
 			debugStrings << state->tacticoolData[i].playerID << "\n    ";
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
 		sfw::drawString(font, debugStrings.str().c_str(), 0, WINDOW_HEIGHT, 15, 15);
 
         // prepare message
-        TankBattleHeader ex;
+        TankBattleCommand ex;
         ex.msg = TankBattleMessage::NONE;
         ex.tankMove = TankMovementOptions::HALT;
         ex.cannonMove = CannonMovementOptions::HALT;

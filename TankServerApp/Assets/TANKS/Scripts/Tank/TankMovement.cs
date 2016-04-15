@@ -138,7 +138,7 @@ namespace UnityGame.Tanks
                 var receptor = objectsInRange[i].GetComponent<TankPercepts>();
                 if(receptor != null && receptor.gameObject != gameObject)
                 {
-                    TankTacticoolInfo targetRecord = receptor.GetRecord(m_PlayerNumber);
+                    TankTacticalInfo targetRecord = receptor.GetRecord(m_PlayerNumber);
 
                     // write updated information
                     targetRecord.lastKnownDirection = (transform.position - receptor.transform.position).normalized;

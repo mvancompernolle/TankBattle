@@ -24,7 +24,7 @@ public enum CannonMovementOptions
     RIGHT
 }
 
-public struct TankBattleHeader
+public struct TankBattleCommand
 {
     public TankBattleMessage msg;               // declare message type
     public TankMovementOptions tankMove;        // assign action for the tank treads
@@ -34,13 +34,16 @@ public struct TankBattleHeader
     public int messageLength;
 }
 
-public struct TankTacticoolInfo
+public struct TankTacticalInfo
 {
     public int playerID;
 
     public int inSight;
     public Vector3 lastKnownPosition;
     public Vector3 lastKnownDirection;
+
+    //public Vector3 lastKnownTankForward;
+    //public Vector3 lastKnownCannonForward;
 }
 
 public struct TankBattleStateData

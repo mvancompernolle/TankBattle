@@ -90,12 +90,13 @@ public class NetGameMode : MonoBehaviour
 
             // pack reconnaissance
             MemoryStream packetStream = new MemoryStream(DataUtils.SizeOf<TankBattleStateData>() +
-                                  DataUtils.SizeOf<TankTacticoolInfo>() * percepts.reconInfo.Count);
+                                  DataUtils.SizeOf<TankTacticalInfo>() * percepts.reconInfo.Count);
 
             packetStream.Write(DataUtils.GetBytes(stateMsg), 0, DataUtils.SizeOf<TankBattleStateData>());
+            packetStream.Write(new byte[2], 0, 2);
             foreach (var reconRecord in percepts.reconInfo)
             {
-                packetStream.Write(DataUtils.GetBytes(reconRecord.Value), 0, DataUtils.SizeOf<TankTacticoolInfo>());
+                packetStream.Write(DataUtils.GetBytes(reconRecord.Value), 0, DataUtils.SizeOf<TankTacticalInfo>());
             }
 
             connectionSocket.Send(netPlayer, packetStream.GetBuffer());           
@@ -152,7 +153,7 @@ public class NetGameMode : MonoBehaviour
                 OnNetPlayerConnected(e.endpoint);
                 break;
             case SocketEventArgs.SocketEventType.READ:
-                OnNetPlayerData(e.endpoint, DataUtils.FromBytes<TankBattleHeader>(data));
+                OnNetPlayerData(e.endpoint, DataUtils.FromBytes<TankBattleCommand>(data));
                 break;
             case SocketEventArgs.SocketEventType.DROP:
                 OnNetPlayerDisconnected(e.endpoint);
@@ -170,7 +171,7 @@ public class NetGameMode : MonoBehaviour
 
         Debug.Log("New player initialized at ID " + newPlayerController.pid + ".");
     }
-    private void OnNetPlayerData(NetworkPlayer netPlayer, TankBattleHeader header)
+    private void OnNetPlayerData(NetworkPlayer netPlayer, TankBattleCommand header)
     {
         switch (header.msg)
         {

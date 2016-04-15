@@ -24,7 +24,7 @@ enum class CannonMovementOptions
     RIGHT
 };
 
-struct tankBattleHeader
+struct TankBattleCommand
 {
     int playerID = -1;                  // if left -1, server will issue an ID
                                         // upon reciept of a message

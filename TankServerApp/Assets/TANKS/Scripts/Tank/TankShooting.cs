@@ -87,7 +87,7 @@ namespace UnityGame.Tanks
                     if (objectsInRadius[i].gameObject != gameObject &&
                         percepts != null)
                     {
-                        TankTacticoolInfo targetRecord = percepts.GetRecord(m_PlayerNumber);
+                        TankTacticalInfo targetRecord = percepts.GetRecord(m_PlayerNumber);
 
                         // write updated information
                         targetRecord.lastKnownPosition = transform.position;
