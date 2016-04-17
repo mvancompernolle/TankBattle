@@ -57,7 +57,7 @@ folder's configuration folder. (e.g. _TankClientLib/Debug_).
 3. Import the header and binary into your project.
 4. Include TankBattleNet.h in your project where appropriate and begin!
 
-Alternatively, download the release on [GitHub](releases). Import the header and
+Alternatively, download the release on [GitHub](.../../releases). Import the header and
 link against the library in your program.
 
 ## License
