@@ -291,9 +291,6 @@ public class SocketListener
     public void StopListening()
     {
         // close local socket
-        //DropConnection(localListener);
-        //localListener.Shutdown(SocketShutdown.Both);
-        //localListener.Disconnect(true);
         localListener.Close(0);
 
         // close sockets to other machines

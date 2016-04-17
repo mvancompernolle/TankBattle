@@ -97,7 +97,6 @@ public class NetGameMode : MonoBehaviour
                                   DataUtils.SizeOf<TankTacticalInfo>() * percepts.reconInfo.Count);
 
             packetStream.Write(DataUtils.GetBytes(stateMsg), 0, DataUtils.SizeOf<TankBattleStateData>());
-            packetStream.Write(new byte[2], 0, 2);
             foreach (var reconRecord in percepts.reconInfo)
             {
                 packetStream.Write(DataUtils.GetBytes(reconRecord.Value), 0, DataUtils.SizeOf<TankTacticalInfo>());

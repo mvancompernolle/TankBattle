@@ -129,7 +129,7 @@ namespace tankNet
     TankBattleStateData * recieve()
     {
         TankBattleStateData * lastState = ((TankBattleStateData*)lastMessage);
-        lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + offsetof(TankBattleStateData, tacticoolData) + 2);
+        lastState->tacticoolData = (TankTacticoolInfo*)(((char*)lastState) + offsetof(TankBattleStateData, tacticoolData));
 
         return lastState;
     }
