@@ -17,7 +17,9 @@ their tank. Its codebase is compiled against _Unity3D v5.3.2f1_.
 
 TankBattle-net contains the basic C++ networking library for sending commands to the
 server and receiving state updates from the server. Under the hood, the library
-wraps dyad, a C library for handling TCP sockets.
+wraps dyad, a C library for handling TCP sockets.  
+
+You can review its [**API**](API.md).
 
 TankBattle-dyad-sfw contains the example client for use in connecting with the
 server. It accepts keyboard input for controlling the tank and displays a
