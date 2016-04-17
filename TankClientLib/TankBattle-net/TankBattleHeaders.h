@@ -65,7 +65,7 @@ namespace tankNet
 		int canFire;
 		int tacticoolCount;
 
-		TankTacticoolInfo * tacticoolData;
+		TankTacticoolInfo tacticoolData[3];
 
 		enum OFFSETS
 		{

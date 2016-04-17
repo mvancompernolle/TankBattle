@@ -89,8 +89,21 @@ public class NetGameMode : MonoBehaviour
             stateMsg.position       = netPlayerController.PawnMove.position;
             stateMsg.forward        = netPlayerController.PawnMove.forward;
             stateMsg.cannonForward  = netPlayerController.TankGun.forward;
-            stateMsg.canFire = netPlayerController.TankFire.CanFire() ? 1 : 0;
+            stateMsg.canFire        = netPlayerController.TankFire.CanFire() ? 1 : 0;
             stateMsg.perceptCount   = percepts.reconInfo.Count;
+            stateMsg.percepts       = new TankTacticalInfo[3];
+
+            int perceptSlot = 0;
+            foreach(var reconRecord in percepts.reconInfo.Values)
+            {
+                // currently only space for three percepts
+                if (!(perceptSlot < 3))
+                    break;
+
+                stateMsg.percepts[perceptSlot] = reconRecord;
+
+                perceptSlot++;
+            }
 
             // pack reconnaissance
             MemoryStream packetStream = new MemoryStream(DataUtils.SizeOf<TankBattleStateData>() +
