@@ -15,7 +15,7 @@ and the server will process them every FixedUpdate. After processing, the server
 will update each client, sending everyone a new snapshot of the current state of
 their tank. Its codebase is compiled against _Unity3D v5.3.2f1_.
 
-TankBattle-net contains the basic networking library for sending commands to the
+TankBattle-net contains the basic C++ networking library for sending commands to the
 server and receiving state updates from the server. Under the hood, the library
 wraps dyad, a C library for handling TCP sockets.
 
@@ -26,7 +26,10 @@ server.
 
 ## Getting Started
 
-## Connecting the Basic Server and Client
+### Connecting the Basic Server and Client
+
+To test whether or not the server and client can successfully communicate on your
+machine, try using the existing example projects.
 
 1. Open the Unity3D project located in the TankServerApp folder.
 2. Hit play, and verify that there are no problems with initialization by looking
@@ -41,7 +44,21 @@ around on the server.
 6. To spin up a second client, right-click on the TankBattle-dyad-sfw project in
 Visual Studio's Solution Explorer and hover over the "Debug" option. There should be
 a menu entry for starting a new instance. Both of these instances will be picked up
-by the debugger.  
+by the debugger.
+
+### Building and Linking Against TankBattle-net
+
+To use TankBattle-net in your own program for interfacing with the provided
+server, build and link the static library to your project.
+
+1. Open up the solution for the TankClientLib.
+2. Build the TankBattle-net project. You should find its binary in the solution
+folder's configuration folder. (e.g. _TankClientLib/Debug_).
+3. Import the header and binary into your project.
+4. Include TankBattleNet.h in your project where appropriate and begin!
+
+Alternatively, download the release on [GitHub](releases). Import the header and
+link against the library in your program.
 
 ## License
 
