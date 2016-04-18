@@ -46,8 +46,8 @@ public struct TankTacticalInfo
     public Vector3 lastKnownPosition;
     public Vector3 lastKnownDirection;
 
-    //public Vector3 lastKnownTankForward;
-    //public Vector3 lastKnownCannonForward;
+    public Vector3 lastKnownTankForward;
+    public Vector3 lastKnownCannonForward;
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]

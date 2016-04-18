@@ -45,8 +45,8 @@ namespace tankNet
 		float lastKnownPosition[3];
 		float lastKnownDirection[3];
 
-		//float lastKnownTankForward[3];		// TODO: implement lastKnownTankForward
-		//float lastKnownCannonForward[3];	// TOOD: implement lastKnownCannonForward
+		float lastKnownTankForward[3];		// TODO: implement lastKnownTankForward
+		float lastKnownCannonForward[3];	// TOOD: implement lastKnownCannonForward
 	};
 
 	struct TankBattleStateData

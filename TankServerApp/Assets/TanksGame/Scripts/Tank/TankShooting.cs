@@ -92,6 +92,7 @@ namespace UnityGame.Tanks
                         // write updated information
                         targetRecord.lastKnownPosition = transform.position;
                         targetRecord.lastKnownDirection = (transform.position - percepts.transform.position).normalized;
+                        targetRecord.lastKnownCannonForward = m_FireTransform.parent.transform.forward; // HACK: find a better way to expose the cannon
 
                         percepts.WriteRecord(targetRecord);
                     }

@@ -19,20 +19,26 @@ Byte Offset | Field                              | Description
 8           | int isAlive                        | Is the enemy tank alive and participating in the current round?
 12          | Vector3 lastKnownPosition          | The last known position of the enemy tank.
 24          | Vector3 lastKnownDirection         | The last known direction of the enemy tank, relative to the player's tank.
-
+36          | Vector3 lastKnownForward           | The last known forward direction of the enemy tank.
+48          | Vector3 lastKnownCannonForward     | The last known forward direction of the enemy tank's cannon.
 *Conditions*  
 
 - Information on an enemy tank is recorded when any of the following conditions
 are met.
-- The last known position for a tank is changed when one of the following is met:  
+- The last known tank _position_ and _forward_ values are changed when one of the
+following is met:  
   - The enemy tank is in the view of the tank cannon.  
     - The field-of-view (FOV) for the tank cannon is 90 degrees.
     - The vision distance limit is 300m.
   - The enemy tank has fired within 1500m of your tank.  
   - The enemy tank has been defeated.
-- The last known direction for a tank is changed when one of the following is met:  
-  - Any of the conditions for updating the last known position of a tank.
+- The last known tank _direction_ value is changed when one of the following is met:  
+  - Any of the conditions for updating the last known position and forward of a tank.
   - The enemy tank is moving (not turning) within a 200m radius.  
+- The last known cannon _forward_ value is changed when one of the following is met:
+  - Any of the conditions for updating the last known position and forward of a tank.
+  - The enemy tank has fired within 1500m of your tank.
+
 
 **TankBattleStateInfo**  
 
