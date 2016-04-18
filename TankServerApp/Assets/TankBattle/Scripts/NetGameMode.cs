@@ -5,6 +5,7 @@ using System;
 // HACK: Tightly coupling NetGameMode with Unity GameMode...
 using UnityGame.Tanks;
 using System.IO;
+using System.Net.Sockets;
 
 public class NetGameMode : MonoBehaviour
 {
@@ -52,6 +53,10 @@ public class NetGameMode : MonoBehaviour
                     Debug.LogError(indEx.Message);
                 }
                 else if (ex is ObjectDisposedException)
+                {
+                    Debug.LogWarning("Disconnected player message in the network queue.");
+                }
+                else if (ex is SocketException)
                 {
                     Debug.LogWarning("Disconnected player message in the network queue.");
                 }
@@ -131,6 +136,11 @@ public class NetGameMode : MonoBehaviour
         networkPlayers.Add(netPlayer);
 
         netPlayer.playerController = gameManager.AddPlayer();
+
+        // if null, we are at the max player count
+        if (netPlayer.playerController == null)
+            return null;
+
         netPlayer.playerController.isActive = true;
 
         GameObject newPawn = gameManager.SpawnSingleTank();
@@ -152,10 +162,15 @@ public class NetGameMode : MonoBehaviour
     public void RemovePlayer(NetworkPlayer netPlayer)
     {
         netPlayer.isActive = false;
-        netPlayer.playerController.isActive = false;
 
-        gameManager.RemovePlayer(netPlayer.playerController as TankPlayerController); // HACK: omg downcast i am so sorry
+        // if the player was provisioned, remove them from the game
+        if (netPlayer.playerController != null)
+        {
+            netPlayer.playerController.isActive = false;
+            gameManager.RemovePlayer(netPlayer.playerController as TankPlayerController); // HACK: omg downcast i am so sorry
+        }
 
+        // close socket
         netPlayer.remoteSocket.Shutdown(System.Net.Sockets.SocketShutdown.Both);
         netPlayer.remoteSocket.Disconnect(true);
         netPlayer.remoteSocket.Close();
@@ -180,6 +195,15 @@ public class NetGameMode : MonoBehaviour
     private void OnNetPlayerConnected(NetworkPlayer netPlayer)
     {
         var newPlayerController = AddPlayer(netPlayer);
+
+        // are we at the max player count?
+        if (newPlayerController == null)
+        {
+            RemovePlayer(netPlayer);
+
+            return;
+        }
+
         var welcomeMsg = new TankBattleStateData();
         welcomeMsg.playerID = newPlayerController.pid;
 

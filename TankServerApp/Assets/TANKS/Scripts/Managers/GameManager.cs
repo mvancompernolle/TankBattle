@@ -39,6 +39,7 @@ namespace UnityGame.Tanks
                 return m_PlayerControllers.Count(p => p.isActive);
             }
         }
+        public int m_MaximumPlayerCount = 4;
 
         private void Start()
         {
@@ -52,6 +53,12 @@ namespace UnityGame.Tanks
 
         public TankPlayerController AddPlayer()
         {
+            // max player count reached?
+            if (m_ActivePlayerCount + 1 > m_MaximumPlayerCount)
+            {
+                return null;
+            }
+
             var newPlayerController = new TankPlayerController();
             m_PlayerControllers.Add(newPlayerController);
             newPlayerController.isActive = true;
