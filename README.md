@@ -1,34 +1,34 @@
 # TankBattle
 
-TankBattle provides a base project and client lib for facilitating communication
-between a server and a client in order to run a networked simulation. There are
-three projects provided in this repository:
+TankBattle provides a base project and client lib for demonstrating communication
+between a server and a client for the purpose of running a networked simulation.
+There are three projects provided in this repository:
 
 - TankServerApp
 - TankClientLib
   - TankBattle-net
-  - TankBattle-dyad-sfw
+  - TankBattle-client-dyad-sfw
 
-TankServerApp contains the Unity3D project which serves as the network server as
+**TankServerApp** contains the Unity3D project which serves as the network server as
 well as the simulation. Clients will send commands to the server over TCP sockets
 and the server will process them every FixedUpdate. After processing, the server
 will update each client, sending everyone a new snapshot of the current state of
 their tank. Its codebase is compiled against _Unity3D v5.3.2f1_.
 
-TankBattle-net contains the basic C++ networking library for sending commands to the
-server and receiving state updates from the server. Under the hood, the library
-wraps dyad, a C library for handling TCP sockets.  
+**TankBattle-net** contains the basic C++ networking library for sending commands to the
+server and receiving state updates from the server. It exposes a specific [API](API.md)
+designed to specifically interface with the TankServer. Under the hood,
+the library wraps [dyad](https://github.com/rxi/dyad), a C library for handling
+TCP sockets.  
 
-You can review its [**API**](API.md).
-
-TankBattle-dyad-sfw contains the example client for use in connecting with the
+**TankBattle-client-dyad-sfw** contains the example client for use in connecting with the
 server. It accepts keyboard input for controlling the tank and displays a
 debug output in the game window, showing what information is received from the
 server.
 
 ## Getting Started
 
-### Connecting the Basic Server and Client
+### Building and Connecting the Basic Server and Client
 
 To test whether or not the server and client can successfully communicate on your
 machine, try using the existing example projects.
@@ -61,6 +61,13 @@ folder's configuration folder. (e.g. _TankClientLib/Debug_).
 
 Alternatively, download the release on [GitHub](.../../releases). Import the header and
 link against the library in your program.
+
+### Example Project
+
+You can review the [example client](TankClientLib/TankBattle-client-dyad-sfw/main.cpp)
+included in the repository. It attempts to connect to a server on the local machine
+and will present a debug window. You may focus the window and use the WASD-keys to
+move your tank around on the server.
 
 ## License
 
