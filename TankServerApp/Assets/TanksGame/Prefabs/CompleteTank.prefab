@@ -805,6 +805,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030896d0325fa3e4d8d7d4cfe2351cb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_PlayerNumber: -1
   m_StartingHealth: 100
   m_Slider: {fileID: 11482748}
   m_FillImage: {fileID: 11404512}
@@ -900,8 +901,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d512283c0285bbc4186ff469371dc446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lastKnownPosition: {x: 0, y: 0, z: 0}
-  lastKnownDirection: {x: 0, y: 0, z: 0}
   VisionRadius: 30
   eyePoint: {fileID: 494770}
   eyeFOV: 90
@@ -916,7 +915,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df2ecaee0beb21c4ca3beaff220691a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_turnSpeed: 1
+  m_turnSpeed: 90
   cannon: {fileID: 494770}
 --- !u!114 &11466918
 MonoBehaviour:
@@ -4298,6 +4297,10 @@ Prefab:
     - target: {fileID: 0}
       propertyPath: m_LocalPosition.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_turnSpeed
+      value: 90
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

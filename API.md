@@ -21,6 +21,7 @@ Byte Offset | Field                              | Description
 24          | Vector3 lastKnownDirection         | The last known direction of the enemy tank, relative to the player's tank.
 36          | Vector3 lastKnownForward           | The last known forward direction of the enemy tank.
 48          | Vector3 lastKnownCannonForward     | The last known forward direction of the enemy tank's cannon.
+
 *Conditions*  
 
 - Information on an enemy tank is recorded when any of the following conditions

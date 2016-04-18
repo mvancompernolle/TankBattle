@@ -44,7 +44,7 @@ namespace UnityGame.Tanks
 
         public void FixedUpdate()
         {
-            cannon.Rotate(transform.up, axisInput * m_turnSpeed);
+            cannon.Rotate(transform.up, axisInput * (m_turnSpeed * Time.deltaTime));
         }
     }
 }
