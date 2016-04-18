@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ostream>
-
 namespace tankNet
 {
 	enum class TankBattleMessage
@@ -69,7 +67,8 @@ namespace tankNet
 
 		enum OFFSETS
 		{
-			PLAYER_ID		= 0,
+            MESSAGE_LEN     = 0,
+			PLAYER_ID		= MESSAGE_LEN + sizeof(int),
 			POSITION		= PLAYER_ID + sizeof(int),
 			FORWARD			= POSITION + sizeof(float) * 3,
 			CANNON_FORWARD	= FORWARD + sizeof(float) * 3,

@@ -3,16 +3,32 @@
 
 #include "TankBattleNet.h"
 #include "sfwdraw.h"
-#undef NONE
+#undef NONE     // sfw defines NONE as one of its colors; we won't be needing that
 
 using std::stringstream;
-using namespace tankNet;
 
-int myPlayerID = -1;
+// declare controls for example client
+const char TANK_FWRD = 'W';
+const char TANK_BACK = 'S';
+const char TANK_LEFT = 'A';
+const char TANK_RIGT = 'D';
 
+const char TANK_FIRE = 'F';
+
+const char CANN_LEFT = 'Q';
+const char CANN_RIGT = 'E';
+
+const char GAME_QUIT = 'L';
+
+const int WINDOW_HEIGHT = 800;
+const int WINDOW_WIDTH = 400;
+
+// Polls all printable characters for a key press
+// Returns true if a key press was detected, otherwise returns false
 bool inputPressed()
 {
-    for (unsigned int i = 0; i < 150; ++i)
+    // 32 is the ASCII code for the first printable character, while 255 is the last
+    for (unsigned int i = 32; i < 255; ++i)
     {
         if (sfw::getKey(i))
             return true;
@@ -20,24 +36,6 @@ bool inputPressed()
 
     return false;
 }
-
-#define TANK_FWRD 'W'
-#define TANK_BACK 'S'
-#define TANK_LEFT 'A'
-#define TANK_RIGT 'D'
-
-#define CANN_LEFT 'Q'
-#define CANN_RIGT 'E'
-
-#define TANK_FIRE 'F'
-
-#define GAME_QUIT 'L'
-
-#define CLIENT_MAJOR_VERSION 0
-#define CLIENT_MINOR_VERSION 1
-
-const int WINDOW_HEIGHT = 800;
-const int WINDOW_WIDTH = 400;
 
 int main(int argc, char** argv)
 {
@@ -59,91 +57,99 @@ int main(int argc, char** argv)
     // initialize networking
     if (serverIPAddress[0] == '\0')
     {
-        tankNet::init(11000);
+        tankNet::init();
     }
     else
     {
-        tankNet::init(11000, serverIPAddress);
+        tankNet::init(serverIPAddress);
     }
 
-    while (!tankNet::isProvisioned())
+    while (!tankNet::isProvisioned() && tankNet::isConnected())
     {
 		// block further execution until the server responds
 		// or until the client gives up on connecting
         tankNet::update();
     }
 
-	auto serverData = tankNet::recieve();
-    myPlayerID = serverData->playerID;
-
-	// initialize SFW and assets
-    sfw::initContext(WINDOW_WIDTH, WINDOW_HEIGHT, "TankController");
-	unsigned font = sfw::loadTextureMap("./res/fontmap.png", 16, 16);
-
-    while (sfw::stepContext() && tankNet::isConnected() && tankNet::isProvisioned())
+    // if a connection was successful...
+    if (tankNet::isConnected() && tankNet::isProvisioned())
     {
-        // check TCP streams via dyad
-        tankNet::update();
-		if (tankNet::isConnected() == false)
-		{
-			break;
-		}
+        auto serverData = tankNet::recieve();
 
-        TankBattleStateData * state = tankNet::recieve();
-        
-		// diagnostic report of current state
-		stringstream debugStrings;
-		debugStrings << *state;
-		debugStrings << "Tacticool Report:\n";
-		for (int i = 0; i < state->tacticoolCount; ++i)
-		{
-			debugStrings << state->tacticoolData[i].playerID << "\n    ";
-			for (int j = 0; j < 3; ++j)
-			{
-				debugStrings << state->tacticoolData[i].lastKnownPosition[j] << " , ";
-			}
-			debugStrings << "\n    ";
-			for (int j = 0; j < 3; ++j)
-			{
-				debugStrings << state->tacticoolData[i].lastKnownDirection[j] << " , ";
-			}
-			debugStrings << "inSight: " << (state->tacticoolData[i].inSight ? "true" : "false") << "\n";
-		}
+        // initialize SFW and assets
+        sfw::initContext(WINDOW_WIDTH, WINDOW_HEIGHT, "TankController");
+        unsigned font = sfw::loadTextureMap("./res/fontmap.png", 16, 16);
 
-		sfw::drawString(font, debugStrings.str().c_str(), 0, WINDOW_HEIGHT, 15, 15);
-
-        // prepare message
-        TankBattleCommand ex;
-        ex.msg = TankBattleMessage::NONE;
-        ex.tankMove = TankMovementOptions::HALT;
-        ex.cannonMove = CannonMovementOptions::HALT;
-
-        // poll for input
-        if (inputPressed())
+        while (sfw::stepContext() && tankNet::isConnected() && tankNet::isProvisioned())
         {
-            // tank actions
-            ex.tankMove =   sfw::getKey(TANK_FWRD) ? TankMovementOptions::FWRD :
-                            sfw::getKey(TANK_BACK) ? TankMovementOptions::BACK :
-                            sfw::getKey(TANK_LEFT) ? TankMovementOptions::LEFT :
-                            sfw::getKey(TANK_RIGT) ? TankMovementOptions::RIGHT :
-                            TankMovementOptions::HALT;
-
-            ex.cannonMove = sfw::getKey(CANN_LEFT) ? CannonMovementOptions::LEFT :
-                            sfw::getKey(CANN_RIGT) ? CannonMovementOptions::RIGHT :
-                            CannonMovementOptions::HALT;
-
-            ex.fireWish = sfw::getKey(TANK_FIRE);
-
-            // game actions
-            if (sfw::getKey(GAME_QUIT))
+            // check TCP streams via dyad
+            tankNet::update();
+            if (tankNet::isConnected() == false)
             {
-                ex.msg = TankBattleMessage::QUIT;
                 break;
             }
-        }
 
-        // begin transmission
-        tankNet::send(ex);
+            tankNet::TankBattleStateData * state = tankNet::recieve();
+
+            // diagnostic report of current state
+            stringstream debugStrings;
+            debugStrings << *state;
+            debugStrings << "Tacticool Report:\n";
+            for (int i = 0; i < state->tacticoolCount; ++i)
+            {
+                debugStrings << state->tacticoolData[i].playerID << "\n    ";
+                for (int j = 0; j < 3; ++j)
+                {
+                    debugStrings << state->tacticoolData[i].lastKnownPosition[j] << " , ";
+                }
+                debugStrings << "\n    ";
+                for (int j = 0; j < 3; ++j)
+                {
+                    debugStrings << state->tacticoolData[i].lastKnownDirection[j] << " , ";
+                }
+
+                debugStrings << "\ninSight: " << (state->tacticoolData[i].inSight ? "true" : "false") << "\n";
+            }
+
+            sfw::drawString(font, debugStrings.str().c_str(), 0, WINDOW_HEIGHT, 15, 15);
+
+            // prepare message
+            tankNet::TankBattleCommand ex;
+            ex.msg = tankNet::TankBattleMessage::NONE;
+            ex.tankMove = tankNet::TankMovementOptions::HALT;
+            ex.cannonMove = tankNet::CannonMovementOptions::HALT;
+
+            // poll for input
+            if (inputPressed())
+            {
+                // tank actions
+                ex.tankMove = sfw::getKey(TANK_FWRD) ? tankNet::TankMovementOptions::FWRD :
+                    sfw::getKey(TANK_BACK) ? tankNet::TankMovementOptions::BACK :
+                    sfw::getKey(TANK_LEFT) ? tankNet::TankMovementOptions::LEFT :
+                    sfw::getKey(TANK_RIGT) ? tankNet::TankMovementOptions::RIGHT :
+                    tankNet::TankMovementOptions::HALT;
+
+                ex.cannonMove = sfw::getKey(CANN_LEFT) ? tankNet::CannonMovementOptions::LEFT :
+                    sfw::getKey(CANN_RIGT) ? tankNet::CannonMovementOptions::RIGHT :
+                    tankNet::CannonMovementOptions::HALT;
+
+                ex.fireWish = sfw::getKey(TANK_FIRE);
+
+                // game actions
+                if (sfw::getKey(GAME_QUIT))
+                {
+                    ex.msg = tankNet::TankBattleMessage::QUIT;
+                    break;
+                }
+            }
+
+            // begin transmission
+            tankNet::send(ex);
+        }
+    }
+    else
+    {
+        std::cout << "\nFailed to connect to server. Is the server online and not full?";
     }
 
     tankNet::term();

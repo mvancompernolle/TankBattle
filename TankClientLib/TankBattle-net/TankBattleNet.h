@@ -8,16 +8,34 @@ namespace tankNet
 {
     typedef std::vector<std::vector<int>> adjacencyMatrix;
 
-    bool init(int port, char * address="127.0.0.1");        // attempts to connect to a server
-    bool update(double timeout=0.0);            // how long should we wait for an update?
+    // Attempts to locate and form a TCP connection with the server
+    // - serverAddress :: IP address of server, defaults to 127.0.0.1 (AKA localhost)
+    // - serverPort :: listening port on server
+    // Returns true if the host server could be resolved, otherwise returns false
+    bool init(char * serverAddress="127.0.0.1", int serverPort = 11100);
+
+    // Sends data upstream and checks the TCP queue for any information
+    // - timeToBlock :: Time in seconds to block execution while waiting for information.
+    // Returns false if an error has occurred, otherwise returns true.
+    bool update(double timeToBlock=0.0);
+
+    // Forcibly closes the socket to the server.
     void term();
 
-    void send(TankBattleCommand output);         // send a struct containing input information
-    TankBattleStateData * recieve();              // pull the last state information available
+    // Enqueues a tank command for transmission to the server on the next update.
+    void send(TankBattleCommand output);
 
-    bool isConnected();                         // has a connection been established
-    bool isProvisioned();                       // has the server provisioned this client with an ID
+    // Pulls the latest state information recieved from the server.
+    // Returns a pointer to the last state data recieved. This does NOT force a state update.
+    TankBattleStateData * recieve();
 
+    // Returns true if tankNet is currently connected to a server.
+    bool isConnected();
+
+    // Returns true if tankNet has recieved at last one valid state update from the server.
+    bool isProvisioned();
+
+    // Returns an adjacency matrix, representing obstacles on the server.
     adjacencyMatrix getAdjacencyMatrix();
 
 	std::ostream& operator<<(std::ostream &os, TankBattleStateData const &state);
