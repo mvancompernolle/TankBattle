@@ -40,6 +40,7 @@ public struct TankBattleCommand
 public struct TankTacticalInfo
 {
     public int playerID;
+    public int isAlive;
 
     public bool inSight;
     public Vector3 lastKnownPosition;

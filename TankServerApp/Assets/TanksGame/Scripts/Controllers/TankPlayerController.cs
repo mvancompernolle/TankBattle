@@ -49,6 +49,7 @@ public class TankPlayerController : PlayerController
         // Set the player numbers to be consistent across the scripts.
         m_Movement.m_PlayerNumber = pid;
         m_Shooting.m_PlayerNumber = pid;
+        m_Health.m_PlayerNumber = pid;
 
         // Create a string using the correct color that says 'PLAYER 1' etc based on the tank's color and the player's number.
         m_ColoredPlayerText = "<color=#" + ColorUtility.ToHtmlStringRGB(m_PlayerColor) + ">PLAYER " + pid + "</color>";

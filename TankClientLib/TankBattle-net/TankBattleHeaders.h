@@ -39,6 +39,7 @@ namespace tankNet
 	struct TankTacticalInfo
 	{
 		int playerID;
+        int isAlive;
 
 		int inSight;
 		float lastKnownPosition[3];

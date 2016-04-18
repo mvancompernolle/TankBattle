@@ -5,6 +5,7 @@ namespace UnityGame.Tanks
 {
     public class TankHealth : MonoBehaviour, IDamageable
     {
+        public int m_PlayerNumber = -1;                      // Used to identify which tank belongs to which player.  This is set by this tank's manager.
         public float m_StartingHealth = 100f;               // The amount of health each tank starts with.
         public Slider m_Slider;                             // The slider to represent how much health the tank currently has.
         public Image m_FillImage;                           // The image component of the slider.
@@ -15,10 +16,10 @@ namespace UnityGame.Tanks
         
         private AudioSource m_ExplosionAudio;               // The audio source to play when the tank explodes.
         private ParticleSystem m_ExplosionParticles;        // The particle system the will play when the tank is destroyed.
-        public float m_CurrentHealth { private set; get; }                      // How much health the tank currently has.
+        public float m_CurrentHealth { private set; get; }  // How much health the tank currently has.
         private bool m_Dead;                                // Has the tank been reduced beyond zero health yet?
 
-
+        private float m_DeathAlertRadius = 1500f;
 
         private void Awake ()
         {
@@ -74,6 +75,25 @@ namespace UnityGame.Tanks
         {
             // Set the flag so that this function is only called once.
             m_Dead = true;
+
+            var objectsInRange = Physics.OverlapSphere(transform.position, m_DeathAlertRadius, ~(LayerMask.NameToLayer("Players")));
+
+            for (int i = 0; i < objectsInRange.Length; ++i)
+            {
+                var receptor = objectsInRange[i].GetComponent<TankPercepts>();
+                if (receptor != null && receptor.gameObject != gameObject)
+                {
+                    TankTacticalInfo targetRecord = receptor.GetRecord(m_PlayerNumber);
+
+                    // write updated information
+                    targetRecord.lastKnownPosition = transform.position;
+                    targetRecord.lastKnownDirection = (transform.position - receptor.transform.position).normalized;
+
+                    targetRecord.isAlive = 0;
+
+                    receptor.WriteRecord(targetRecord);
+                }
+            }
 
             // Move the instantiated explosion prefab to the tank's position and turn it on.
             m_ExplosionParticles.transform.position = transform.position;

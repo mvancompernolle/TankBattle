@@ -6,7 +6,7 @@ public class TankPercepts : MonoBehaviour
 {
     public Dictionary<int, TankTacticalInfo> reconInfo = new Dictionary<int, TankTacticalInfo>();
 
-    public float VisionRadius;
+    public float VisionRadius = 300f;
 
     [SerializeField]
     private Transform eyePoint;
@@ -26,6 +26,7 @@ public class TankPercepts : MonoBehaviour
         {
             record = new TankTacticalInfo();
             record.playerID = playerID;
+            record.isAlive = 1;
             reconInfo[playerID] = record;
         }
 
@@ -58,8 +59,8 @@ public class TankPercepts : MonoBehaviour
                 RaycastHit hit;
 
                 // is it within view?
-                if (Vector3.Angle(eyePoint.forward, direction) < eyeFOV &&
-                    Physics.Raycast(transform.position, direction, out hit) &&
+                if (Vector3.Angle(eyePoint.forward, direction) < eyeFOV / 2f &&
+                    Physics.Raycast(eyePoint.transform.position, direction, out hit) &&
                     hit.collider == ping)
                 {
                     var tankComponent = hit.collider.GetComponent<TankMovement>();
@@ -90,6 +91,7 @@ public class TankPercepts : MonoBehaviour
     }
     void OnDrawGizmos()
     {
+        // display known enemy information
         foreach (var enemy in reconInfo.Values)
         {
             Debug.DrawLine(transform.position, transform.position + (enemy.lastKnownDirection * 5f), Color.green);

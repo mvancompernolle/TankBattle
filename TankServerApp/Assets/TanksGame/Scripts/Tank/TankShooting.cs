@@ -27,7 +27,7 @@ namespace UnityGame.Tanks
         private float m_FireCooldown = 5.0f;        // How long is the cooldown between fires?
         private bool m_IsFireOnCooldown;            // Is the tank currently on cooldown for firing?
 
-        private float m_NoiseRadius = 100f;         // Radius in which to broadcast firing events.
+        private float m_NoiseRadius = 1500f;        // Radius in which to broadcast firing events.
 
         IEnumerator StartGunCooldown(float cooldownTimer)
         {
@@ -91,6 +91,7 @@ namespace UnityGame.Tanks
 
                         // write updated information
                         targetRecord.lastKnownPosition = transform.position;
+                        targetRecord.lastKnownDirection = (transform.position - percepts.transform.position).normalized;
 
                         percepts.WriteRecord(targetRecord);
                     }
