@@ -10,7 +10,7 @@ Byte Offset | Field                              | Description
 12          | int fireWish                       | Is the tank attempting to fire?
 16          | int messageLength                  | Number of bytes for this message. (Currently not used)
 
-**TankBattleTacticalInfo**
+**TankTacticalInfo**
 
 Byte Offset | Field                              | Description
 ------------|------------------------------------|-------------------------------
@@ -19,16 +19,17 @@ Byte Offset | Field                              | Description
 8           | Vector3 lastKnownPosition          | The last known position of the enemy tank.
 20          | Vector3 lastKnownDirection         | The last known direction of the enemy tank, relative to the player's tank.
 
-**Conditions**
-1. A tank is registered for the first time any information is known for that
-particular tank.
-2. The last known position for a tank is changed when one of the following is met:
-  - The enemy tank is in the view of the tank cannon.
-  - The enemy tank has fired.
-3. The last known direction for a tank is changed when one of the following is met:
-  - The enemy tank is in the view of the tank cannon.
-  - The enemy tank is moving (not turning) within a 20m radius.
-  - The enemy tank has fired.
+*Conditions*  
+
+- A tank is registered and added to the array of tactical information upon first
+contact in any form (auditory or visual or "psychic").
+- The last known position for a tank is changed when one of the following is met:  
+  - The enemy tank is in the view of the tank cannon.  
+  - The enemy tank has fired.  
+  - The enemy tank has been defeated.
+- The last known direction for a tank is changed when one of the following is met:  
+  - Any of the conditions for updating the last known position of a tank.
+  - The enemy tank is moving (not turning) within a 20m radius.  
 
 **TankBattleStateInfo**  
 
@@ -44,46 +45,59 @@ Byte Offset | Field                              | Description
 52          | int tacticalCount                  | How many tanks have been recorded into the reconnaissance log?
 56          | TankTacticalInfo tacticalData[3]   | An array of tactical info.
 
-**tankNet**
+## tankNet
 
 ### init
 
 ```C++
-bool init(int port, char * address="127.0.0.1");
+// Attempts to locate and form a TCP connection with the server
+// - serverAddress :: IP address of server, defaults to 127.0.0.1 (AKA localhost)
+// - serverPort :: listening port on server
+// Returns true if the host server could be resolved, otherwise returns false
+bool init(char * serverAddress="127.0.0.1", int serverPort = 11100);
 ```
 
 ### update
 
 ```C++
-bool update(double timeout=0.0);
+// Sends data upstream and checks the TCP queue for any information
+// - timeToBlock :: Time in seconds to block execution while waiting for information.
+// Returns false if an error has occurred, otherwise returns true.
+bool update(double timeToBlock=0.0);
 ```
 
 ### send
 
 ```C++
-void send(TankBattleCommand output);
+// Enqueues a tank command for transmission to the server on the next update.
+void send(TankBattleCommand command);
 ```
 
 ### recieve
 
 ```C++
+// Pulls the latest state information recieved from the server.
+// Returns a pointer to the last state data recieved. This does NOT force a state update.
 TankBattleStateData * recieve();
 ```
 
 ### isConnected
 
 ```C++
+// Returns true if tankNet is currently connected to a server.
 bool isConnected();
 ```
 
 ### isProvisioned
 
 ```C++
+// Returns true if tankNet has recieved at last one valid state update from the server.
 bool isProvisioned();
 ```
 
 ### term
 
 ```C++
+// Forcibly closes the socket to the server and executes tankNet cleanup routines.
 void term();
 ```

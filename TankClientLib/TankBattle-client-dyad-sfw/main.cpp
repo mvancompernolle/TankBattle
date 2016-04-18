@@ -64,7 +64,7 @@ int main(int argc, char** argv)
         tankNet::init(serverIPAddress);
     }
 
-    while (!tankNet::isProvisioned() && tankNet::isConnected())
+    while (!tankNet::isProvisioned())
     {
 		// block further execution until the server responds
 		// or until the client gives up on connecting
