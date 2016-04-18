@@ -30,7 +30,8 @@ namespace tankNet
 
 		// HACK: discard this transmission
 		// develop a better messaging protocol
-		if (msg->messageLength <= 0)
+		if (msg->messageLength <= 0 ||
+            msg->messageLength <= sizeof(TankBattleStateData))
 			return;
 
         // TODO: RTCs
