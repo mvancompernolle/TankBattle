@@ -72,6 +72,7 @@ public class TankPercepts : MonoBehaviour
                     targetRecord.lastKnownDirection = (hit.transform.position - transform.position).normalized;
                     targetRecord.lastKnownTankForward = hit.transform.forward;
                     targetRecord.lastKnownCannonForward = hit.transform.GetComponent<CannonMovement>().cannon.transform.forward;    // HACK: gross
+                    targetRecord.health = hit.transform.GetComponent<TankHealth>().m_Status;
 
                     WriteRecord(targetRecord);
                 }

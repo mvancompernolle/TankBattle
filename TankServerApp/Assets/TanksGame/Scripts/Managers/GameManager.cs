@@ -66,6 +66,8 @@ namespace UnityGame.Tanks
 
             newPlayerController.m_SpawnPoint = m_SpawnPoints[newPlayerController.pid];
 
+            
+
             return newPlayerController;
         }
         public void RemovePlayer(TankPlayerController controller)

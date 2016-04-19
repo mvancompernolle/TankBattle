@@ -21,13 +21,14 @@ Byte Offset | Field                              | Description
 24          | Vector3 lastKnownDirection         | The last known direction of the enemy tank, relative to the player's tank.
 36          | Vector3 lastKnownForward           | The last known forward direction of the enemy tank.
 48          | Vector3 lastKnownCannonForward     | The last known forward direction of the enemy tank's cannon.
+60          | HealthStatus status                | An approximation of the enemy's health.
 
 *Conditions*  
 
 - Information on an enemy tank is recorded when any of the following conditions
 are met.
-- The last known tank _position_ and _forward_ values are changed when one of the
-following is met:  
+- The last known tank _position_, _forward_, and _health_ values are changed
+when one of the following is met:  
   - The enemy tank is in the view of the tank cannon.  
     - The field-of-view (FOV) for the tank cannon is 90 degrees.
     - The vision distance limit is 300m.

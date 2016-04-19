@@ -26,6 +26,14 @@ namespace tankNet
 		RIGHT
 	};
 
+    enum class TankHealthStatus
+    {
+        DEAD,
+        CRITICAL,
+        HURT,
+        HEALTHY
+    };
+
 	struct TankBattleCommand
 	{
 		TankBattleMessage msg;              // declare message type
@@ -47,6 +55,8 @@ namespace tankNet
 
 		float lastKnownTankForward[3];		// TODO: implement lastKnownTankForward
 		float lastKnownCannonForward[3];	// TOOD: implement lastKnownCannonForward
+
+        TankHealthStatus health;
 	};
 
 	struct TankBattleStateData

@@ -25,6 +25,14 @@ public enum CannonMovementOptions
     RIGHT
 }
 
+public enum HealthStatus
+{
+    DEAD,
+    CRITICAL,
+    HURT,
+    HEALTHY
+}
+
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct TankBattleCommand
 {
@@ -48,6 +56,8 @@ public struct TankTacticalInfo
 
     public Vector3 lastKnownTankForward;
     public Vector3 lastKnownCannonForward;
+
+    public HealthStatus health;
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]

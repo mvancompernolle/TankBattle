@@ -20,6 +20,22 @@ namespace UnityGame.Tanks
         private bool m_Dead;                                // Has the tank been reduced beyond zero health yet?
 
         private float m_DeathAlertRadius = 1500f;
+        public const float m_HealthyThreshold = 0.7f;
+        public const float m_HurtThreshold = 0.3f;
+
+        public HealthStatus m_Status
+        {
+            get
+            {
+                float remainingHealthPercentage = m_CurrentHealth / m_StartingHealth;
+
+                return remainingHealthPercentage > m_HealthyThreshold ? HealthStatus.HEALTHY :
+                       remainingHealthPercentage > m_HurtThreshold ? HealthStatus.HURT :
+                       remainingHealthPercentage > 0f ? HealthStatus.CRITICAL :
+                       HealthStatus.DEAD;
+                        
+            }
+        }
 
         private void Awake ()
         {
