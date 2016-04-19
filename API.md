@@ -9,6 +9,7 @@ Byte Offset | Field                              | Description
 8           | CannonMovementOptions cannonMove   | Movement direction command for the cannon.
 12          | int fireWish                       | Is the tank attempting to fire?
 16          | int messageLength                  | Number of bytes for this message. (Currently not used)
+20          | int playerCount                    | Number of players currently participating in the battle.
 
 **TankTacticalInfo**
 
@@ -22,7 +23,7 @@ Byte Offset | Field                              | Description
 36          | Vector3 lastKnownForward           | The last known forward direction of the enemy tank.
 48          | Vector3 lastKnownCannonForward     | The last known forward direction of the enemy tank's cannon.
 60          | HealthStatus status                | An approximation of the enemy's health.
-64          | int playerCount                    | Number of players currently participating in the battle.
+
 *Conditions*  
 
 - Information on an enemy tank is recorded when any of the following conditions
