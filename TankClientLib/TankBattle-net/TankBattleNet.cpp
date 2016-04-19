@@ -31,7 +31,7 @@ namespace tankNet
 		// HACK: discard this transmission
 		// develop a better messaging protocol
 		if (msg->messageLength <= 0 ||
-            msg->messageLength <= sizeof(TankBattleStateData))
+            msg->messageLength < sizeof(TankBattleStateData))
 			return;
 
         // TODO: RTCs
@@ -116,7 +116,7 @@ namespace tankNet
 
     void send(TankBattleCommand command)
     {
-        if (!isProvisioned)
+        if (!isConnected)
             return;
 
         const int msgSize = sizeof(TankBattleCommand);
