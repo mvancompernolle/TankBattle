@@ -53,8 +53,8 @@ namespace tankNet
 		float lastKnownPosition[3];
 		float lastKnownDirection[3];
 
-		float lastKnownTankForward[3];		// TODO: implement lastKnownTankForward
-		float lastKnownCannonForward[3];	// TOOD: implement lastKnownCannonForward
+		float lastKnownTankForward[3];
+		float lastKnownCannonForward[3];
 
         TankHealthStatus health;
 	};
@@ -88,5 +88,7 @@ namespace tankNet
 			TACTICOOL_ARRAY = TACTICOOL_COUNT + sizeof(int),
 			END				= TACTICOOL_ARRAY + sizeof(TankTacticalInfo *)
 		};
+
+        int playerCount;
 	};
 }

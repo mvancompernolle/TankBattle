@@ -97,6 +97,7 @@ public class NetGameMode : MonoBehaviour
             stateMsg.canFire        = netPlayerController.TankFire.CanFire() ? 1 : 0;
             stateMsg.perceptCount   = percepts.reconInfo.Count;
             stateMsg.percepts       = new TankTacticalInfo[3];
+            stateMsg.playerCount    = gameManager.m_CombatantCount;
 
             int perceptSlot = 0;
             foreach(var reconRecord in percepts.reconInfo.Values)

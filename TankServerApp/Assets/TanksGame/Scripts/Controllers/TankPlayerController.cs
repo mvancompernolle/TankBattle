@@ -7,16 +7,6 @@ public class TankPlayerController : PlayerController
     public IFireable TankFire;
     public IDamageable TankHealth;
 
-    public void Fire()
-    {
-        TankFire.Fire();
-    }
-
-    public void RotateRight(float value)
-    {
-        TankGun.TurnRight(value);
-    }
-
     // This class is to manage various settings on a tank.
     // It works with the GameManager class to control how the tanks behave
     // and whether or not players have control of their tank in the 
@@ -31,10 +21,10 @@ public class TankPlayerController : PlayerController
     [HideInInspector]
     public int m_Wins;                    // The number of wins this player has so far.
 
-    public TankMovement m_Movement;                        // Reference to tank's movement script, used to disable and enable control.
-    public TankShooting m_Shooting;                        // Reference to tank's shooting script, used to disable and enable control.
-    public TankPercepts m_Percepts;                        // Reference to tank's percepts script, used to reset and clear information.
-    public TankHealth m_Health;
+    public TankMovement m_Movement;                         // Reference to tank's movement script, used to disable and enable control.
+    public TankShooting m_Shooting;                         // Reference to tank's shooting script, used to disable and enable control.
+    public TankPercepts m_Percepts;                         // Reference to tank's percepts script, used to reset and clear information.
+    public TankHealth m_Health;                             // Reference to tank's health script, used to track and report deaths.
     private GameObject m_CanvasGameObject;                  // Used to disable the world space UI during the Starting and Ending phases of each round.
 
     public void Setup()
@@ -102,5 +92,15 @@ public class TankPlayerController : PlayerController
 
         m_Instance.SetActive(false);
         m_Instance.SetActive(true);
+    }
+
+    public void Fire()
+    {
+        TankFire.Fire();
+    }
+
+    public void RotateRight(float value)
+    {
+        TankGun.TurnRight(value);
     }
 }

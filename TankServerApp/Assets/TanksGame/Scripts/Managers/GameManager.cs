@@ -31,6 +31,9 @@ namespace UnityGame.Tanks
         [SerializeField]
         private Transform[] m_SpawnPoints;
 
+        [SerializeField]
+        private Color[] m_PlayerColors;
+
         public int m_MinimumPlayerCount = 2;
         public int m_ActivePlayerCount
         {
@@ -40,6 +43,7 @@ namespace UnityGame.Tanks
             }
         }
         public int m_MaximumPlayerCount = 4;
+        public int m_CombatantCount { get; private set; }
 
         private void Start()
         {
@@ -63,10 +67,8 @@ namespace UnityGame.Tanks
             m_PlayerControllers.Add(newPlayerController);
             newPlayerController.isActive = true;
             newPlayerController.pid = m_PlayerControllers.Count - 1;
-
+            newPlayerController.m_PlayerColor = m_PlayerColors[m_ActivePlayerCount - 1];
             newPlayerController.m_SpawnPoint = m_SpawnPoints[newPlayerController.pid];
-
-            
 
             return newPlayerController;
         }
@@ -128,6 +130,8 @@ namespace UnityGame.Tanks
         }
         private IEnumerator RoundStarting ()
         {
+            m_CombatantCount = m_ActivePlayerCount;
+
             // As soon as the round starts reset the tanks and make sure they can't move.
             ResetAllTanks ();
             DisableTankControl ();

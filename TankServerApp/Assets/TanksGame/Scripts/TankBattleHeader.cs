@@ -79,4 +79,6 @@ public struct TankBattleStateData
 
     [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 3)]
     public TankTacticalInfo[] percepts;
+
+    public int playerCount;
 }
