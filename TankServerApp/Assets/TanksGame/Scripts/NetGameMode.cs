@@ -84,8 +84,7 @@ public class NetGameMode : MonoBehaviour
 
             var percepts = netPlayerPawn.GetComponent<TankPercepts>();
 
-            int packetSize = DataUtils.SizeOf<TankBattleStateData>() +
-                             DataUtils.SizeOf<TankTacticalInfo>() * percepts.reconInfo.Count;
+            int packetSize = DataUtils.SizeOf<TankBattleStateData>();
 
             var stateMsg = new TankBattleStateData();
             stateMsg.messageLength  = packetSize;
