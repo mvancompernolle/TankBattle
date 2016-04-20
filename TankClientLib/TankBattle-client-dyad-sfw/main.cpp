@@ -3,6 +3,7 @@
 
 #include "TankBattleNet.h"
 #include "sfwdraw.h"
+#include "Agent.h"
 #undef NONE     // sfw defines NONE as one of its colors; we won't be needing that
 
 using std::stringstream;
@@ -74,6 +75,8 @@ int main(int argc, char** argv)
     // if a connection was successful...
     if (tankNet::isConnected() && tankNet::isProvisioned())
     {
+		bool playerControlled = false;
+		Agent agent;
         auto serverData = tankNet::recieve();
 
         // initialize SFW and assets
@@ -115,13 +118,15 @@ int main(int argc, char** argv)
 
             // prepare message
             tankNet::TankBattleCommand ex;
-            ex.msg = tankNet::TankBattleMessage::NONE;
-            ex.tankMove = tankNet::TankMovementOptions::HALT;
-            ex.cannonMove = tankNet::CannonMovementOptions::HALT;
 
             // poll for input
-            if (inputPressed())
+            if (inputPressed() && playerControlled)
             {
+				// init tank command
+				ex.msg = tankNet::TankBattleMessage::NONE;
+				ex.tankMove = tankNet::TankMovementOptions::HALT;
+				ex.cannonMove = tankNet::CannonMovementOptions::HALT;
+
                 // tank actions
                 ex.tankMove = sfw::getKey(TANK_FWRD) ? tankNet::TankMovementOptions::FWRD :
                     sfw::getKey(TANK_BACK) ? tankNet::TankMovementOptions::BACK :
@@ -142,6 +147,10 @@ int main(int argc, char** argv)
                     break;
                 }
             }
+			else {
+				// have agent control tank
+				ex = agent.update( *state );
+			}
 
             // begin transmission
             tankNet::send(ex);
