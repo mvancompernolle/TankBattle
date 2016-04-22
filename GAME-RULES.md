@@ -53,7 +53,7 @@ All players will be dropped from the server and the level will be reloaded.
 
 ## Map and Tiles
 
-![docs/MapDiagram.png](A diagram of the game map.)
+![A diagram of the game map.](docs/MapDiagram.png)
 
 - Map
     - Dimensions
