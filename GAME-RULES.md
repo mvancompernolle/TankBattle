@@ -44,7 +44,7 @@ All players will be dropped from the server and the level will be reloaded.
 #### Cannon
 - Turn Speed: 1 _degrees/second_
 
-### Bullet
+### Shell
 
 - Dimensions (LxHxW)
   - 0.3m x 0.3m x 0.55m
@@ -63,5 +63,9 @@ All players will be dropped from the server and the level will be reloaded.
     - Dimensions
         - 10m x 10m
     - Types
-        - Damage Over Time (DOT) field
+        - Goo
+            - Effect: Slowing field
+                - 0.2x Tank Turn Speed
+                - 0.3x Move Speed
         - Obstacle
+            - Effect: Blocks Tank Vision, Tanks, and Shells

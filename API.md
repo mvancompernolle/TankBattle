@@ -32,12 +32,12 @@ are met.
 when one of the following is met:  
   - The enemy tank is in the view of the tank cannon.  
     - The field-of-view (FOV) for the tank cannon is 90 degrees.
-    - The vision distance limit is 300m.
+    - The vision distance limit is 50m.
   - The enemy tank has fired within 1500m of your tank.  
   - The enemy tank has been defeated.
 - The last known tank _direction_ value is changed when one of the following is met:  
   - Any of the conditions for updating the last known position and forward of a tank.
-  - The enemy tank is moving (not turning) within a 200m radius.  
+  - The enemy tank is moving (not turning) within a 30m radius.  
 - The last known cannon _forward_ value is changed when one of the following is met:
   - Any of the conditions for updating the last known position and forward of a tank.
   - The enemy tank has fired within 1500m of your tank.
