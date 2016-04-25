@@ -127,7 +127,7 @@ namespace UnityGame.Tanks
                 {
                     m_IsFireOnCooldown = true;
 
-                    Launch();
+                    Launch(true);
                     StartCoroutine(StartGunCooldown(m_FireCooldown));
                 }
             }
