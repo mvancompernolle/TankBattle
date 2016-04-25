@@ -170,7 +170,7 @@ namespace UnityGame.Tanks
             switch (terrainType)
             {
                 case TerrainType.GOO:
-                    return 0.0f;
+                    return 0.2f;
                 case TerrainType.SAND:
                     return 1.0f;
                 default:
