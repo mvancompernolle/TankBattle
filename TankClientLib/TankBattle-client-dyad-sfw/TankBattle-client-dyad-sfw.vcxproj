@@ -134,7 +134,14 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AutoAgent.h" />
+    <ClInclude Include="Graph.h" />
+    <ClInclude Include="Grid.h" />
+    <ClInclude Include="HumanAgent.h" />
+    <ClInclude Include="IAgent.h" />
+    <ClInclude Include="Solver.h" />
     <ClInclude Include="TankBattleHeader.h" />
+    <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
