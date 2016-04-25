@@ -39,7 +39,7 @@ Scores are reset and the match begins anew.
   - includes the cannon
 - Max Speed: 12 _m/s_
 - Turn Speed: 180 _degrees/second_
-- Fires one bullet per second
+- Fire cooldown lasts 0.5 seconds
 
 #### Cannon
 - Turn Speed: 90 _degrees/second_
