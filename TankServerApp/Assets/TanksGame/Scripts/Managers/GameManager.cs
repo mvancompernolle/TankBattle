@@ -71,6 +71,7 @@ namespace UnityGame.Tanks
             newPlayerController.pid = m_PlayerControllers.Count - 1;
             newPlayerController.m_PlayerColor = m_PlayerColors[m_ActivePlayerCount - 1];
             newPlayerController.m_SpawnPoint = m_SpawnPoints[m_ActivePlayerCount - 1];
+            
 
             return newPlayerController;
         }
@@ -324,7 +325,6 @@ namespace UnityGame.Tanks
                 }
             }
         }
-
         private void ResetAllTanks()
         {
             for (int i = 0; i < m_PlayerControllers.Count; i++)
