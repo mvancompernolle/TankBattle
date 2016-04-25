@@ -27,7 +27,7 @@ namespace UnityGame.Tanks
         private float m_TurnInputValue;             // The current value of the turn input.
         private float m_OriginalPitch;              // The pitch of the audio source at the start of the scene.
 
-        private float m_NoiseRadius = 200f;          // Radius for broadcasting movement events
+        public float m_NoiseRadius = 25f;          // Radius for broadcasting movement events
 
         private struct UserInput
         {
