@@ -5,7 +5,7 @@
 ### Waiting for Players
 The game will wait as long as the number of active players is less than the
 minimum number of players required to start the game. The game will begin
-immediately once there is a sufficient number of players. Players will lose
+soon once there is a sufficient number of players. Players will lose
 control of their tank temporarily.
 
 ### Round Start
@@ -28,7 +28,7 @@ be declared victorious and the game will move to the game over phase. Otherwise,
 the game restarts the game, moving back to the round start phase.
 
 ### Game Over
-All players will be dropped from the server and the level will be reloaded.
+Scores are reset and the match begins anew.
 
 ## Entities
 
@@ -42,13 +42,13 @@ All players will be dropped from the server and the level will be reloaded.
 - Fires one bullet per second
 
 #### Cannon
-- Turn Speed: 1 _degrees/second_
+- Turn Speed: 90 _degrees/second_
 
 ### Shell
 
 - Dimensions (LxHxW)
   - 0.3m x 0.3m x 0.55m
-- Max Damage: 100
+- Max Damage: 100 hit points
 - Explosion Radius: 5m
 
 ## Map and Tiles
