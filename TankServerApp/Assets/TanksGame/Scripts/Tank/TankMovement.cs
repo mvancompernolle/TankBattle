@@ -13,6 +13,15 @@ namespace UnityGame.Tanks
         public AudioClip m_EngineDriving;           // Audio to play when the tank is moving.
 		public float m_PitchRange = 0.2f;           // The amount by which the pitch of the engine noises can vary.
 
+        public enum TerrainType
+        {
+            NONE,
+            SAND,
+            GOO
+        }
+
+        private TerrainType currentTerrain;
+
         private Rigidbody m_Rigidbody;              // Reference used to move the tank.
         private float m_MovementInputValue;         // The current value of the movement input.
         private float m_TurnInputValue;             // The current value of the turn input.
@@ -95,6 +104,9 @@ namespace UnityGame.Tanks
 
             _velocity = (transform.position - prevPosition) / Time.deltaTime;
             prevPosition = transform.position;
+            currentTerrain = GetTerrain();
+
+            Debug.Log(currentTerrain);
         }
         private void OnDisable()
         {
@@ -128,6 +140,43 @@ namespace UnityGame.Tanks
                 }
             }
         }
+        private TerrainType GetTerrain()
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position + (Vector3.up), -transform.up, out hit, 5f,
+                ~(LayerMask.NameToLayer("Ground")), QueryTriggerInteraction.Collide))
+            {
+                return hit.collider.CompareTag("Goo") ? TerrainType.GOO : TerrainType.SAND;
+            }
+            else
+            {
+                return TerrainType.NONE;
+            }
+        }
+        private float GetTerrainMoveModifier(TerrainType terrainType)
+        {
+            switch(terrainType)
+            {
+                case TerrainType.GOO:
+                    return 0.3f;
+                case TerrainType.SAND:
+                    return 1.0f;
+                default:
+                    return 0.0f;
+            }
+        }
+        private float GetTerrainTurnModifier(TerrainType terrainType)
+        {
+            switch (terrainType)
+            {
+                case TerrainType.GOO:
+                    return 0.0f;
+                case TerrainType.SAND:
+                    return 1.0f;
+                default:
+                    return 0.0f;
+            }
+        }
 
         private void BroadcastEvents()
         {
@@ -151,7 +200,7 @@ namespace UnityGame.Tanks
         private void Move ()
         {
             // Create a vector in the direction the tank is facing with a magnitude based on the input, speed and the time between frames.
-            Vector3 movement = transform.forward * m_MovementInputValue * m_Speed * Time.deltaTime;
+            Vector3 movement = transform.forward * m_MovementInputValue * (m_Speed * GetTerrainMoveModifier(currentTerrain)) * Time.deltaTime;
 
             // Apply this movement to the rigidbody's position.
             m_Rigidbody.MovePosition(m_Rigidbody.position + movement);
@@ -159,7 +208,7 @@ namespace UnityGame.Tanks
         private void Turn ()
         {
             // Determine the number of degrees to be turned based on the input, speed and time between frames.
-            float turn = m_TurnInputValue * m_TurnSpeed * Time.deltaTime;
+            float turn = m_TurnInputValue * (m_TurnSpeed * GetTerrainTurnModifier(currentTerrain)) * Time.deltaTime;
 
             // Make this into a rotation in the y axis.
             Quaternion turnRotation = Quaternion.Euler (0f, turn, 0f);
