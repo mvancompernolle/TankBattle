@@ -11,6 +11,15 @@ Byte Offset | Field                              | Description
 16          | int messageLength                  | Number of bytes for this message. (Currently not used)
 20          | int playerCount                    | Number of players currently participating in the battle.
 
+**HealthStatus**  
+
+Value    | Threshold
+---------|-----------
+HEALTHY  | > 70%
+HURT     | > 30%
+CRITICAL | > 0%
+DEAD     | <= 0%
+
 **TankTacticalInfo**
 
 Byte Offset | Field                              | Description
@@ -41,7 +50,10 @@ when one of the following is met:
 - The last known cannon _forward_ value is changed when one of the following is met:
   - Any of the conditions for updating the last known position and forward of a tank.
   - The enemy tank has fired within 1500m of your tank.
-
+- The last known tank _health status_ is updated when any of the following
+conditions are met.
+    - When a tank dies.
+    - When a tank is in view.
 
 **TankBattleStateInfo**  
 
