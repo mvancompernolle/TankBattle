@@ -39,14 +39,15 @@ tankNet::TankBattleCommand Agent::update( const tankNet::TankBattleStateData& st
 	// update agent state
 	switch ( cannonState ) {
 	case CannonState::CANNON_INIT: cannonInit(); break;
-	case CannonState::SMART_SCAN: smartScan(); break;
-	case CannonState::ROTATE_SCAN: rotateScan(); break;
-	case CannonState::AIM: aim(); break;
-	case CannonState::FIRE: fire(); break;
+	case CannonState::SMART_SCAN: smartScan(); std::cout << "smart scan" << std::endl; break;
+	case CannonState::ROTATE_SCAN: rotateScan(); std::cout << "rotate scan" << std::endl; break;
+	case CannonState::AIM: aim(); std::cout << "aim" << std::endl; break;
+	case CannonState::FIRE: fire(); std::cout << "fire" << std::endl; break;
 	}
 	switch ( tankState ) {
 	case TankState::TANK_INIT: tankInit(); break;
 	case TankState::WANDER: wander(); break;
+	case TankState::SMART_SCAN_MOVE: smartScanMove(); break;
 	}
 
 	firstFrame = false;
@@ -56,24 +57,55 @@ tankNet::TankBattleCommand Agent::update( const tankNet::TankBattleStateData& st
 
 void Agent::smartScan() {
 	int playerInSight = GetBestAlignedEnemyInSight();
+
 	// no enemy is in sight
 	if ( playerInSight == -1 ) {
+
 		// if enemy positions was updated a reasonable amount of time ago, search for them
-		if ( (knowLocations[smartScanTarget].timePassed * tankSpeed * dt * 0.75f) < reasonableRadius ) {
-			// determine the worst can points the player could be at
+		const float maxOffsetFromLastSighting = knowLocations[smartScanTarget].timePassed * tankSpeed * 0.75f;
+		if ( maxOffsetFromLastSighting < reasonableRadius ) {
+
+			// determine the worst case points the player could be at and turn until it is reach in fov
 			const auto& enemyData = currState.tacticoolData[smartScanTarget];
-			const matth::vec2 targetDir = { enemyData.lastKnownDirection[0], enemyData.lastKnownDirection[2] };
-			const matth::vec2 mostRight = knowLocations[smartScanTarget].pos - targetDir.perp();
-			const matth::vec2 mostLeft = knowLocations[smartScanTarget].pos + targetDir.perp();
+			const matth::vec2 targetOffset = { enemyData.lastKnownDirection[0], enemyData.lastKnownDirection[2] };
+			const matth::vec2 cannonForward = { currState.cannonForward[0], currState.cannonForward[2] };
+			const matth::vec2 perpRightOffset = -( targetOffset.normal().perp() * maxOffsetFromLastSighting );
+
+			if ( scanRotateDir == tankNet::CannonMovementOptions::RIGHT ) {
+				const matth::vec2 mostRight = knowLocations[smartScanTarget].pos + perpRightOffset;
+				// if right scan reaches end point, start scanning left
+				if ( matth::dot(mostRight, cannonForward) >= cos(45.0f * DEGTORAD) || matth::dot(-cannonForward.perp(), mostRight) <= 0.0f) {
+					scanRotateDir = tankNet::CannonMovementOptions::LEFT;
+				}
+			}
+			else {
+				const matth::vec2 mostLeft = knowLocations[smartScanTarget].pos - perpRightOffset;
+				// if left scan reaches end point, start scanning right
+				if ( matth::dot( mostLeft, cannonForward ) >= cos( 45.0f * DEGTORAD ) || matth::dot( cannonForward.perp(), mostLeft ) <= 0.0f ) {
+					scanRotateDir = tankNet::CannonMovementOptions::LEFT;
+				}
+			}
 		}
 		else {
 			scanRotateDir = rand() % 2 == 0 ? tankNet::CannonMovementOptions::RIGHT : tankNet::CannonMovementOptions::LEFT;
 			cannonState = CannonState::ROTATE_SCAN;
+			tankState = TankState::WANDER;
 		}
 	}
 	else {
-
+		// if player is found aim at them
+		targetPlayer = playerInSight;
+		cannonState = CannonState::AIM;
+		tankState = TankState::WANDER;
 	}
+}
+
+void Agent::smartScanMove() {
+	// get direction to the pos the target player was seen
+	const auto& enemyData = currState.tacticoolData[smartScanTarget];
+	const matth::vec2 targetOffset = knowLocations[smartScanTarget].pos - matth::vec2{ currState.position[0], currState.position[2] };
+	const float maxOffsetFromLastSighting = knowLocations[smartScanTarget].timePassed * tankSpeed * 0.75f;
+	moveTo( knowLocations[smartScanTarget].pos - (targetOffset.normal() * maxOffsetFromLastSighting));
 }
 
 void Agent::rotateScan() {
@@ -92,23 +124,28 @@ void Agent::rotateScan() {
 }
 
 void Agent::aim() {
+	// get the last know direction of the enemy tank
 	const auto& enemyData = currState.tacticoolData[targetPlayer];
+	matth::vec2 targetDir = { enemyData.lastKnownDirection[0], enemyData.lastKnownDirection[2] };
+	matth::vec2 myCannonRightVec = -matth::vec2{ currState.cannonForward[0], currState.cannonForward[2] }.perp();
+	float rightDot = matth::dot(myCannonRightVec, targetDir);
+
 	// if target is no longer in line of sight, start scanning
 	if ( !enemyData.inSight ) {
 		scanRotateDir = rand() % 2 == 0 ? tankNet::CannonMovementOptions::RIGHT : tankNet::CannonMovementOptions::LEFT;
 		smartScanTarget = targetPlayer;
+		// pick scan direction based on direction of enemy's last know location
+		scanRotateDir = rightDot >= 0.0f ? tankNet::CannonMovementOptions::RIGHT : tankNet::CannonMovementOptions::LEFT;
 		cannonState = CannonState::SMART_SCAN;
+		tankState = TankState::SMART_SCAN_MOVE;
 		return;
 	}
-
-	// get the last know direction of the enemy tank
-	matth::vec2 targetPos = { enemyData.lastKnownPosition[0], enemyData.lastKnownPosition[2] };
-	matth::vec2 targetDir = { enemyData.lastKnownDirection[0], enemyData.lastKnownDirection[2] };
-	matth::vec2 targetForward = { enemyData.lastKnownTankForward[0], enemyData.lastKnownTankForward[2] };
-	
-	matth::vec2 myCannonRightVec = matth::vec2{ currState.cannonForward[0], currState.cannonForward[2] }.perp();
-	float rightDot = matth::dot(myCannonRightVec, targetDir);
-	command.cannonMove = rightDot <= 0.0f ? tankNet::CannonMovementOptions::RIGHT : tankNet::CannonMovementOptions::LEFT;
+	else {
+		// aim at the target ank if still in sight
+		command.cannonMove = rightDot >= 0.0f ? tankNet::CannonMovementOptions::RIGHT : tankNet::CannonMovementOptions::LEFT;
+	}
+	//matth::vec2 targetPos = { enemyData.lastKnownPosition[0], enemyData.lastKnownPosition[2] };
+	//matth::vec2 targetForward = { enemyData.lastKnownTankForward[0], enemyData.lastKnownTankForward[2] };
 }
 
 void Agent::fire() {
@@ -123,26 +160,11 @@ void Agent::wander() {
 	const matth::vec2 currPos = matth::vec2{ currState.position[0], currState.position[2] };
 	const matth::vec2 currForward = matth::vec2{ currState.forward[0], currState.forward[2] };
 	if ( matth::vec2{ wanderTarget - currPos }.length() < distToTargetSwitch || wanderDt <= 0.0f) {
-		std::cout << "new target" << std::endl;
 		wanderDt = GetRandomFloat( WANDER_MIN, WANDER_MAX );
 		wanderTarget = { GetRandomFloat( mapMin.x, mapMax.x ), GetRandomFloat( mapMin.y, mapMax.y ) };
 	}
 
-	// move forward/backward if almost aligned with target direction
-	const matth::vec2 targetOffset = matth::vec2{ wanderTarget - currPos };
-	const float alignDot = matth::dot( targetOffset.normal(), currForward );
-	const matth::vec2 tankRightVec = -currForward.perp();
-	float rightDot = matth::dot( tankRightVec, targetOffset.normal() );
-	
-	if ( alignDot >= 0.87f ) {
-		command.tankMove = tankNet::TankMovementOptions::FWRD;
-	}
-	else if ( alignDot <= -0.87f ) {
-		command.tankMove = tankNet::TankMovementOptions::BACK;
-	}
-	else {
-		command.tankMove = tankNet::TankMovementOptions::RIGHT;
-	}
+	moveTo( wanderTarget );
 
 	/*
 	//std::cout << "align: " << alignDot << " right: " << rightDot << std::endl;
@@ -217,4 +239,22 @@ int Agent::GetBestAlignedEnemyInSight() const {
 		}
 	}
 	return bestTarget;
+}
+
+void Agent::moveTo( matth::vec2 targetPos ) {
+	// move forward/backward if almost aligned with target direction
+	const matth::vec2 currPos = matth::vec2{ currState.position[0], currState.position[2] };
+	const matth::vec2 currForward = matth::vec2{ currState.forward[0], currState.forward[2] };
+	const matth::vec2 targetOffset = matth::vec2{ targetPos - currPos };
+	const float alignDot = matth::dot( targetOffset.normal(), currForward );
+	const matth::vec2 tankRightVec = -currForward.perp();
+	float rightDot = matth::dot( tankRightVec, targetOffset.normal() );
+
+	if ( alignDot >= 0.87f ) {
+		command.tankMove = tankNet::TankMovementOptions::FWRD;
+	} else if ( alignDot <= -0.87f ) {
+		command.tankMove = tankNet::TankMovementOptions::BACK;
+	} else {
+		command.tankMove = tankNet::TankMovementOptions::RIGHT;
+	}
 }

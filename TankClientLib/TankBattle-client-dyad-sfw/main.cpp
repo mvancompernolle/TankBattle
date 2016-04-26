@@ -119,35 +119,41 @@ int main(int argc, char** argv)
             // prepare message
             tankNet::TankBattleCommand ex;
 
+			// init tank command
+			ex.msg = tankNet::TankBattleMessage::NONE;
+			ex.tankMove = tankNet::TankMovementOptions::HALT;
+			ex.cannonMove = tankNet::CannonMovementOptions::HALT;
+
             // poll for input
-            if (inputPressed() && playerControlled)
+            if (inputPressed())
             {
-				// init tank command
-				ex.msg = tankNet::TankBattleMessage::NONE;
-				ex.tankMove = tankNet::TankMovementOptions::HALT;
-				ex.cannonMove = tankNet::CannonMovementOptions::HALT;
+				if ( sfw::getKey( 'P' ) ) {
+					playerControlled = !playerControlled;
+				}
 
-                // tank actions
-                ex.tankMove = sfw::getKey(TANK_FWRD) ? tankNet::TankMovementOptions::FWRD :
-                    sfw::getKey(TANK_BACK) ? tankNet::TankMovementOptions::BACK :
-                    sfw::getKey(TANK_LEFT) ? tankNet::TankMovementOptions::LEFT :
-                    sfw::getKey(TANK_RIGT) ? tankNet::TankMovementOptions::RIGHT :
-                    tankNet::TankMovementOptions::HALT;
+				if ( playerControlled ) {
 
-                ex.cannonMove = sfw::getKey(CANN_LEFT) ? tankNet::CannonMovementOptions::LEFT :
-                    sfw::getKey(CANN_RIGT) ? tankNet::CannonMovementOptions::RIGHT :
-                    tankNet::CannonMovementOptions::HALT;
+					// tank actions
+					ex.tankMove = sfw::getKey( TANK_FWRD ) ? tankNet::TankMovementOptions::FWRD :
+						sfw::getKey( TANK_BACK ) ? tankNet::TankMovementOptions::BACK :
+						sfw::getKey( TANK_LEFT ) ? tankNet::TankMovementOptions::LEFT :
+						sfw::getKey( TANK_RIGT ) ? tankNet::TankMovementOptions::RIGHT :
+						tankNet::TankMovementOptions::HALT;
 
-                ex.fireWish = sfw::getKey(TANK_FIRE);
+					ex.cannonMove = sfw::getKey( CANN_LEFT ) ? tankNet::CannonMovementOptions::LEFT :
+						sfw::getKey( CANN_RIGT ) ? tankNet::CannonMovementOptions::RIGHT :
+						tankNet::CannonMovementOptions::HALT;
 
-                // game actions
-                if (sfw::getKey(GAME_QUIT))
-                {
-                    ex.msg = tankNet::TankBattleMessage::QUIT;
-                    break;
-                }
+					ex.fireWish = sfw::getKey( TANK_FIRE );
+
+					// game actions
+					if ( sfw::getKey( GAME_QUIT ) ) {
+						ex.msg = tankNet::TankBattleMessage::QUIT;
+						break;
+					}
+				}
             }
-			else {
+			if(!playerControlled) {
 				// have agent control tank
 				ex = agent.update( *state, sfw::getDeltaTime() );
 			}

@@ -13,7 +13,7 @@ class Agent {
 	};
 
 	enum TankState {
-		TANK_INIT, WANDER
+		TANK_INIT, WANDER, SMART_SCAN_MOVE
 	};
 
 public:
@@ -65,8 +65,10 @@ private:
 	// tank base functions
 	void wander();
 	void tankInit();
+	void smartScanMove();
 
 	// util functions
 	float GetRandomFloat( float low, float high ) const;
 	int GetBestAlignedEnemyInSight() const;
+	void moveTo(matth::vec2 targetPos);
 };
