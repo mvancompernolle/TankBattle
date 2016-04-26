@@ -149,7 +149,7 @@ int main(int argc, char** argv)
             }
 			else {
 				// have agent control tank
-				ex = agent.update( *state );
+				ex = agent.update( *state, sfw::getDeltaTime() );
 			}
 
             // begin transmission

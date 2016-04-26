@@ -1,14 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TankBattle-client-dyad-sfw", "TankBattle-client-dyad-sfw\TankBattle-client-dyad-sfw.vcxproj", "{E9EED422-7049-4C27-9539-B426DC98230F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9DEAD430-4754-40D1-ABBB-4D28373985B3} = {9DEAD430-4754-40D1-ABBB-4D28373985B3}
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801} = {1E85D737-485A-4F5C-BD1E-A5CF53EA8801}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TankBattle-net", "TankBattle-net\TankBattle-net.vcxproj", "{9DEAD430-4754-40D1-ABBB-4D28373985B3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MatthLib", "MatthLib\MatthLib.vcxproj", "{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +47,16 @@ Global
 		{9DEAD430-4754-40D1-ABBB-4D28373985B3}.Release|x64.Build.0 = Release|x64
 		{9DEAD430-4754-40D1-ABBB-4D28373985B3}.Release|x86.ActiveCfg = Release|Win32
 		{9DEAD430-4754-40D1-ABBB-4D28373985B3}.Release|x86.Build.0 = Release|Win32
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Debug|x64.ActiveCfg = Debug|x64
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Debug|x64.Build.0 = Debug|x64
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Debug|x86.ActiveCfg = Debug|Win32
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Debug|x86.Build.0 = Debug|Win32
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Release|Any CPU.ActiveCfg = Release|Win32
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Release|x64.ActiveCfg = Release|x64
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Release|x64.Build.0 = Release|x64
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Release|x86.ActiveCfg = Release|Win32
+		{1E85D737-485A-4F5C-BD1E-A5CF53EA8801}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
