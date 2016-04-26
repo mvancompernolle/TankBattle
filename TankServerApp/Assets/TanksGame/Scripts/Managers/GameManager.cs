@@ -11,6 +11,7 @@ namespace UnityGame.Tanks
     public class GameManager : MonoBehaviour
     {
         public int m_NumRoundsToWin = 5;            // The number of rounds a single player has to win to win the game.
+        public float m_ConnectDelay = 5f;           // The delay between RoundWaiting and RoundStarting.
         public float m_StartDelay = 3f;             // The delay between the start of RoundStarting and RoundPlaying phases.
         public float m_EndDelay = 3f;               // The delay between the end of RoundPlaying and RoundEnding phases.
         public float m_RoundTime = 2f;              // The time limit for each round to finish.
@@ -27,6 +28,7 @@ namespace UnityGame.Tanks
         private TankPlayerController m_RoundWinner;          // Reference to the winner of the current round.  Used to make an announcement of who won.
         private TankPlayerController m_GameWinner;           // Reference to the winner of the game.  Used to make an announcement of who won.
         private bool m_RoundInProgress = false;              // Used to determine whether a match is currently occurring.
+        private bool m_NewGame = true;
 
         [SerializeField]
         private Transform[] m_SpawnPoints;
@@ -69,6 +71,7 @@ namespace UnityGame.Tanks
             newPlayerController.pid = m_PlayerControllers.Count - 1;
             newPlayerController.m_PlayerColor = m_PlayerColors[m_ActivePlayerCount - 1];
             newPlayerController.m_SpawnPoint = m_SpawnPoints[m_ActivePlayerCount - 1];
+            
 
             return newPlayerController;
         }
@@ -107,15 +110,17 @@ namespace UnityGame.Tanks
             // This code is not run until 'RoundEnding' has finished.  At which point, check if a game winner has been found.
             if (m_GameWinner != null)
             {
-                // If there is a game winner, restart the level.
-                SceneManager.LoadScene (0);
+                // If there is a game winner, restart the match.
+                ResetAllWins();
+                m_NewGame = true;
+                m_RoundNumber = 0;
             }
-            else
-            {
-                // If there isn't a winner yet, restart this coroutine so the loop continues.
-                // Note that this coroutine doesn't yield.  This means that the current version of the GameLoop will end.
-                StartCoroutine (GameLoop ());
-            }
+            
+            
+            // If there isn't a winner yet, restart this coroutine so the loop continues.
+            // Note that this coroutine doesn't yield.  This means that the current version of the GameLoop will end.
+            StartCoroutine (GameLoop ());
+            
         }
 
         private IEnumerator RoundWaiting ()
@@ -128,9 +133,20 @@ namespace UnityGame.Tanks
                 m_MessageText.text = "WAITING FOR " + (m_MinimumPlayerCount - m_ActivePlayerCount) + " PLAYERS";
                 yield return null;
             }
+
+            float timeToStart = m_ConnectDelay;
+            while(timeToStart > 0.0f && m_NewGame)
+            {
+                timeToStart -= Time.deltaTime;
+
+                m_MessageText.text = "MATCH START IN\n" + (int)timeToStart;
+                yield return null;
+            }
+            
         }
         private IEnumerator RoundStarting ()
         {
+            m_NewGame = false;
             m_CombatantCount = m_ActivePlayerCount;
 
             // As soon as the round starts reset the tanks and make sure they can't move.
@@ -299,6 +315,16 @@ namespace UnityGame.Tanks
         }
 
         // This function is used to turn all the tanks back on and reset their positions and properties.
+        private void ResetAllWins()
+        {
+            for (int i = 0; i < m_PlayerControllers.Count; i++)
+            {
+                if (m_PlayerControllers[i].isActive)
+                {
+                    m_PlayerControllers[i].m_Wins = 0;
+                }
+            }
+        }
         private void ResetAllTanks()
         {
             for (int i = 0; i < m_PlayerControllers.Count; i++)

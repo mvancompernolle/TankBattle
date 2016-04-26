@@ -68,7 +68,14 @@ public class NetGameMode : MonoBehaviour
         }
 
         // remove events processed
-        connectionSocket.events.RemoveRange(0, readCount);
+        try
+        {
+            connectionSocket.events.RemoveRange(0, readCount);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning(ex.InnerException + ex.StackTrace);
+        }
         connectionSocket.paused = false;
     }
     void UpdateClients()
@@ -84,8 +91,7 @@ public class NetGameMode : MonoBehaviour
 
             var percepts = netPlayerPawn.GetComponent<TankPercepts>();
 
-            int packetSize = DataUtils.SizeOf<TankBattleStateData>() +
-                             DataUtils.SizeOf<TankTacticalInfo>() * percepts.reconInfo.Count;
+            int packetSize = DataUtils.SizeOf<TankBattleStateData>();
 
             var stateMsg = new TankBattleStateData();
             stateMsg.messageLength  = packetSize;

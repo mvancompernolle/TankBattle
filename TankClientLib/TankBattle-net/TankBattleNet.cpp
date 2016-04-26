@@ -31,7 +31,7 @@ namespace tankNet
 		// HACK: discard this transmission
 		// develop a better messaging protocol
 		if (msg->messageLength <= 0 ||
-            msg->messageLength < sizeof(TankBattleStateData))
+            msg->messageLength != sizeof(TankBattleStateData))
 			return;
 
         // TODO: RTCs
@@ -92,6 +92,9 @@ namespace tankNet
     {
         if (_isErrored)
             return false;
+        
+        if (dyad_getStreamCount() < 1)
+            _isConnected = false;
 
         dyad_setUpdateTimeout(timeToBlock);
         dyad_update();

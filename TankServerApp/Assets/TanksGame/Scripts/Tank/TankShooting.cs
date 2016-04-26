@@ -127,7 +127,7 @@ namespace UnityGame.Tanks
                 {
                     m_IsFireOnCooldown = true;
 
-                    Launch();
+                    Launch(true);
                     StartCoroutine(StartGunCooldown(m_FireCooldown));
                 }
             }
@@ -135,6 +135,7 @@ namespace UnityGame.Tanks
         private void FixedUpdate()
         {
             BroadcastEvents();
+            //Debug.Log(m_PlayerNumber + "::" + m_FireTransform.parent.forward);
         }
     }
 }

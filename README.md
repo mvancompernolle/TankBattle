@@ -15,6 +15,8 @@ and the server will process them every FixedUpdate. After processing, the server
 will update each client, sending everyone a new snapshot of the current state of
 their tank. Its codebase is compiled against _Unity3D v5.3.2f1_.
 
+The game rules and other specifications can be reviewed in the [documentation](GAME-RULES.md).
+
 **TankBattle-net** contains the basic C++ networking library for sending commands to the
 server and receiving state updates from the server. It exposes a specific [API](API.md)
 designed to specifically interface with the TankServer. Under the hood,
