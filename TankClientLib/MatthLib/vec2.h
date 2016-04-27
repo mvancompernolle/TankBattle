@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <cfloat>
+#include <iostream>
 
 namespace matth {
 
@@ -53,6 +54,7 @@ namespace matth {
 	vec2 operator/( const vec2& lhs, float val );
 	vec2 operator*=( vec2& lhs, float val );
 	vec2 operator/=( vec2& lhs, float val );
+	std::ostream& operator<<( std::ostream& os, const vec2& rhs );
 };
 
 

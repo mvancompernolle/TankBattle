@@ -17,7 +17,7 @@ namespace matth {
 	}
 
 	vec2 vec2::operator-() const {
-		return{ -x, y };
+		return{ -x, -y };
 	}
 
 	vec2 vec2::reflect( const vec2& n ) const {
@@ -128,6 +128,11 @@ namespace matth {
 		lhs.x /= val;
 		lhs.y /= val;
 		return lhs;
+	}
+
+	std::ostream& operator<<( std::ostream& os, const vec2& rhs ) {
+		std::cout << rhs.x << ", " << rhs.y;
+		return os;
 	}
 
 };

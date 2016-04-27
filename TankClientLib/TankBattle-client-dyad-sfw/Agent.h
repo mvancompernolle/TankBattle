@@ -9,11 +9,11 @@ class Agent {
 	};
 
 	enum CannonState {
-		CANNON_INIT, SMART_SCAN, ROTATE_SCAN, AIM, FIRE
+		SMART_SCAN, ROTATE_SCAN, AIM, FIRE
 	};
 
 	enum TankState {
-		TANK_INIT, WANDER, SMART_SCAN_MOVE
+		WANDER, SMART_SCAN_MOVE, HOVER
 	};
 
 public:
@@ -26,14 +26,18 @@ private:
 	tankNet::TankBattleStateData prevState, currState;
 	tankNet::TankBattleCommand command;
 	float dt;
-	LastKnowLocation knowLocations[4];
+	LastKnowLocation knownLocations[4];
 
 	// tank attributes
-	float tankSpeed;
-	float cannonRotateSpeed;
-	float tankRotateSpeed;
-	matth::vec2 mapMin, mapMax;
-	float fieldOfView;
+	const float tankSpeed;
+	const float cannonRotateSpeed;
+	const float tankRotateSpeed;
+	const matth::vec2 mapMin, mapMax;
+	const float fieldOfView;
+	const float fireCooldown;
+	const float explosionRadius;
+	const float visionDist;
+	const float fireDist;
 
 	/////////////////////// CANNON LOGIC VARIABLES /////////////////////////////
 	// init variables
@@ -56,7 +60,6 @@ private:
 	float distToTargetSwitch;
 
 	// cannon functions
-	void cannonInit();
 	void smartScan();
 	void rotateScan();
 	void aim();
@@ -64,11 +67,12 @@ private:
 
 	// tank base functions
 	void wander();
-	void tankInit();
 	void smartScanMove();
+	void hover();
 
 	// util functions
 	float GetRandomFloat( float low, float high ) const;
 	int GetBestAlignedEnemyInSight() const;
 	void moveTo(matth::vec2 targetPos);
+	int GetSmartTarget() const;
 };

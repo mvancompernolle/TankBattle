@@ -92,9 +92,6 @@ namespace tankNet
     {
         if (_isErrored)
             return false;
-        
-        if (dyad_getStreamCount() < 1)
-            _isConnected = false;
 
         dyad_setUpdateTimeout(timeToBlock);
         dyad_update();
