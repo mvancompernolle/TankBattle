@@ -1,6 +1,7 @@
 #pragma once
 #include "TankBattleHeaders.h"
 #include "matth.h"
+#include <string>
 
 class Agent {
 	struct LastKnowLocation {
@@ -13,7 +14,7 @@ class Agent {
 	};
 
 	enum TankState {
-		WANDER, SMART_SCAN_MOVE, HOVER
+		WANDER, SMART_SCAN_MOVE, HOVER, AVOID_OBSTACLE
 	};
 
 public:
@@ -40,8 +41,7 @@ private:
 	const float fireDist;
 
 	/////////////////////// CANNON LOGIC VARIABLES /////////////////////////////
-	// init variables
-	float cannonRotateTestTime;
+	CannonState prevCannonState;
 	// rotate scan variables
 	tankNet::CannonMovementOptions scanRotateDir;
 	// smart scan veriables
@@ -51,8 +51,16 @@ private:
 	int targetPlayer;
 
 	/////////////////////// TANK BASE LOGIC VARIABLES //////////////////////////
-	// init variables
-	float tankSpeedTestTime;
+	TankState prevTankState;
+
+	// avoid variables
+	int numFramesMovingSlow;
+	bool wasMovingLastState;
+	matth::vec2 maybeGoodPos;
+	matth::vec2 avoidDir;
+	float avoidDt;
+	float avoidTime;
+
 	// wander variables
 	const int WANDER_MIN, WANDER_MAX;
 	float wanderDt;
@@ -69,10 +77,12 @@ private:
 	void wander();
 	void smartScanMove();
 	void hover();
+	void avoidObstacle();
 
 	// util functions
 	float GetRandomFloat( float low, float high ) const;
 	int GetBestAlignedEnemyInSight() const;
 	void moveTo(matth::vec2 targetPos);
 	int GetSmartTarget() const;
+	void SetTankState( TankState state );
 };
