@@ -108,7 +108,7 @@ void Agent::smartScan() {
 	if ( playerInSight == -1 ) {
 
 		// if enemy positions was updated a reasonable amount of time ago, search for them
-		float maxOffsetFromLastSighting = knownLocations[smartScanTarget].timePassed * tankSpeed * 0.75f;
+		float maxOffsetFromLastSighting = knownLocations[smartScanTarget].timePassed * tankSpeed;
 		maxOffsetFromLastSighting = maxOffsetFromLastSighting < 5.0f ? 5.0f : maxOffsetFromLastSighting;
 
 		if ( maxOffsetFromLastSighting > reasonableRadius || !currState.tacticoolData[smartScanTarget].isAlive) {
@@ -164,7 +164,7 @@ void Agent::smartScanMove() {
 	// get direction to the pos the target player was seen
 	const auto& enemyData = currState.tacticoolData[smartScanTarget];
 	const matth::vec2 targetOffset = knownLocations[smartScanTarget].pos - matth::vec2{ currState.position[0], currState.position[2] };
-	const float maxOffsetFromLastSighting = knownLocations[smartScanTarget].timePassed * tankSpeed * 0.75f;
+	const float maxOffsetFromLastSighting = knownLocations[smartScanTarget].timePassed * tankSpeed;
 	const matth::vec2 smartMoveLoc = knownLocations[smartScanTarget].pos - ( targetOffset.normal() * maxOffsetFromLastSighting * 2.0f );
 
 	if ( smartMoveLoc.x > mapMin.x && smartMoveLoc.x < mapMax.x && smartMoveLoc.y > mapMin.y && smartMoveLoc.y < mapMax.y ) {
@@ -185,16 +185,6 @@ void Agent::rotateScan() {
 		SetTankState(TankState::HOVER);
 		return;
 	}
-	
-	/*
-	smartScanTarget = GetSmartTarget();
-	if ( GetSmartTarget() != -1 ) {
-		scanRotateDir = rand() % 2 == 0 ? tankNet::CannonMovementOptions::RIGHT : tankNet::CannonMovementOptions::LEFT;
-		cannonState = CannonState::SMART_SCAN;
-		tankState = TankState::SMART_SCAN_MOVE;
-		return;
-	}
-	*/
 
 	// rotate the turret in circles until enemy is found
 	command.cannonMove = scanRotateDir;
@@ -365,7 +355,7 @@ int Agent::GetSmartTarget() const {
 		// if player is dead skip
 		if ( !currState.tacticoolData[i].isAlive ) continue;
 
-		float maxOffsetFromLastSighting = loc.timePassed * tankSpeed * 0.75f;
+		float maxOffsetFromLastSighting = loc.timePassed * tankSpeed;
 		if ( maxOffsetFromLastSighting < reasonableRadius ) {
 			const float distToRadius = (loc.pos - matth::vec2{ currState.position[0], currState.position[2] }).length() - maxOffsetFromLastSighting;
 			if ( distToRadius < bestDistance ) {
